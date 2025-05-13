@@ -1,36 +1,77 @@
 using UnityEngine;
 using Firebase;
 using Firebase.Auth;
-using UnityEngine.SceneManagement;
+using Google;  // 保留這行即可
+using System;
+using System.Threading.Tasks;
 
 public class FirebaseInit : MonoBehaviour
 {
-    public static FirebaseAuth Auth { get; private set; }
+    private FirebaseAuth auth;
+    private GoogleSignInConfiguration configuration;
 
-    void Awake()
+    private void Start()
     {
-        DontDestroyOnLoad(gameObject);   // 保持跨場景存在
-#if UNITY_EDITOR
-        Application.runInBackground = true;   // 方便桌機測試
-#endif
+        // 1. 初始化 Firebase
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+        {
+            if (task.Result == DependencyStatus.Available)
+            {
+                FirebaseApp app = FirebaseApp.DefaultInstance;
+                auth = FirebaseAuth.DefaultInstance;
+                Debug.Log("✅ Firebase 初始化完成");
+            }
+            else
+            {
+                Debug.LogError($"❌ Firebase 初始化失敗: {task.Result}");
+            }
+        });
+
+        // 2. 設定 Google Sign-In（請換成你 Firebase Console 中的 Web Client ID）
+        configuration = new GoogleSignInConfiguration
+        {
+            WebClientId = "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+            RequestEmail = true,
+            RequestIdToken = true
+        };
+
+        GoogleSignIn.Configuration = configuration;
+        GoogleSignIn.DefaultInstance.SignOut(); // 避免記住前次帳號
     }
 
-    async void Start()
+    // 3. UI 按鈕觸發的登入方法
+    public void SignInWithGoogle()
     {
-        var status = await FirebaseApp.CheckAndFixDependenciesAsync();
-        if (status == DependencyStatus.Available)
+        Debug.Log("📲 開始 Google 登入流程");
+        GoogleSignIn.DefaultInstance.SignIn().ContinueWith(OnGoogleAuthFinished);
+    }
+
+    private void OnGoogleAuthFinished(Task<GoogleSignInUser> task)
+    {
+        if (task.IsFaulted)
         {
-            Debug.Log("✅ Firebase ready");
-            Auth = FirebaseAuth.DefaultInstance;
-            // 自動帶入已登入帳號（遊戲重新進入時）
-            if (Auth.CurrentUser != null)
+            Debug.LogError("❌ Google 登入失敗：" + task.Exception);
+            return;
+        }
+
+        string idToken = task.Result.IdToken;
+        Credential credential = GoogleAuthProvider.GetCredential(idToken, null);
+
+        auth.SignInWithCredentialAsync(credential).ContinueWith(authTask =>
+        {
+            if (authTask.IsCanceled)
             {
-                SceneManager.LoadScene("MainMenu");
+                Debug.LogError("❌ Firebase 認證被取消");
+                return;
             }
-        }
-        else
-        {
-            Debug.LogError($"❌ Firebase init error: {status}");
-        }
+            if (authTask.IsFaulted)
+            {
+                Debug.LogError("❌ Firebase 認證失敗：" + authTask.Exception);
+                return;
+            }
+
+            FirebaseUser newUser = authTask.Result;
+            Debug.Log($"✅ 登入成功！歡迎：{newUser.DisplayName} ({newUser.Email})");
+        });
     }
 }
