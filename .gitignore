@@ -70,3 +70,81 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+# ========== Unity 官方建議忽略項目 ==========
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+MemoryCaptures/
+Recordings/
+
+# JetBrains Rider plugin（自動產生）
+Assets/Plugins/Editor/JetBrains*
+
+# Visual Studio / VSCode / Rider 設定檔
+.vs/
+.vscode/
+.idea/
+*.sln
+*.csproj
+*.unityproj
+*.user
+*.userprefs
+*.suo
+*.tmp
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.bak
+*.orig
+
+# Unity 崩潰報告 & system info
+sysinfo.txt
+
+# 地址式資源打包檔案（可選擇忽略）
+Assets/StreamingAssets/aa.meta
+Assets/StreamingAssets/aa/*
+Assets/AddressableAssetsData/**/*.bin
+Assets/AddressableAssetsData/**/*.link
+
+# 已建置的發佈檔案
+*.apk
+*.aab
+*.unitypackage
+*.app
+crashlytics-build.properties
+
+# ========== Firebase SDK 建議忽略項目 ==========
+*.bundle
+*.dll
+*.aar
+*.jar
+*.so
+
+# ========== Android 編譯快取與暫存 ==========
+.utmp/
+.gradle/
+cmake-*
+CMakeFiles/
+CMakeCache.txt
+*.cmake
+*.ninja
+*.rules
+build.ninja
+rules.ninja
+
+# ========== 系統層級快取檔案（跨平台） ==========
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========== Git 控制檔案自身 ==========
+.gitattributes
+.gitignore
