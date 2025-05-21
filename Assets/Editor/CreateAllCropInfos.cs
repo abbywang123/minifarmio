@@ -33,13 +33,15 @@ public class CreateAllCropInfos
             created.Add(name, crop);
         }
 
-        Create("草莓", "甜美的草莓", 1.0f, CropType.Normal, SpecialEffectType.NightBoost, "夜間成長加速", 24, 8, 0.6f, 0.15f);
-        Create("玉米", "黃金玉米", 1.2f, CropType.Normal, SpecialEffectType.ExtraGoldOnHarvest, "有機率獲得額外金幣", 26, 6, 0.65f, 0.15f);
+        Create("草莓", "甜美的草莓", 1.0f, CropType.Normal, SpecialEffectType.None, "無特殊效果", 24, 8, 0.6f, 0.15f);
+        Create("玉米", "黃金玉米", 1.2f, CropType.Normal, SpecialEffectType.None, "無特殊效果", 26, 6, 0.65f, 0.15f);
         Create("番茄", "多汁番茄", 1.1f, CropType.Normal, SpecialEffectType.None, "無特殊效果", 24, 8, 0.6f, 0.15f);
-        Create("水稻", "水田作物", 1.3f, CropType.Normal, SpecialEffectType.RainGrowthBoost, "雨天加速成長，抗腐爛", 26, 6, 0.7f, 0.2f);
+        Create("水稻", "水田作物", 1.3f, CropType.Normal, SpecialEffectType.None, "無特殊效果", 26, 6, 0.7f, 0.2f);
         Create("蘿蔔", "根菜類", 1.0f, CropType.Normal, SpecialEffectType.None, "無特殊效果", 20, 7, 0.65f, 0.15f);
+        Create("茄子", "紫色蔬菜，適合溫暖潮濕環境", 1.0f, CropType.Normal, SpecialEffectType.None, "無特殊效果", 25, 7, 0.7f, 0.15f);
         Create("香菇", "陰暗生長", 0.8f, CropType.Magic, SpecialEffectType.AntiRot, "抗腐爛能力強", 18, 5, 0.8f, 0.1f);
-        Create("仙人掌", "沙漠植物", 0.7f, CropType.Magic, SpecialEffectType.StableYield, "產值穩定，不易掉品質", 30, 10, 0.2f, 0.1f);
+        Create("仙人掌", "沙漠植物", 0.7f, CropType.Magic, SpecialEffectType.DroughtResistant, "耐旱能力強，乾燥天氣表現佳", 30, 10, 0.2f, 0.1f);
+
 
         AssetDatabase.SaveAssets();
 

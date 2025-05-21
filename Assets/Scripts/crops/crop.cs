@@ -59,6 +59,11 @@ public class Crop : MonoBehaviour
             case SpecialEffectType.StableYield:
                 quality = Mathf.Clamp(quality, 80f, 100f);
                 break;
+            case SpecialEffectType.DroughtResistant:
+                if (cropInfo.optimalHumidity < 0.3f) // 或用天氣檢查更準確
+                    growthProgress += growthRate * 0.4f;
+                    break;
+
         }
     }
 

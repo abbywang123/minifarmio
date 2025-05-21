@@ -15,8 +15,10 @@ public enum SpecialEffectType
     RainGrowthBoost,
     AntiRot,
     ProduceAuraFertilizer,
-    StableYield
+    StableYield,
+    DroughtResistant
 }
+
 
 [CreateAssetMenu(fileName = "New Crop", menuName = "Crop/Create New Crop")]
 public class CropInfo : ScriptableObject
@@ -32,13 +34,13 @@ public class CropInfo : ScriptableObject
     public float growthRate = 1f;
 
     [Header("環境需求")]
-    public float optimalTemperature = 25f;
-    public float temperatureTolerance = 10f;
+    public float optimalTemperature;
+    public float temperatureTolerance;
+    [Range(0f, 1f)]
+    public float optimalHumidity;
+    [Range(0f, 1f)]
+    public float humidityTolerance;
 
-    [Range(0f, 1f)]
-    public float optimalHumidity = 0.6f;
-    [Range(0f, 1f)]
-    public float humidityTolerance = 0.3f;
 
     [Header("交配與混種")]
     public bool isHybrid = false;
