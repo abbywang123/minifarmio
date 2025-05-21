@@ -9,21 +9,23 @@ public class Crop : MonoBehaviour
     private float quality = 100f;
     private float growthRate => cropInfo.growthRate;
 
-    public void UpdateGrowth(float temperature, string weather, bool isNight)
-    {
-        float tempFactor = Mathf.Clamp01(1 - Mathf.Abs(temperature - 25) / 15);
-        float weatherFactor = (weather == "Rain") ? 0.8f : 1f;
+    public void UpdateGrowth(float temperature, float humidity, string weather, bool isNight)
+{
+    float tempFactor = Mathf.Clamp01(1 - Mathf.Abs(temperature - cropInfo.optimalTemperature) / cropInfo.temperatureTolerance);
+    float humidityFactor = Mathf.Clamp01(1 - Mathf.Abs(humidity - cropInfo.optimalHumidity) / cropInfo.humidityTolerance);
+    float weatherFactor = (weather == "Rain") ? 0.9f : 1f;
 
-        growthProgress += growthRate * tempFactor * weatherFactor;
+    growthProgress += cropInfo.growthRate * tempFactor * humidityFactor * weatherFactor;
 
-        if (weather == "Rain" && Random.value < 0.2f)
-            health -= 10f;
+    if (weather == "Rain" && Random.value < 0.2f)
+        health -= 10f;
 
-        ApplySpecialEffect(weather, isNight);
+    ApplySpecialEffect(weather, isNight);
 
-        if (growthProgress >= 100f)
-            Harvest();
-    }
+    if (growthProgress >= 100f)
+        Harvest();
+}
+
 
     private void ApplySpecialEffect(string currentWeather, bool isNight)
     {
