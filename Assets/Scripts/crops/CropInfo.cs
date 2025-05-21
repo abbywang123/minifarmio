@@ -1,5 +1,11 @@
-// CropInfo.cs
 using UnityEngine;
+
+public enum CropType
+{
+    Normal,
+    Magic,
+    Hybrid
+}
 
 public enum SpecialEffectType
 {
@@ -15,18 +21,33 @@ public enum SpecialEffectType
 [CreateAssetMenu(fileName = "New Crop", menuName = "Crop/Create New Crop")]
 public class CropInfo : ScriptableObject
 {
+    [Header("基本資料")]
     public string cropName;
+    [TextArea(2,5)]
     public string description;
-    public float growthRate;
-    public string cropType; // Normal, Magic, Hybrid
+    public CropType cropType;
     public Sprite icon;
 
-    public CropInfo[] recommendedBreeds;
+    [Header("成長設定")]
+    public float growthRate = 1f;
 
-    public bool isHybrid;
+    [Header("環境需求")]
+    public float optimalTemperature = 25f;
+    public float temperatureTolerance = 10f;
+
+    [Range(0f, 1f)]
+    public float optimalHumidity = 0.6f;
+    [Range(0f, 1f)]
+    public float humidityTolerance = 0.3f;
+
+    [Header("交配與混種")]
+    public bool isHybrid = false;
     public CropInfo parent1;
     public CropInfo parent2;
+    public CropInfo[] recommendedBreeds;
 
-    public SpecialEffectType specialEffect;
-    [TextArea] public string specialEffectDescription;
+    [Header("特殊效果")]
+    public SpecialEffectType specialEffect = SpecialEffectType.None;
+    [TextArea(2,5)]
+    public string specialEffectDescription;
 }
