@@ -9,17 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 18983c253862f9b46a3dba1d7cf3b7d4, type: 3}
   m_Name: "\u8304\u5B50"
-  m_EditorClassIdentifier: Assembly-CSharp-Editor::CropInfo
+  m_EditorClassIdentifier: 
   cropName: "\u8304\u5B50"
-  description: "\u6EAB\u6696\u74B0\u5883\u4E0B\u5FEB\u901F\u751F\u9577"
-  growthRate: 1.1
+  description: "\u7D2B\u8272\u852C\u83DC\uFF0C\u9069\u5408\u6EAB\u6696\u6F6E\u6FD5\u74B0\u5883"
   cropType: 0
   icon: {fileID: 0}
-  recommendedBreeds: []
+  growthRate: 1
+  optimalTemperature: 25
+  temperatureTolerance: 7
+  optimalHumidity: 0.7
+  humidityTolerance: 0.15
   isHybrid: 0
   parent1: {fileID: 0}
   parent2: {fileID: 0}
+  recommendedBreeds: []
   specialEffect: 0
-  specialEffectDescription: 
+  specialEffectDescription: "\u7121\u7279\u6B8A\u6548\u679C"

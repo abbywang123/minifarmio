@@ -25,5 +25,5 @@ MonoBehaviour:
   parent1: {fileID: 0}
   parent2: {fileID: 0}
   recommendedBreeds: []
-  specialEffect: 2
-  specialEffectDescription: "\u6709\u6A5F\u7387\u7372\u5F97\u984D\u5916\u91D1\u5E63"
+  specialEffect: 0
+  specialEffectDescription: "\u7121\u7279\u6B8A\u6548\u679C"
