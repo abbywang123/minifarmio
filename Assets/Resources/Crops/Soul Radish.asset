@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18983c253862f9b46a3dba1d7cf3b7d4, type: 3}
+  m_Name: Soul Radish
+  m_EditorClassIdentifier: 
+  cropName: "\u9B42\u4E4B\u863F\u8514"
+  description: "\u6CE8\u5165\u9748\u9B42\u80FD\u91CF\u7684\u863F\u8514\uFF0C\u53EF\u7522\u51FA\u795E\u79D8\u80A5\u6599\u3002"
+  growthRate: 1
+  cropType: Hybrid
+  icon: {fileID: 0}
+  recommendedBreeds: []
+  isHybrid: 1
+  parent1: {fileID: 11400000, guid: d2fc770ed9b03ab4a83731cefa18adbd, type: 2}
+  parent2: {fileID: 11400000, guid: 69421568248690d41bc98ad6b2454d6d, type: 2}
+  specialEffect: 0
+  specialEffectDescription: "\u6210\u719F\u6642\u6703\u7522\u51FA\u300C\u9748\u6C23\u80A5\u6599\u300D\u3002"
