@@ -1,0 +1,12 @@
+{
+    "name": "Unity.Burst.Editor",
+    "references": [ "Unity.Burst" ],
+    "includePlatforms": [ "Editor" ],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "excludePlatforms": [],
+    "defineConstraints": [],
+    "versionDefines": []
+}
