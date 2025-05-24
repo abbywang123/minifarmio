@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18983c253862f9b46a3dba1d7cf3b7d4, type: 3}
+  m_Name: "\u99AC\u9234\u85AF"
+  m_EditorClassIdentifier: 
+  cropName: "\u99AC\u9234\u85AF"
+  description: "\u8010\u5BD2\u6839\u8396\u4F5C\u7269"
+  cropType: 0
+  icon: {fileID: 21300000, guid: 38f468f23bfd8b242a401bddb967a170, type: 3}
+  growthRate: 1
+  suitableMinTemperature: 15.5
+  suitableMaxTemperature: 20.5
+  suitableMinHumidity: 0.55
+  suitableMaxHumidity: 0.65000004
+  isHybrid: 0
+  parent1: {fileID: 0}
+  parent2: {fileID: 0}
+  recommendedBreeds: []
+  specialEffect: 0
+  specialEffectDescription: "\u7121\u7279\u6B8A\u6548\u679C"

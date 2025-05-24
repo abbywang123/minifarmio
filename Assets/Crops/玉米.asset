@@ -15,12 +15,12 @@ MonoBehaviour:
   cropName: "\u7389\u7C73"
   description: "\u9EC3\u91D1\u7389\u7C73"
   cropType: 0
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 06398e5ebafa921459c62ad971e334a8, type: 3}
   growthRate: 1.2
-  optimalTemperature: 26
-  temperatureTolerance: 6
-  optimalHumidity: 0.65
-  humidityTolerance: 0.15
+  suitableMinTemperature: 23
+  suitableMaxTemperature: 29
+  suitableMinHumidity: 0.575
+  suitableMaxHumidity: 0.72499996
   isHybrid: 0
   parent1: {fileID: 0}
   parent2: {fileID: 0}
