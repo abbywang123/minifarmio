@@ -15,15 +15,15 @@ MonoBehaviour:
   cropName: "\u4ED9\u4EBA\u638C"
   description: "\u6C99\u6F20\u690D\u7269"
   cropType: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 92ffed8eab98fe146bcb77a99ac6a730, type: 3}
   growthRate: 0.7
-  optimalTemperature: 30
-  temperatureTolerance: 10
-  optimalHumidity: 0.2
-  humidityTolerance: 0.1
+  suitableMinTemperature: 25
+  suitableMaxTemperature: 35
+  suitableMinHumidity: 0.15
+  suitableMaxHumidity: 0.25
   isHybrid: 0
   parent1: {fileID: 0}
   parent2: {fileID: 0}
   recommendedBreeds: []
   specialEffect: 7
-  specialEffectDescription: "\u8010\u65F1\u80FD\u529B\u5F37\uFF0C\u4E7E\u71E5\u5929\u6C23\u8868\u73FE\u4F73"
+  specialEffectDescription: "\u8010\u65F1\u80FD\u529B\u5F37"

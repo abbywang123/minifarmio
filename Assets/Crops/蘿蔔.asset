@@ -17,10 +17,10 @@ MonoBehaviour:
   cropType: 0
   icon: {fileID: 0}
   growthRate: 1
-  optimalTemperature: 20
-  temperatureTolerance: 7
-  optimalHumidity: 0.65
-  humidityTolerance: 0.15
+  suitableMinTemperature: 16.5
+  suitableMaxTemperature: 23.5
+  suitableMinHumidity: 0.575
+  suitableMaxHumidity: 0.72499996
   isHybrid: 0
   parent1: {fileID: 0}
   parent2: {fileID: 0}

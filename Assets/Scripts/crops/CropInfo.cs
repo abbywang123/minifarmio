@@ -19,13 +19,12 @@ public enum SpecialEffectType
     DroughtResistant
 }
 
-
 [CreateAssetMenu(fileName = "New Crop", menuName = "Crop/Create New Crop")]
 public class CropInfo : ScriptableObject
 {
     [Header("基本資料")]
     public string cropName;
-    [TextArea(2,5)]
+    [TextArea(2, 5)]
     public string description;
     public CropType cropType;
     public Sprite icon;
@@ -34,13 +33,12 @@ public class CropInfo : ScriptableObject
     public float growthRate = 1f;
 
     [Header("環境需求")]
-    public float optimalTemperature;
-    public float temperatureTolerance;
+    public float suitableMinTemperature;
+    public float suitableMaxTemperature;
     [Range(0f, 1f)]
-    public float optimalHumidity;
+    public float suitableMinHumidity;
     [Range(0f, 1f)]
-    public float humidityTolerance;
-
+    public float suitableMaxHumidity;
 
     [Header("交配與混種")]
     public bool isHybrid = false;
@@ -50,6 +48,6 @@ public class CropInfo : ScriptableObject
 
     [Header("特殊效果")]
     public SpecialEffectType specialEffect = SpecialEffectType.None;
-    [TextArea(2,5)]
+    [TextArea(2, 5)]
     public string specialEffectDescription;
 }
