@@ -1,0 +1,11 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="root" style="flex-grow: 1;" />
+    <ui:ScrollView name="slotContainer" style="width: 100%; height: 300500px; flex-wrap: wrap;" />
+    <ui:Button text="Button" name="slotTemplate">
+        <ui:VisualElement name="icon" style="flex-grow: 1;" />
+        <ui:Label text="Label" name="count" />
+    </ui:Button>
+    <ui:Button text="Button" name="btnClose">
+        <ui:Label text="Label" name="Close" />
+    </ui:Button>
+</ui:UXML>

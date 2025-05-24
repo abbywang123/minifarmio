@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem; // 引入新版 Input System
 
 public class FarmInput : MonoBehaviour
 {
@@ -7,10 +8,14 @@ public class FarmInput : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) // 滑鼠左鍵
+        // 判斷滑鼠左鍵是否剛按下（這一幀）
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero);
+            // 取得滑鼠世界座標
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+
+            // 射線檢查是否打到地板格
+            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
 
             if (hit.collider != null && hit.collider.TryGetComponent<LandTile>(out var tile))
             {
