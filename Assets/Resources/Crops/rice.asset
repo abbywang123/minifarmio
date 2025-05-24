@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18983c253862f9b46a3dba1d7cf3b7d4, type: 3}
-  m_Name: rice
+  m_Name: Rice
   m_EditorClassIdentifier: 
   cropName: "\u6C34\u7A3B"
   description: "\u9700\u8981\u5927\u91CF\u6C34\u5206\u7684\u7A40\u985E\u3002"

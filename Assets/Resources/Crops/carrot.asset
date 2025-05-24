@@ -10,17 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18983c253862f9b46a3dba1d7cf3b7d4, type: 3}
-  m_Name: carrot
+  m_Name: Carrot
   m_EditorClassIdentifier: 
   cropName: "\u863F\u8514"
   description: "\u5730\u4E0B\u6839\u90E8\u690D\u7269\uFF0C\u8106\u751C\u723D\u53E3\u3002"
-  growthRate: 1.1
-  cropType: Normal
+  cropType: 0
   icon: {fileID: 0}
-  recommendedBreeds:
-  - {fileID: 11400000, guid: 69421568248690d41bc98ad6b2454d6d, type: 2}
+  growthRate: 1.1
+  optimalTemperature: 0
+  temperatureTolerance: 0
+  optimalHumidity: 0
+  humidityTolerance: 0
   isHybrid: 0
   parent1: {fileID: 0}
   parent2: {fileID: 0}
+  recommendedBreeds:
+  - {fileID: 11400000, guid: 69421568248690d41bc98ad6b2454d6d, type: 2}
   specialEffect: 0
   specialEffectDescription: 
