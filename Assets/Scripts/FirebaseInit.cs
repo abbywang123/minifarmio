@@ -30,7 +30,7 @@ public class FirebaseInit : MonoBehaviour
         // 2. 設定 Google Sign-In（請換成你 Firebase Console 中的 Web Client ID）
         configuration = new GoogleSignInConfiguration
         {
-            WebClientId = "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+            WebClientId ="482754796623-4igmho92984ucubmhvglcqof8vkv62r4.apps.googleusercontent.com",
             RequestEmail = true,
             RequestIdToken = true
         };
