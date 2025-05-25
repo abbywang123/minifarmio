@@ -774,10 +774,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 8076b6a7-afa4-41e3-b669-3c73adb90d4c
+  cloudProjectId: b96571f0-d087-4b8d-9058-59a6d804725b
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: minifarm 2025-05-04_15-28-50
+  projectName: minifarm
   organizationId: youyiwang01
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
