@@ -3,8 +3,8 @@ using UnityEngine.InputSystem; // 引入新版 Input System
 
 public class FarmInput : MonoBehaviour
 {
-    public GameObject cropPrefab; // 指派 CropRuntime 預製物
-    public CropData selectedCrop; // 指派目前選中的作物資料
+    public GameObject cropPrefab;   // 指派 Crop 預製物
+    public CropInfo selectedCrop;   // ✅ 改為 CropInfo（舊的 CropData 改掉）
 
     void Update()
     {
@@ -24,7 +24,7 @@ public class FarmInput : MonoBehaviour
                     if (!tile.isTilled)
                         tile.Till();
                     else if (tile.CanPlant())
-                        tile.Plant(selectedCrop, cropPrefab);
+                        tile.Plant(selectedCrop, cropPrefab);  // ✅ 現在 selectedCrop 是 CropInfo
                 }
                 else if (tile.plantedCrop.IsMature())
                 {
