@@ -1375,6 +1375,7 @@ MonoBehaviour:
   saveBtn: {fileID: 1157600915}
   loadBtn: {fileID: 1662145326}
   outputText: {fileID: 1569736967}
+  namePanel: {fileID: 1700747526}
 --- !u!1 &1569736965
 GameObject:
   m_ObjectHideFlags: 0
@@ -1409,8 +1410,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -134.62, y: -63.572}
-  m_SizeDelta: {x: 169.2316, y: 27.144}
+  m_AnchoredPosition: {x: 1.0681, y: -114.7082}
+  m_SizeDelta: {x: 440.6079, y: 129.4164}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1569736967
 MonoBehaviour:
@@ -1459,8 +1460,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 25
+  m_fontSizeBase: 25
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
