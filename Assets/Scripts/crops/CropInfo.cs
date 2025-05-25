@@ -50,4 +50,7 @@ public class CropInfo : ScriptableObject
     public SpecialEffectType specialEffect = SpecialEffectType.None;
     [TextArea(2, 5)]
     public string specialEffectDescription;
+
+    [Header("收成物品")]
+    public ItemData harvestItem;  // ✅ 成熟後收成的物品
 }

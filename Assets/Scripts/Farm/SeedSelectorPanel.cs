@@ -16,19 +16,25 @@ public class SeedSelectorPanel : MonoBehaviour
         gameObject.SetActive(true);
         BuildButtons();
     }
+
     void BuildButtons()
     {
         foreach (Transform c in content) Destroy(c.gameObject);
-        foreach (var crop in Resources.LoadAll<CropData>("Crops"))
+
+        foreach (var crop in Resources.LoadAll<CropInfo>("Crops"))  // ✅ 改成 CropInfo
         {
             var btn = Instantiate(seedBtnPrefab, content);
             btn.GetComponentInChildren<Text>().text = crop.cropName;
-            btn.onClick.AddListener(() => Select(crop));
+
+            // 用變數包住 crop，避免閉包錯誤
+            CropInfo captured = crop;
+            btn.onClick.AddListener(() => Select(captured));
         }
     }
-    void Select(CropData data)
+
+    void Select(CropInfo info)
     {
-        currentTile.Plant(data, cropPrefab);
+        currentTile.Plant(info, cropPrefab);
         gameObject.SetActive(false);
     }
 }

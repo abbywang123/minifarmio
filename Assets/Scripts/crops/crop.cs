@@ -7,7 +7,16 @@ public class Crop : MonoBehaviour
     private float growthProgress = 0f;
     private float health = 100f;
     private float quality = 100f;
+
     private float growthRate => cropInfo.growthRate;
+
+    public void Init(CropInfo info)
+    {
+        cropInfo = info;
+        growthProgress = 0f;
+        health = 100f;
+        quality = 100f;
+    }
 
     public void UpdateGrowth(float temperature, float humidity, string weather, bool isNight)
     {
@@ -21,7 +30,7 @@ public class Crop : MonoBehaviour
         float humidityFactor = Mathf.Clamp01(1 - Mathf.Abs(humidity - optimalHumidity) / humidityTolerance);
         float weatherFactor = (weather == "Rain") ? 0.9f : 1f;
 
-        growthProgress += cropInfo.growthRate * tempFactor * humidityFactor * weatherFactor;
+        growthProgress += growthRate * tempFactor * humidityFactor * weatherFactor;
 
         if (weather == "Rain" && Random.value < 0.2f)
             health -= 10f;
@@ -44,7 +53,7 @@ public class Crop : MonoBehaviour
             case SpecialEffectType.ExtraGoldOnHarvest:
                 if (Random.value < 0.2f)
                 {
-                    // PlayerInventory.AddGold(10); // 實作時解除註解
+                    // PlayerInventory.AddGold(10); // 可在這裡加獎勵金
                 }
                 break;
 
@@ -58,7 +67,7 @@ public class Crop : MonoBehaviour
                 break;
 
             case SpecialEffectType.ProduceAuraFertilizer:
-                // PlayerInventory.AddItem("AuraFertilizer"); // 實作時解除註解
+                // PlayerInventory.AddItem("AuraFertilizer"); // 可加特殊道具
                 break;
 
             case SpecialEffectType.StableYield:
@@ -66,7 +75,8 @@ public class Crop : MonoBehaviour
                 break;
 
             case SpecialEffectType.DroughtResistant:
-                if ((cropInfo.suitableMinHumidity + cropInfo.suitableMaxHumidity) / 2f < 0.3f)
+                float avgHumidity = (cropInfo.suitableMinHumidity + cropInfo.suitableMaxHumidity) / 2f;
+                if (avgHumidity < 0.3f)
                     growthProgress += growthRate * 0.4f;
                 break;
         }
@@ -75,6 +85,24 @@ public class Crop : MonoBehaviour
     private void Harvest()
     {
         Debug.Log($"{cropInfo.cropName} 成熟並收成！");
+
+        var player = FindFirstObjectByType<Player>();
+        if (player == null)
+        {
+            Debug.LogWarning("[Crop] 找不到 Player，無法收成。");
+            return;
+        }
+
+        bool ok = player.GetComponent<Inventory>()
+                        .Add(cropInfo.harvestItem, 1);
+
+        if (!ok)
+        {
+            WarehouseManager.Instance.inventory.Add(cropInfo.harvestItem, 1);
+        }
+
         Destroy(gameObject);
     }
+
+    public bool IsMature() => growthProgress >= 100f;
 }

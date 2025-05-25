@@ -3,19 +3,24 @@ using UnityEngine;
 
 public static class CropDatabase
 {
-    private static Dictionary<string, CropData> crops;
+    private static Dictionary<string, CropInfo> crops;
 
-    public static CropData Get(string name)
+    public static CropInfo Get(string name)
     {
         if (crops == null)
         {
-            crops = new Dictionary<string, CropData>();
-            var all = Resources.LoadAll<CropData>("Crops"); // 放在 Resources/Crops 資料夾
+            crops = new Dictionary<string, CropInfo>();
+            var all = Resources.LoadAll<CropInfo>("Crops"); // 放在 Resources/Crops/
             foreach (var crop in all)
             {
                 crops[crop.name] = crop;
             }
         }
-        return crops[name];
+
+        if (crops.TryGetValue(name, out var result))
+            return result;
+
+        Debug.LogError($"[CropDatabase] 找不到名稱為「{name}」的作物資料");
+        return null;
     }
 }
