@@ -15,7 +15,7 @@ MonoBehaviour:
   cropName: "\u5E7B\u5F71\u4ED9\u4EBA\u638C"
   description: "\u5916\u89C0\u5E7B\u8B8A\uFF0C\u7522\u503C\u7A69\u5B9A"
   cropType: 2
-  icon: {fileID: 21300000, guid: a7dfbffc56e1c454187d571398a12e03, type: 3}
+  icon: {fileID: 21300000, guid: 533b5fa7ef856c8418078603ab93b352, type: 3}
   growthRate: 0.9
   suitableMinTemperature: 25
   suitableMaxTemperature: 35

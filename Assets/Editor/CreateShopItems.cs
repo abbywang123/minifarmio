@@ -1,62 +1,113 @@
 using UnityEditor;
 using UnityEngine;
-using System.IO;
 
 public class CreateShopItems
 {
-    [MenuItem("Tools/Create All Shop Items")]
+    [MenuItem("Tools/Create Shop Items")]
     public static void CreateAllShopItems()
     {
-        string cropPath = "Crops";
-        string outputPath = "Assets/Resources/ShopItems";
+        string cropFolder = "Assets/Crops";
+        string shopItemFolder = "Assets/Resources/ShopItems";
 
         if (!AssetDatabase.IsValidFolder("Assets/Resources"))
             AssetDatabase.CreateFolder("Assets", "Resources");
-
-        if (!AssetDatabase.IsValidFolder(outputPath))
+        if (!AssetDatabase.IsValidFolder(shopItemFolder))
             AssetDatabase.CreateFolder("Assets/Resources", "ShopItems");
 
-        var crops = Resources.LoadAll<CropInfo>(cropPath);
+        string[] guids = AssetDatabase.FindAssets("t:CropInfo", new[] { cropFolder });
+        Debug.Log("找到 Crop 數量：" + guids.Length);
 
-        foreach (var crop in crops)
+        foreach (string guid in guids)
         {
-            // Create Seed Item
-            var seed = ScriptableObject.CreateInstance<ShopItemInfo>();
-            seed.itemName = crop.cropName + "種子";
-            seed.itemType = ShopItemType.Seed;
-            seed.linkedCrop = crop;
-            seed.description = $"可以種出{crop.cropName}的種子";
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            CropInfo crop = AssetDatabase.LoadAssetAtPath<CropInfo>(path);
 
-            float tempRange = crop.suitableMaxTemperature - crop.suitableMinTemperature;
-            float humidityRange = crop.suitableMaxHumidity - crop.suitableMinHumidity;
-            float difficulty = (2f - crop.growthRate) + (10f - tempRange) * 0.1f + (1f - humidityRange);
-            seed.sellPrice = Mathf.Clamp(Mathf.RoundToInt(difficulty * 20f), 10, 100);
-            seed.buyPrice = seed.sellPrice + 5;
+            if (crop == null) continue;
 
-            AssetDatabase.CreateAsset(seed, $"{outputPath}/{seed.itemName}.asset");
+            Debug.Log($"➡️ 處理作物：{crop.cropName}");
 
-            // Create Crop Item
-            var harvest = ScriptableObject.CreateInstance<ShopItemInfo>();
-            harvest.itemName = crop.cropName;
-            harvest.itemType = ShopItemType.Crop;
-            harvest.linkedCrop = crop;
-            harvest.description = $"{crop.cropName} 收成品";
-            harvest.sellPrice = seed.sellPrice + 10;
-            harvest.buyPrice = 0; // 作物通常不能直接購買
+            // 建立可購買的種子（非混種）
+            if (!crop.isHybrid)
+            {
+                ShopItemInfo seed = ScriptableObject.CreateInstance<ShopItemInfo>();
+                seed.itemName = crop.cropName + "種子";
+                seed.itemType = ShopItemType.Seed;
+                seed.linkedCrop = crop;
+                seed.icon = crop.icon;
 
-            AssetDatabase.CreateAsset(harvest, $"{outputPath}/{harvest.itemName}.asset");
+                seed.price = EstimateSeedPrice(crop);
+                seed.sellPrice = Mathf.RoundToInt(seed.price * 0.5f);
+                seed.canBuy = true;
+                seed.canSell = true;
+
+                AssetDatabase.CreateAsset(seed, $"{shopItemFolder}/{seed.itemName}.asset");
+            }
+            else
+            {
+                // 混種種子只能販售
+                ShopItemInfo hybridSeed = ScriptableObject.CreateInstance<ShopItemInfo>();
+                hybridSeed.itemName = crop.cropName + "種子";
+                hybridSeed.itemType = ShopItemType.Seed;
+                hybridSeed.linkedCrop = crop;
+                hybridSeed.icon = crop.icon;
+
+                hybridSeed.price = 0;
+                hybridSeed.sellPrice = 50;
+                hybridSeed.canBuy = false;
+                hybridSeed.canSell = true;
+
+                AssetDatabase.CreateAsset(hybridSeed, $"{shopItemFolder}/{hybridSeed.itemName}.asset");
+            }
+
+            // 建立成熟作物販售品
+            ShopItemInfo produce = ScriptableObject.CreateInstance<ShopItemInfo>();
+            produce.itemName = crop.cropName;
+            produce.itemType = ShopItemType.Crop;
+            produce.linkedCrop = crop;
+            produce.icon = crop.icon;
+
+            produce.price = 0;
+            produce.sellPrice = EstimateCropSellPrice(crop);
+            produce.canBuy = false;
+            produce.canSell = true;
+
+            AssetDatabase.CreateAsset(produce, $"{shopItemFolder}/{produce.itemName}.asset");
         }
 
-        // Create Fertilizer
-        var fertilizer = ScriptableObject.CreateInstance<ShopItemInfo>();
+        // 建立肥料
+        ShopItemInfo fertilizer = ScriptableObject.CreateInstance<ShopItemInfo>();
         fertilizer.itemName = "肥料";
         fertilizer.itemType = ShopItemType.Fertilizer;
-        fertilizer.description = "可提升作物品質的肥料";
-        fertilizer.buyPrice = 20;
-        fertilizer.sellPrice = 5;
-        AssetDatabase.CreateAsset(fertilizer, $"{outputPath}/肥料.asset");
+        fertilizer.price = 40;
+        fertilizer.sellPrice = 10;
+        fertilizer.canBuy = true;
+        fertilizer.canSell = true;
+
+        AssetDatabase.CreateAsset(fertilizer, $"{shopItemFolder}/肥料.asset");
 
         AssetDatabase.SaveAssets();
-        Debug.Log("✅ 商店物品已建立完畢！");
+        AssetDatabase.Refresh();
+        Debug.Log("✅ 商店物品建立完成！");
+    }
+
+    private static int EstimateCropSellPrice(CropInfo crop)
+    {
+        float basePrice = 50f;
+        float growthFactor = 2f / crop.growthRate;
+        float tempRange = crop.suitableMaxTemperature - crop.suitableMinTemperature;
+        float humiRange = crop.suitableMaxHumidity - crop.suitableMinHumidity;
+
+        float tempDifficulty = 10f / Mathf.Max(0.1f, tempRange);
+        float humiDifficulty = 10f / Mathf.Max(0.1f, humiRange);
+        float hybridBonus = crop.isHybrid ? 30f : 0f;
+        float magicBonus = crop.cropType == CropType.Magic ? 20f : 0f;
+
+        float finalValue = basePrice + growthFactor * 10f + tempDifficulty + humiDifficulty + hybridBonus + magicBonus;
+        return Mathf.RoundToInt(finalValue);
+    }
+
+    private static int EstimateSeedPrice(CropInfo crop)
+    {
+        return Mathf.RoundToInt(EstimateCropSellPrice(crop) * 0.6f);
     }
 }
