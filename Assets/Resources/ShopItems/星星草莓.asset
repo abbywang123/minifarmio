@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: "\u661F\u661F\u8349\u8393"
   m_EditorClassIdentifier: 
   itemName: "\u661F\u661F\u8349\u8393"
-  description: "\u661F\u661F\u8349\u8393 \u6536\u6210\u54C1"
+  description: "\u6210\u719F\u7684 \u661F\u661F\u8349\u8393\uFF0C\u53EF\u4EE5\u8CA9\u552E\u3002"
   itemType: 2
   buyPrice: 0
-  sellPrice: 68
-  linkedCrop: {fileID: 11400000, guid: ce7361ca8203e854e8200a96a2b9b85a, type: 2}
+  sellPrice: 98
+  canBuy: 0
+  canSell: 1
+  icon: {fileID: 21300000, guid: b2d7b3a8733dbf7419841f6993ded976, type: 3}
+  linkedCrop: {fileID: 11400000, guid: b4d31a1b47543f647a2d8336620d042f, type: 2}

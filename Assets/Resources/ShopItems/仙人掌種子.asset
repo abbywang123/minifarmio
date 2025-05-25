@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: "\u4ED9\u4EBA\u638C\u7A2E\u5B50"
   m_EditorClassIdentifier: 
   itemName: "\u4ED9\u4EBA\u638C\u7A2E\u5B50"
-  description: "\u53EF\u4EE5\u7A2E\u51FA\u4ED9\u4EBA\u638C\u7684\u7A2E\u5B50"
+  description: "\u53EF\u7528\u4F86\u7A2E\u690D \u4ED9\u4EBA\u638C\u3002"
   itemType: 0
-  buyPrice: 71
-  sellPrice: 66
-  linkedCrop: {fileID: 11400000, guid: bad4a179478eb13459aab01d0ea44bfe, type: 2}
+  buyPrice: 59
+  sellPrice: 30
+  canBuy: 1
+  canSell: 1
+  icon: {fileID: 21300000, guid: e16992f51cc95e840b0a15c008de1956, type: 3}
+  linkedCrop: {fileID: 11400000, guid: 48dcecda1727d3048aff06293f607567, type: 2}

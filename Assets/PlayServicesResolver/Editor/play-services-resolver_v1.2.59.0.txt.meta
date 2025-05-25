@@ -1,11 +1,17 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/PlayServicesResolver/Editor/play-services-resolver_v1.2.59.0.txt.meta
 guid: d52999cf5def4ad089097f1f0ac72dcd
 labels:
 - gvh
 - gvh_manifest
 - gvh_version-1.2.59.0
 TextScriptImporter:
+========
+guid: 3f7f3ea988bcb9c44b9b764b9b2d9202
+NativeFormatImporter:
+>>>>>>>> e26502b26530d60a67b6ff014e65ae2e65eeba62:Assets/Resources/ShopItems/南瓜.asset.meta
   externalObjects: {}
+  mainObjectFileID: 11400000
   userData: 
   assetBundleName: 
   assetBundleVariant: 

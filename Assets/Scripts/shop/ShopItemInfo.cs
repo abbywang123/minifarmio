@@ -20,5 +20,10 @@ public class ShopItemInfo : ScriptableObject
     public int buyPrice;
     public int sellPrice;
 
+    public bool canBuy = true;
+    public bool canSell = true;
+
+    public Sprite icon;
+
     public CropInfo linkedCrop; // 若是種子或作物，需關聯
 }
