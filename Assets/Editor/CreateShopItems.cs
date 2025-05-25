@@ -9,81 +9,78 @@ public class CreateShopItems
         string cropFolder = "Assets/Crops";
         string shopItemFolder = "Assets/Resources/ShopItems";
 
+        // 確保資料夾存在
         if (!AssetDatabase.IsValidFolder("Assets/Resources"))
             AssetDatabase.CreateFolder("Assets", "Resources");
         if (!AssetDatabase.IsValidFolder(shopItemFolder))
             AssetDatabase.CreateFolder("Assets/Resources", "ShopItems");
 
+        // 載入通用圖片（注意大小寫）
+        Sprite seedIcon = Resources.Load<Sprite>("Tools/Seed");
+        Sprite fertilizerIcon = Resources.Load<Sprite>("Tools/Muck");
+
+        if (seedIcon == null)
+            Debug.LogWarning("⚠️ 無法載入 Seed.png，請確認放置於 Resources/Tools/");
+        if (fertilizerIcon == null)
+            Debug.LogWarning("⚠️ 無法載入 Muck.png，請確認放置於 Resources/Tools/");
+
+        // 找到所有 CropInfo
         string[] guids = AssetDatabase.FindAssets("t:CropInfo", new[] { cropFolder });
-        Debug.Log("找到 Crop 數量：" + guids.Length);
 
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             CropInfo crop = AssetDatabase.LoadAssetAtPath<CropInfo>(path);
 
-            if (crop == null) continue;
+            if (crop == null)
+                continue;
 
-            Debug.Log($"➡️ 處理作物：{crop.cropName}");
-
-            // 建立可購買的種子（非混種）
+            // 建立種子（非混種）
             if (!crop.isHybrid)
             {
                 ShopItemInfo seed = ScriptableObject.CreateInstance<ShopItemInfo>();
                 seed.itemName = crop.cropName + "種子";
+                seed.description = $"可用來種植 {crop.cropName}。";
                 seed.itemType = ShopItemType.Seed;
+                seed.icon = seedIcon;
                 seed.linkedCrop = crop;
-                seed.icon = crop.icon;
 
-                seed.price = EstimateSeedPrice(crop);
-                seed.sellPrice = Mathf.RoundToInt(seed.price * 0.5f);
+                seed.buyPrice = EstimateSeedPrice(crop);
+                seed.sellPrice = Mathf.RoundToInt(seed.buyPrice * 0.5f);
                 seed.canBuy = true;
                 seed.canSell = true;
 
                 AssetDatabase.CreateAsset(seed, $"{shopItemFolder}/{seed.itemName}.asset");
             }
-            else
-            {
-                // 混種種子只能販售
-                ShopItemInfo hybridSeed = ScriptableObject.CreateInstance<ShopItemInfo>();
-                hybridSeed.itemName = crop.cropName + "種子";
-                hybridSeed.itemType = ShopItemType.Seed;
-                hybridSeed.linkedCrop = crop;
-                hybridSeed.icon = crop.icon;
 
-                hybridSeed.price = 0;
-                hybridSeed.sellPrice = 50;
-                hybridSeed.canBuy = false;
-                hybridSeed.canSell = true;
+            // 建立作物商品
+            ShopItemInfo product = ScriptableObject.CreateInstance<ShopItemInfo>();
+            product.itemName = crop.cropName;
+            product.description = $"成熟的 {crop.cropName}，可以販售。";
+            product.itemType = ShopItemType.Crop;
+            product.icon = crop.icon;
+            product.linkedCrop = crop;
 
-                AssetDatabase.CreateAsset(hybridSeed, $"{shopItemFolder}/{hybridSeed.itemName}.asset");
-            }
+            product.buyPrice = 0;
+            product.sellPrice = EstimateCropSellPrice(crop);
+            product.canBuy = false;
+            product.canSell = true;
 
-            // 建立成熟作物販售品
-            ShopItemInfo produce = ScriptableObject.CreateInstance<ShopItemInfo>();
-            produce.itemName = crop.cropName;
-            produce.itemType = ShopItemType.Crop;
-            produce.linkedCrop = crop;
-            produce.icon = crop.icon;
-
-            produce.price = 0;
-            produce.sellPrice = EstimateCropSellPrice(crop);
-            produce.canBuy = false;
-            produce.canSell = true;
-
-            AssetDatabase.CreateAsset(produce, $"{shopItemFolder}/{produce.itemName}.asset");
+            AssetDatabase.CreateAsset(product, $"{shopItemFolder}/{product.itemName}.asset");
         }
 
         // 建立肥料
         ShopItemInfo fertilizer = ScriptableObject.CreateInstance<ShopItemInfo>();
-        fertilizer.itemName = "肥料";
+        fertilizer.itemName = "通用肥料";
+        fertilizer.description = "可以促進作物成長的肥料。";
         fertilizer.itemType = ShopItemType.Fertilizer;
-        fertilizer.price = 40;
+        fertilizer.icon = fertilizerIcon;
+        fertilizer.buyPrice = 40;
         fertilizer.sellPrice = 10;
         fertilizer.canBuy = true;
         fertilizer.canSell = true;
 
-        AssetDatabase.CreateAsset(fertilizer, $"{shopItemFolder}/肥料.asset");
+        AssetDatabase.CreateAsset(fertilizer, $"{shopItemFolder}/通用肥料.asset");
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -94,15 +91,10 @@ public class CreateShopItems
     {
         float basePrice = 50f;
         float growthFactor = 2f / crop.growthRate;
-        float tempRange = crop.suitableMaxTemperature - crop.suitableMinTemperature;
-        float humiRange = crop.suitableMaxHumidity - crop.suitableMinHumidity;
-
-        float tempDifficulty = 10f / Mathf.Max(0.1f, tempRange);
-        float humiDifficulty = 10f / Mathf.Max(0.1f, humiRange);
         float hybridBonus = crop.isHybrid ? 30f : 0f;
         float magicBonus = crop.cropType == CropType.Magic ? 20f : 0f;
 
-        float finalValue = basePrice + growthFactor * 10f + tempDifficulty + humiDifficulty + hybridBonus + magicBonus;
+        float finalValue = basePrice + growthFactor * 10f + hybridBonus + magicBonus;
         return Mathf.RoundToInt(finalValue);
     }
 

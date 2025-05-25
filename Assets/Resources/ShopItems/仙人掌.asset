@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b87c325b3e779014cb22542285985f6b, type: 3}
+  m_Name: "\u4ED9\u4EBA\u638C"
+  m_EditorClassIdentifier: 
+  itemName: "\u4ED9\u4EBA\u638C"
+  description: "\u6210\u719F\u7684 \u4ED9\u4EBA\u638C\uFF0C\u53EF\u4EE5\u8CA9\u552E\u3002"
+  itemType: 2
+  buyPrice: 0
+  sellPrice: 99
+  canBuy: 0
+  canSell: 1
+  icon: {fileID: 21300000, guid: 92ffed8eab98fe146bcb77a99ac6a730, type: 3}
+  linkedCrop: {fileID: 11400000, guid: 48dcecda1727d3048aff06293f607567, type: 2}
