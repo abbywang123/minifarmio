@@ -3,13 +3,14 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement; // ✅ 加入場景管理
 
 public class CloudSaveTester : MonoBehaviour
 {
     public TMP_InputField nameInput;     // 玩家輸入暱稱
     public Button saveBtn, loadBtn;      // 儲存 / 讀取按鈕
     public TMP_Text outputText;          // 輸出畫面
-    public GameObject namePanel;         // ⬅️ 暱稱區塊（包含 Label + Input）
+    public GameObject namePanel;         // 暱稱區塊
 
     private void Start()
     {
@@ -41,8 +42,7 @@ public class CloudSaveTester : MonoBehaviour
 
             await CloudSaveHelper.SaveFarmData(data);
 
-            // ✅ 儲存後自動隱藏輸入區塊
-            namePanel.SetActive(false);
+            namePanel.SetActive(false); // ✅ 儲存完隱藏輸入欄
         });
 
         // 📥 讀取按鈕邏輯
@@ -57,6 +57,9 @@ public class CloudSaveTester : MonoBehaviour
                         $"💰 {data.gold}G\n" +
                         $"作物：{data.inventory.Sum(i => i.count)} 個\n" +
                         string.Join("\n", data.inventory.ConvertAll(i => $"- {i.itemId} × {i.count}"));
+
+                    // ✅ 自動切換場景（FarmScene）
+                    SceneManager.LoadScene("Farm");
                 }
                 else
                 {
@@ -66,5 +69,6 @@ public class CloudSaveTester : MonoBehaviour
         });
     }
 }
+
 
 
