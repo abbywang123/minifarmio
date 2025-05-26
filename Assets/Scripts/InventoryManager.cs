@@ -8,6 +8,7 @@ public class InventoryManager : MonoBehaviour
 {
     [Header("UI References")]
     public GameObject slotPrefab;
+    public GameObject addSlotButtonPrefab;
     public Transform gridParent;
 
     [Header("Icon Resources")]
@@ -22,21 +23,23 @@ public class InventoryManager : MonoBehaviour
     public Button useButton;
     public Button discardButton;
 
+    [Header("UI 提示彈窗")]
+    public GameObject popupMessage;
+    public TMP_Text messageText;
+
     private Dictionary<string, Sprite> iconMap;
     private List<ItemSlot> inventoryData;
+    private FarmData farmData;
     private string currentItemId;
 
     async void Start()
     {
         Debug.Log("🟡 InventoryManager 啟動");
 
-        // ✅ 等待登入初始化完成（改用 AuthHelper）
         await AuthHelper.EnsureSignedIn();
-
         Debug.Log("✅ 登入完成，開始載入 Cloud Save");
 
-        // ✅ 載入 Cloud Save 資料（自動初始化）
-        FarmData farmData = await CloudSaveAPI.LoadFarmData();
+        farmData = await CloudSaveAPI.LoadFarmData();
 
         if (farmData == null)
         {
@@ -46,6 +49,7 @@ public class InventoryManager : MonoBehaviour
             {
                 playerName = "新玩家",
                 gold = 999,
+                maxInventorySize = 20,
                 inventory = new List<ItemSlot>
                 {
                     new ItemSlot { itemId = "wheat", count = 3 },
@@ -61,7 +65,6 @@ public class InventoryManager : MonoBehaviour
         inventoryData = farmData.inventory;
         Debug.Log($"📦 載入道具數：{inventoryData?.Count ?? 0}");
 
-        // ✅ 建立圖示對照表
         iconMap = new Dictionary<string, Sprite>
         {
             { "wheat", wheatIcon },
@@ -76,22 +79,55 @@ public class InventoryManager : MonoBehaviour
         foreach (Transform child in gridParent)
             Destroy(child.gameObject);
 
-        foreach (var slot in inventoryData)
+        for (int i = 0; i < farmData.maxInventorySize; i++)
         {
             GameObject go = Instantiate(slotPrefab, gridParent);
-            go.name = $"Slot_{slot.itemId}";
 
-            Image iconImage = go.transform.Find("Icon")?.GetComponent<Image>();
-            if (iconImage != null)
-                iconImage.sprite = iconMap.ContainsKey(slot.itemId) ? iconMap[slot.itemId] : defaultIcon;
+            if (i < inventoryData.Count)
+            {
+                var slot = inventoryData[i];
+                go.name = $"Slot_{slot.itemId}";
 
-            TMP_Text countText = go.transform.Find("CountText")?.GetComponent<TMP_Text>();
-            if (countText != null)
-                countText.text = $"x{slot.count}";
+                Image iconImage = go.transform.Find("Icon")?.GetComponent<Image>();
+                if (iconImage != null)
+                    iconImage.sprite = iconMap.ContainsKey(slot.itemId) ? iconMap[slot.itemId] : defaultIcon;
 
-            string id = slot.itemId;
-            int count = slot.count;
-            go.GetComponent<Button>().onClick.AddListener(() => ShowItemInfo(id, count));
+                TMP_Text countText = go.transform.Find("CountText")?.GetComponent<TMP_Text>();
+                if (countText != null)
+                    countText.text = $"x{slot.count}";
+
+                string id = slot.itemId;
+                int count = slot.count;
+                go.GetComponent<Button>().onClick.AddListener(() => ShowItemInfo(id, count));
+
+                DraggableItemSlot drag = go.GetComponent<DraggableItemSlot>();
+                if (drag != null)
+                    drag.canvas = GetComponentInParent<Canvas>();
+            }
+            else
+            {
+                go.name = "Slot_Empty";
+                Image iconImage = go.transform.Find("Icon")?.GetComponent<Image>();
+                if (iconImage != null)
+                {
+                    iconImage.sprite = defaultIcon;
+                    iconImage.color = new Color(1f, 1f, 1f, 0.3f); // 半透明表示空格
+                }
+
+                TMP_Text countText = go.transform.Find("CountText")?.GetComponent<TMP_Text>();
+                if (countText != null)
+                    countText.text = "";
+            }
+        }
+
+        if (addSlotButtonPrefab != null)
+        {
+            GameObject addBtn = Instantiate(addSlotButtonPrefab, gridParent);
+            addBtn.GetComponent<Button>().onClick.AddListener(OnClickAddSlot);
+        }
+        else
+        {
+            Debug.LogWarning("❌ addSlotButtonPrefab 尚未設定");
         }
     }
 
@@ -119,7 +155,6 @@ public class InventoryManager : MonoBehaviour
     void UseItem(string itemId)
     {
         Debug.Log($"🧪 使用物品：{itemId}");
-        // 可擴充功能：使用道具
     }
 
     void DiscardItem(string itemId)
@@ -131,12 +166,55 @@ public class InventoryManager : MonoBehaviour
 
     async Task SaveInventoryThenRefresh()
     {
-        FarmData farmData = await CloudSaveAPI.LoadFarmData();
-        farmData.inventory = inventoryData;
+        FarmData latest = await CloudSaveAPI.LoadFarmData();
+        latest.inventory = inventoryData;
+        latest.maxInventorySize = farmData.maxInventorySize;
+        latest.gold = farmData.gold;
+        await CloudSaveAPI.SaveFarmData(latest);
 
-        await CloudSaveAPI.SaveFarmData(farmData);
         itemInfoPopup.SetActive(false);
         RefreshInventoryUI();
+    }
+
+    void OnClickAddSlot()
+    {
+        const int cost = 100;
+        const int maxSlots = 40;
+
+        if (farmData.maxInventorySize >= maxSlots)
+        {
+            ShowPopup($"❌ 已達最大上限 {maxSlots} 格，無法再擴充！");
+            return;
+        }
+
+        if (farmData.gold < cost)
+        {
+            ShowPopup($"💰 金幣不足！需要 {cost} 金幣才能擴充");
+            return;
+        }
+
+        farmData.gold -= cost;
+        farmData.maxInventorySize += 1;
+
+        Debug.Log($"🧳 擴充成功，目前 {farmData.maxInventorySize} 格，剩餘金幣：{farmData.gold}");
+        ShowPopup($"✅ 擴充成功！剩餘金幣：{farmData.gold}");
+
+        _ = SaveInventoryThenRefresh();
+    }
+
+    void ShowPopup(string msg, float duration = 2f)
+    {
+        if (popupMessage == null || messageText == null) return;
+
+        popupMessage.SetActive(true);
+        messageText.text = msg;
+        CancelInvoke(nameof(HidePopup));
+        Invoke(nameof(HidePopup), duration);
+    }
+
+    void HidePopup()
+    {
+        popupMessage.SetActive(false);
     }
 
     public List<ItemSlot> GetInventoryData()
@@ -144,4 +222,3 @@ public class InventoryManager : MonoBehaviour
         return inventoryData;
     }
 }
-
