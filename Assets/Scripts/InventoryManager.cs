@@ -12,7 +12,7 @@ public class InventoryManager : MonoBehaviour
 
     [Header("Icon Resources")]
     public Sprite defaultIcon;
-    public Sprite turnipIcon;
+    public Sprite wheatIcon;
     public Sprite carrotIcon;
 
     [Header("Item Info Popup")]
@@ -28,14 +28,43 @@ public class InventoryManager : MonoBehaviour
 
     async void Start()
     {
-        // ✅ 載入整份資料
+        Debug.Log("🟡 InventoryManager 啟動");
+
+        // ✅ 等待登入初始化完成（改用 AuthHelper）
+        await AuthHelper.EnsureSignedIn();
+
+        Debug.Log("✅ 登入完成，開始載入 Cloud Save");
+
+        // ✅ 載入 Cloud Save 資料（自動初始化）
         FarmData farmData = await CloudSaveAPI.LoadFarmData();
+
+        if (farmData == null)
+        {
+            Debug.LogWarning("📭 Cloud Save 無資料，自動建立新存檔");
+
+            farmData = new FarmData
+            {
+                playerName = "新玩家",
+                gold = 999,
+                inventory = new List<ItemSlot>
+                {
+                    new ItemSlot { itemId = "wheat", count = 3 },
+                    new ItemSlot { itemId = "carrot", count = 5 }
+                },
+                farmland = new List<FarmlandTile>()
+            };
+
+            await CloudSaveAPI.SaveFarmData(farmData);
+            Debug.Log("✅ 初始存檔已建立");
+        }
+
         inventoryData = farmData.inventory;
+        Debug.Log($"📦 載入道具數：{inventoryData?.Count ?? 0}");
 
         // ✅ 建立圖示對照表
         iconMap = new Dictionary<string, Sprite>
         {
-            { "turnip", turnipIcon },
+            { "wheat", wheatIcon },
             { "carrot", carrotIcon }
         };
 
@@ -69,66 +98,50 @@ public class InventoryManager : MonoBehaviour
     void ShowItemInfo(string itemId, int count)
     {
         currentItemId = itemId;
-
         itemInfoPopup.SetActive(true);
+
         itemNameText.text = itemId switch
         {
-            "turnip" => "蘿蔔",
+            "wheat" => "小麥",
             "carrot" => "紅蘿蔔",
-            _ => "未知道具"
+            _ => "未知物品"
         };
-        itemDescText.text = $"你擁有 {count} 個\n這是一個神奇的 {itemNameText.text}。";
+
+        itemDescText.text = $"你擁有 {count} 個";
 
         useButton.onClick.RemoveAllListeners();
+        useButton.onClick.AddListener(() => UseItem(itemId));
+
         discardButton.onClick.RemoveAllListeners();
-
-        useButton.onClick.AddListener(() => _ = UseItem(currentItemId));
-        discardButton.onClick.AddListener(() => _ = DiscardItem(currentItemId));
+        discardButton.onClick.AddListener(() => DiscardItem(itemId));
     }
 
-    async Task UseItem(string itemId)
+    void UseItem(string itemId)
     {
-        Debug.Log($"🧪 使用道具：{itemId}");
-
-        // ✅ 先讀完整資料
-        FarmData farmData = await CloudSaveAPI.LoadFarmData();
-        ItemSlot slot = farmData.inventory.Find(s => s.itemId == itemId);
-        if (slot != null && slot.count > 0)
-        {
-            slot.count--;
-            if (slot.count == 0)
-                farmData.inventory.Remove(slot);
-
-            await CloudSaveAPI.SaveFarmData(farmData);
-            inventoryData = farmData.inventory;
-            RefreshInventoryUI();
-        }
-
-        itemInfoPopup.SetActive(false);
+        Debug.Log($"🧪 使用物品：{itemId}");
+        // 可擴充功能：使用道具
     }
 
-    async Task DiscardItem(string itemId)
+    void DiscardItem(string itemId)
     {
-        Debug.Log($"🗑️ 丟棄道具：{itemId}");
-
-        // ✅ 先讀完整資料
-        FarmData farmData = await CloudSaveAPI.LoadFarmData();
-        ItemSlot slot = farmData.inventory.Find(s => s.itemId == itemId);
-        if (slot != null)
-        {
-            farmData.inventory.Remove(slot);
-
-            await CloudSaveAPI.SaveFarmData(farmData);
-            inventoryData = farmData.inventory;
-            RefreshInventoryUI();
-        }
-
-        itemInfoPopup.SetActive(false);
+        Debug.Log($"🗑️ 丟棄物品：{itemId}");
+        inventoryData.RemoveAll(item => item.itemId == itemId);
+        _ = SaveInventoryThenRefresh();
     }
 
-    // ✅ 新增這個公開方法供 SceneNavigator 存取資料
+    async Task SaveInventoryThenRefresh()
+    {
+        FarmData farmData = await CloudSaveAPI.LoadFarmData();
+        farmData.inventory = inventoryData;
+
+        await CloudSaveAPI.SaveFarmData(farmData);
+        itemInfoPopup.SetActive(false);
+        RefreshInventoryUI();
+    }
+
     public List<ItemSlot> GetInventoryData()
     {
         return inventoryData;
     }
 }
+

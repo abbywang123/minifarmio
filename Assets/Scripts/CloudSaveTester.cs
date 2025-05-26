@@ -1,72 +1,82 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Linq;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement; // ✅ 加入場景管理
+using System.Linq;
+using System.Threading.Tasks;
+using Unity.Services.Core;
+using Unity.Services.Authentication;
+using UnityEngine.SceneManagement;
 
 public class CloudSaveTester : MonoBehaviour
 {
-    public TMP_InputField nameInput;     // 玩家輸入暱稱
-    public Button saveBtn, loadBtn;      // 儲存 / 讀取按鈕
-    public TMP_Text outputText;          // 輸出畫面
-    public GameObject namePanel;         // 暱稱區塊
+    public TMP_InputField nameInput;
+    public Button confirmBtn;
+    public Button goFarmBtn;
+    public TMP_Text outputText;
+    public GameObject namePanel;
 
-    private void Start()
+    private bool hasSavedData = false;
+
+    async void Start()
     {
-        // 📤 儲存按鈕邏輯
-        saveBtn.onClick.AddListener(async () =>
+        outputText.text = "初始化中...";
+        await UnityServices.InitializeAsync();
+        if (!AuthenticationService.Instance.IsSignedIn)
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+
+        string id = AuthenticationService.Instance.PlayerId;
+        outputText.text = $"✅ 登入成功！ID: {id}";
+
+        confirmBtn.onClick.AddListener(OnConfirm);
+        goFarmBtn.onClick.AddListener(OnGoFarm);
+        goFarmBtn.interactable = false; // 一開始不能按
+    }
+
+    private async void OnConfirm()
+    {
+        if (string.IsNullOrWhiteSpace(nameInput.text))
         {
-            if (string.IsNullOrWhiteSpace(nameInput.text))
+            outputText.text = "❌ 請輸入暱稱";
+            return;
+        }
+
+        FarmData data = new()
+        {
+            playerName = nameInput.text,
+            gold = 999,
+            inventory = new List<ItemSlot>
             {
-                outputText.text = "❌ 請輸入暱稱後再儲存";
-                return;
+                new ItemSlot { itemId = "wheat", count = 3 },
+                new ItemSlot { itemId = "carrot", count = 5 }
+            },
+            farmland = new List<FarmlandTile>
+            {
+                new FarmlandTile { x = 0, y = 0, cropId = "wheat", growDays = 2, isTilled = true },
+                new FarmlandTile { x = 1, y = 0, cropId = "", growDays = 0, isTilled = false }
             }
+        };
 
-            // 建立資料結構
-            FarmData data = new()
-            {
-                playerName = nameInput.text,
-                gold = 999,
-                inventory = new List<ItemSlot>
-                {
-                    new ItemSlot { itemId = "turnip", count = 3 },
-                    new ItemSlot { itemId = "carrot", count = 5 }
-                },
-                farmland = new List<FarmlandTile>
-                {
-                    new FarmlandTile { x = 0, y = 0, cropId = "turnip", growDays = 2, isTilled = true },
-                    new FarmlandTile { x = 1, y = 0, cropId = "", growDays = 0, isTilled = false }
-                }
-            };
+        await CloudSaveHelper.SaveFarmData(data);
 
-            await CloudSaveHelper.SaveFarmData(data);
+        string id = AuthenticationService.Instance.PlayerId;
+        outputText.text = 
+            $"✅ 資料已儲存\nID: {id}\n" +
+            $"{data.playerName} 的資料：\n" +
+            $"💰 {data.gold}G\n" +
+            string.Join("\n", data.inventory.ConvertAll(i => $"- {i.itemId} × {i.count}"));
 
-            namePanel.SetActive(false); // ✅ 儲存完隱藏輸入欄
-        });
+        namePanel.SetActive(false);
+        goFarmBtn.interactable = true;
+        hasSavedData = true;
+    }
 
-        // 📥 讀取按鈕邏輯
-        loadBtn.onClick.AddListener(async () =>
-        {
-            await CloudSaveHelper.LoadFarmData(data =>
-            {
-                if (data != null)
-                {
-                    outputText.text =
-                        $"{data.playerName}\n" +
-                        $"💰 {data.gold}G\n" +
-                        $"作物：{data.inventory.Sum(i => i.count)} 個\n" +
-                        string.Join("\n", data.inventory.ConvertAll(i => $"- {i.itemId} × {i.count}"));
-
-                    // ✅ 自動切換場景（FarmScene）
-                    SceneManager.LoadScene("Farm");
-                }
-                else
-                {
-                    outputText.text = "❌ 沒有讀到資料";
-                }
-            });
-        });
+    private void OnGoFarm()
+    {
+        if (hasSavedData)
+            SceneManager.LoadScene("Farm");
+        else
+            outputText.text = "❌ 尚未建立資料，請先按『確認』";
     }
 }
 

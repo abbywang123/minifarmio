@@ -1,39 +1,38 @@
 using UnityEngine;
-using Unity.Services.CloudSave;
+using Unity.Services.Core;
 using Unity.Services.Authentication;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 public class CloudSaveBootstrap : MonoBehaviour
 {
+    private bool isSigningIn = false;
+
     async void Start()
     {
-        // ✅ 等待 AuthManager 登入完成
-        while (!AuthenticationService.Instance.IsSignedIn)
-            await Task.Yield();
+        Debug.Log("🔧 初始化 Unity Services...");
+        await UnityServices.InitializeAsync();
 
-        Debug.Log($"🧾 Player 已登入：{AuthenticationService.Instance.PlayerId}");
-
-        // ✅ 準備資料
-        var data = new Dictionary<string, object>
+        if (!AuthenticationService.Instance.IsSignedIn && !isSigningIn)
         {
-            { "inventory", new Dictionary<string, object>
-                {
-                    { "playerName", "SDK初始化" },
-                    { "gold", 999 }
-                }
+            try
+            {
+                isSigningIn = true;
+                Debug.Log("🔐 嘗試匿名登入...");
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                Debug.Log($"✅ 登入成功！PlayerId: {AuthenticationService.Instance.PlayerId}");
             }
-        };
-
-        // ✅ 使用 Cloud Save SDK 寫入
-        try
-        {
-            await CloudSaveService.Instance.Data.Player.SaveAsync(data);
-            Debug.Log("✅ Cloud Save 寫入成功！key: inventory");
+            catch (AuthenticationException ex)
+            {
+                Debug.LogError("❌ 登入失敗：" + ex.Message);
+            }
+            finally
+            {
+                isSigningIn = false;
+            }
         }
-        catch (System.Exception e)
+        else if (AuthenticationService.Instance.IsSignedIn)
         {
-            Debug.LogError($"❌ Cloud Save 寫入失敗：{e.Message}");
+            Debug.Log("✅ 已經登入，略過重複登入");
         }
     }
 }

@@ -2,29 +2,30 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
-
+using UnityEngine.EventSystems;
 
 public class FarmUIController : MonoBehaviour
 {
-    public Button openInventoryButton;
+    public GameObject openInventoryButtonObject; // ✅ GameObject 類型
 
     void Start()
     {
         Debug.Log("🟡 Start() 被執行了");
 
-        if (openInventoryButton == null)
+        // 取出 Button 元件並綁定事件
+        var btn = openInventoryButtonObject.GetComponent<Button>();
+        if (btn == null)
         {
-            Debug.LogError("❌ openInventoryButton 沒有被指定！");
+            Debug.LogError("❌ 無法在 openInventoryButtonObject 上取得 Button 元件！");
         }
         else
         {
-            Debug.Log("✅ openInventoryButton 設定正確，準備綁定事件");
-            openInventoryButton.onClick.AddListener(OpenInventoryScene);
+            btn.onClick.AddListener(OpenInventoryScene);
+            Debug.Log("✅ Button 組件成功取得並綁定事件！");
         }
 
-        // 嘗試強制啟用 Input Actions（新輸入系統用於 UI）
+        // 啟用 Input Actions（新輸入系統）
         var inputModule = EventSystem.current?.GetComponent<InputSystemUIInputModule>();
         if (inputModule != null && inputModule.actionsAsset != null)
         {
@@ -38,30 +39,26 @@ public class FarmUIController : MonoBehaviour
     }
 
     public void OpenInventoryScene()
-{
-    Debug.Log("✅ 點擊成功：切換到背包場景");
-    // 測試功能：換顏色或隱藏按鈕
-    openInventoryButton.GetComponent<Image>().color = Color.red;
+    {
+        Debug.Log("✅ 點擊成功：切換到背包場景");
 
-    // 最終功能
-    SceneManager.LoadScene("Inventory");
-}
+        // 額外測試行為：改變顏色（可刪）
+        openInventoryButtonObject.GetComponent<Image>().color = Color.red;
+
+        // 切換場景
+        SceneManager.LoadScene("Inventory");
+    }
 
     void Update()
     {
-            if (Mouse.current.leftButton.wasPressedThisFrame)
-{
-    if (EventSystem.current.IsPointerOverGameObject())
-    {
-        Debug.Log("🟠 點到了 UI 元件！");
-    }
-    else
-    {
-        Debug.Log("⚪ 點擊畫面沒碰到 UI");
-    }
-}
-
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            if (EventSystem.current.IsPointerOverGameObject())
+                Debug.Log("🟠 點到了 UI 元件！");
+            else
+                Debug.Log("⚪ 點擊畫面沒碰到 UI");
         }
     }
+}
 
 
