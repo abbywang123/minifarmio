@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Farm.unity
     guid: e324960cf768eba42b444f5f10f70be9
   - enabled: 1
-    path: Assets/Scenes/Iventory.unity
+    path: Assets/Scenes/Inventory.unity
     guid: 7653988f1580adb419057eefba94aa80
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
