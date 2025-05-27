@@ -4,15 +4,21 @@ using TMPro;
 
 public class TileNetworkSync : NetworkBehaviour
 {
-    public TMP_Text label; // 指向 Label 顯示用的 Text（請從 Inspector 指派）
+    public TMP_Text label; // 顯示用的 Label（請在 Inspector 指派）
 
-    // 網路變數：用來同步格子的座標、作物種類、成長天數
+    // ✅ 同步格子的資料
     public NetworkVariable<int> x = new();
     public NetworkVariable<int> y = new();
     public NetworkVariable<string> cropId = new();
     public NetworkVariable<int> growDays = new();
 
-    // 初始化格子資料（通常由 Host 建立格子時呼叫）
+    // ✅ 提供外部存取用屬性（例如存檔用）
+    public int X => x.Value;
+    public int Y => y.Value;
+    public string CropId => cropId.Value;
+    public int GrowDays => growDays.Value;
+
+    // ✅ 初始化格子資料（由 Host 在 Spawn 時設定）
     public void SetTile(int _x, int _y, string _cropId, int _growDays)
     {
         x.Value = _x;
@@ -23,20 +29,35 @@ public class TileNetworkSync : NetworkBehaviour
 
     void Update()
     {
-        // 顯示作物名稱與座標
+        // ✅ 更新 UI 顯示（作物名稱 + 座標）
         if (label != null)
         {
-            label.text = $"{cropId.Value}\n({x.Value},{y.Value})";
+            string display = string.IsNullOrEmpty(cropId.Value) ? "空地" : cropId.Value;
+            label.text = $"{display}\n({x.Value},{y.Value})";
         }
-
-        // 📌 點擊行為不處理於此，交給 TileClickManager 控制
     }
 
-    // ✅ 播種 RPC：任何人點擊後都可以要求 Server 幫他修改 cropId
+    // ✅ 播種 RPC（由 Client 呼叫，Server 執行）
     [ServerRpc(RequireOwnership = false)]
     public void PlantCropServerRpc(string crop)
     {
         cropId.Value = crop;
+        growDays.Value = 0;
+    }
+
+    // ✅ 收成 RPC（清除作物）
+    [ServerRpc(RequireOwnership = false)]
+    public void HarvestServerRpc()
+    {
+        cropId.Value = "";
+        growDays.Value = 0;
+    }
+
+    // ✅ 清空格子 RPC（可用於重置農地）
+    [ServerRpc(RequireOwnership = false)]
+    public void ClearTileServerRpc()
+    {
+        cropId.Value = "";
         growDays.Value = 0;
     }
 }

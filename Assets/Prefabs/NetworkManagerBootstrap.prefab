@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1110633592961129744}
   - component: {fileID: 4959943662570117081}
   - component: {fileID: 883051821411019645}
+  - component: {fileID: 2378603398490440965}
   m_Layer: 0
   m_Name: NetworkManagerBootstrap
   m_TagString: Untagged
@@ -48,7 +49,7 @@ MonoBehaviour:
   NetworkManagerExpanded: 0
   NetworkConfig:
     ProtocolVersion: 0
-    NetworkTransport: {fileID: 0}
+    NetworkTransport: {fileID: 2378603398490440965}
     PlayerPrefab: {fileID: 1039480669922839367, guid: 584a63904b4171c45809196c34b1c0e0, type: 3}
     Prefabs:
       NetworkPrefabsLists:
@@ -87,3 +88,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fc2f127f7b6c33479fa9ddf7b435752, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2378603398490440965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3581677464960003316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ProtocolType: 0
+  m_UseWebSockets: 0
+  m_UseEncryption: 0
+  m_MaxPacketQueueSize: 128
+  m_MaxPayloadSize: 6144
+  m_HeartbeatTimeoutMS: 500
+  m_ConnectTimeoutMS: 1000
+  m_MaxConnectAttempts: 60
+  m_DisconnectTimeoutMS: 30000
+  ConnectionData:
+    Address: 127.0.0.1
+    Port: 7777
+    ServerListenAddress: 127.0.0.1
+  DebugSimulator:
+    PacketDelayMS: 0
+    PacketJitterMS: 0
+    PacketDropRate: 0

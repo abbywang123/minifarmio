@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using Unity.Netcode;
+using System.Threading.Tasks;
 
 public class InventoryManager_Multiplayer : MonoBehaviour
 {
@@ -28,9 +29,10 @@ public class InventoryManager_Multiplayer : MonoBehaviour
             { "carrot", carrotIcon }
         };
 
-        backToFarmButton.onClick.AddListener(() =>
+        backToFarmButton.onClick.AddListener(async () =>
         {
-            gameObject.SetActive(false); // ✅ 關閉背包 UI，不切場景
+            await SaveInventoryAsync(); // ✅ 加入儲存
+            gameObject.SetActive(false); // ✅ 關閉 UI
         });
 
         RefreshInventoryUI();
@@ -70,4 +72,32 @@ public class InventoryManager_Multiplayer : MonoBehaviour
             go.name = $"Slot_{slot.itemId}";
         }
     }
+
+    // ✅ 儲存同步背包資料到 Cloud Save
+    async Task SaveInventoryAsync()
+    {
+        var player = NetworkManager.Singleton.LocalClient?.PlayerObject;
+        if (player == null) return;
+
+        var inventory = player.GetComponent<PlayerInventorySync>();
+        if (inventory == null) return;
+
+        // 轉換 NetworkList → List<ItemSlot>
+        List<ItemSlot> itemList = new();
+        foreach (var slot in inventory.syncedInventory)
+        {
+            itemList.Add(new ItemSlot
+            {
+                itemId = slot.itemId.ToString(),
+                count = slot.count
+            });
+        }
+
+        FarmData data = await CloudSaveAPI.LoadFarmData();
+        data.inventory = itemList;
+        await CloudSaveAPI.SaveFarmData(data);
+
+        Debug.Log("✅ 背包已儲存回 Cloud Save");
+    }
 }
+

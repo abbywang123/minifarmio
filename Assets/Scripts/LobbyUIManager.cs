@@ -19,6 +19,7 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] Button enterButton;
     [SerializeField] TMP_Text joinCodeText;
     [SerializeField] Button startGameButton;
+    [SerializeField] Button backToLoginButton; // ✅ 新增
 
     string currentJoinCode;
 
@@ -28,7 +29,13 @@ public class LobbyUIManager : MonoBehaviour
 
         statusText.text = "🔄 初始化中…";
         enterButton.interactable = false;
-        startGameButton.gameObject.SetActive(false); // 預設隱藏
+        startGameButton.gameObject.SetActive(false);
+
+        // ✅ 綁定返回登入事件
+        backToLoginButton.onClick.AddListener(() =>
+        {
+            SceneManager.LoadScene("LoginScene");
+        });
 
         await EnsureServicesAsync();
 
@@ -52,7 +59,7 @@ public class LobbyUIManager : MonoBehaviour
                 statusText.text = $"✅ Host 成功！JoinCode: <color=yellow>{currentJoinCode}</color>";
                 joinCodeText.text = $"🎮 房間代碼：{currentJoinCode}";
 
-                // ✅ Host 顯示「開始農場」按鈕
+                // ✅ 顯示開始農場按鈕
                 startGameButton.gameObject.SetActive(true);
                 startGameButton.onClick.RemoveAllListeners();
                 startGameButton.onClick.AddListener(() =>
@@ -64,7 +71,7 @@ public class LobbyUIManager : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogWarning("⚠️ 非 Host 嘗試觸發場景切換，操作已忽略");
+                        Debug.LogWarning("⚠️ 非 Host 嘗試切場景，操作被忽略");
                     }
                 });
             }
@@ -77,7 +84,7 @@ public class LobbyUIManager : MonoBehaviour
                 await JoinRelayAsync(code);
                 statusText.text = "✅ 加入成功！";
 
-                // ✅ Client 自動切場景（這部分建議改為等待 Host 切換）
+                // ✅ Client 自動切場景（建議之後改為等 Host 切）
                 SceneManager.LoadScene("FarmScene_Multiplayer");
             }
         }
@@ -166,6 +173,7 @@ public class LobbyUIManager : MonoBehaviour
         if (enterButton == null) { Debug.LogError("❌ enterButton 未指派"); ok = false; }
         if (joinCodeText == null) { Debug.LogError("❌ joinCodeText 未指派"); ok = false; }
         if (startGameButton == null) { Debug.LogError("❌ startGameButton 未指派"); ok = false; }
+        if (backToLoginButton == null) { Debug.LogError("❌ backToLoginButton 未指派"); ok = false; }
         return ok;
     }
 }
