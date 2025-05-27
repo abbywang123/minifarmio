@@ -27,4 +27,8 @@ public class ShopItemInfo : ScriptableObject
     public Sprite icon;
 
     public CropInfo linkedCrop; // 若是種子或作物，需關聯
+
+    public ItemData itemData;  // 對應背包裡真正的物品資料
+
+
 }
