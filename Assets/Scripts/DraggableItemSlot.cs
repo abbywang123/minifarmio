@@ -3,7 +3,8 @@ using UnityEngine.EventSystems;
 
 public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public Canvas canvas;  // 🟡 記得由外部指定，或程式幫你抓
+    public Canvas canvas;  // 🟡 可以不指定，會自動抓最近的 Canvas
+
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
 
@@ -11,6 +12,18 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
+    }
+
+    void Start()
+    {
+        if (canvas == null)
+        {
+            canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+            {
+                Debug.LogWarning("❌ [DraggableItemSlot] 無法自動取得 Canvas！");
+            }
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -23,7 +36,7 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         if (canvas == null)
         {
-            Debug.LogWarning("❌ [DraggableItemSlot] Canvas 尚未設定，拖曳取消");
+            Debug.LogWarning("❌ Canvas 尚未設定，拖曳取消");
             return;
         }
 
@@ -36,4 +49,3 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
         canvasGroup.blocksRaycasts = true;
     }
 }
-

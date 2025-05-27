@@ -6,13 +6,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using Unity.Services.Authentication;
+using Unity.Netcode;
 
 public class LoginUIManager : MonoBehaviour
 {
     [Header("UI 元件")]
     public TMP_InputField nameInput;
     public Button confirmButton;
-    public Button goFarmButton;
+    public Button goFarmButton;           // 單機農場按鈕
+    public Button goMultiplayerButton;    // 多人農場按鈕
     public TMP_Text outputText;
 
     private bool dataSaved = false;
@@ -22,73 +24,61 @@ public class LoginUIManager : MonoBehaviour
         outputText.text = "🔄 初始化中...";
         confirmButton.interactable = false;
         goFarmButton.interactable = false;
+        goMultiplayerButton.interactable = false;
 
         await TryLoginSafely();
         await WaitForFinalLoginState();
+        Debug.Log("✅ NetworkManager Singleton 是否存在？" + (NetworkManager.Singleton != null));
 
         if (AuthenticationService.Instance.IsSignedIn)
         {
             string playerId = AuthenticationService.Instance.PlayerId;
             outputText.text = $"✅ 已登入\nID：{playerId}";
-            Debug.Log("✅ 登入成功！");
+            Debug.Log("✅ 登入成功");
 
-            // ✅ 嘗試載入 Cloud Save 資料
             try
             {
                 var data = await CloudSaveAPI.LoadFarmData();
-
                 if (data != null)
                 {
                     Debug.Log("✅ Cloud Save 資料已存在");
                     dataSaved = true;
                     goFarmButton.interactable = true;
+                    goMultiplayerButton.interactable = true;
                 }
                 else
                 {
-                    Debug.Log("📂 尚無 Cloud Save 資料，請玩家輸入暱稱後建立");
                     outputText.text += "\n請輸入暱稱並點擊『確認』建立資料";
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogError("❌ Cloud Save 載入失敗：" + e.Message);
-                outputText.text += "\n資料載入錯誤，請重新啟動或檢查網路";
+                outputText.text += "\n❌ Cloud Save 載入失敗：" + e.Message;
             }
 
-            // 綁定按鈕事件
-            confirmButton.onClick.RemoveAllListeners();
             confirmButton.onClick.AddListener(OnConfirm);
-            confirmButton.interactable = true;
+            goFarmButton.onClick.AddListener(OnEnterFarmSingle);
+            goMultiplayerButton.onClick.AddListener(OnEnterFarmMultiplayer);
 
-            goFarmButton.onClick.RemoveAllListeners();
-            goFarmButton.onClick.AddListener(OnEnterFarm);
+            confirmButton.interactable = true;
         }
         else
         {
             outputText.text = "❌ 登入失敗，請重新啟動";
-            Debug.LogError("❌ 登入最終失敗！");
         }
     }
 
     async Task TryLoginSafely()
     {
-        try
-        {
-            await AuthHelper.EnsureSignedIn();
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogWarning("⚠️ 登入例外：" + ex.Message);
-        }
+        try { await AuthHelper.EnsureSignedIn(); }
+        catch (System.Exception ex) { Debug.LogWarning("⚠️ 登入例外：" + ex.Message); }
     }
 
     async Task WaitForFinalLoginState()
     {
         int retries = 0;
         while (!AuthenticationService.Instance.IsSignedIn && retries++ < 100)
-        {
             await Task.Delay(100);
-        }
     }
 
     private async void OnConfirm()
@@ -99,7 +89,7 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        string nickname = nameInput.text;
+        string nickname = nameInput.text.Trim();
         Debug.Log("👤 暱稱輸入：" + nickname);
 
         FarmData data = new()
@@ -118,19 +108,23 @@ public class LoginUIManager : MonoBehaviour
             }
         };
 
+        // 儲存到雲端
         await CloudSaveAPI.SaveFarmData(data);
 
-        string id = AuthenticationService.Instance.PlayerId;
-        outputText.text =
-            $"✅ 資料建立完成\n👤 ID：{id}\n" +
-            $"暱稱：{data.playerName}\n💰 金幣：{data.gold} G\n" +
-            string.Join("\n", data.inventory.Select(i => $"🔹 {i.itemId} x{i.count}"));
+        // ✅ 儲存暱稱 & 背包到 PlayerPrefs（給多人同步用）
+        PlayerPrefs.SetString("playerName", nickname);
+        var wrapper = new InventoryWrapper { inventory = data.inventory };
+        PlayerPrefs.SetString("inventoryData", JsonUtility.ToJson(wrapper));
+
+        outputText.text = $"✅ 資料建立完成\n暱稱：{data.playerName}\n💰 金幣：{data.gold}G\n" +
+                          string.Join("\n", data.inventory.Select(i => $"🔹 {i.itemId} x{i.count}"));
 
         dataSaved = true;
         goFarmButton.interactable = true;
+        goMultiplayerButton.interactable = true;
     }
 
-    private void OnEnterFarm()
+    private void OnEnterFarmSingle()
     {
         if (!dataSaved)
         {
@@ -138,11 +132,26 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene("Farm");
+        SceneManager.LoadScene("Farm"); // 單機農場
+    }
+
+    private void OnEnterFarmMultiplayer()
+    {
+        if (!dataSaved)
+        {
+            outputText.text = "❌ 請先按『確認』建立資料";
+            return;
+        }
+
+        SceneManager.LoadScene("LobbyScene"); // ✅ 多人連線的選擇場景
     }
 }
 
-
+[System.Serializable]
+public class InventoryWrapper
+{
+    public List<ItemSlot> inventory;
+}
 
 
 

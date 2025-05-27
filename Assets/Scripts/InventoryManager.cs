@@ -76,9 +76,11 @@ public class InventoryManager : MonoBehaviour
 
     void RefreshInventoryUI()
     {
+        // ✅ 清空背包格子與按鈕
         foreach (Transform child in gridParent)
             Destroy(child.gameObject);
 
+        // ✅ 產生格子
         for (int i = 0; i < farmData.maxInventorySize; i++)
         {
             GameObject go = Instantiate(slotPrefab, gridParent);
@@ -107,11 +109,12 @@ public class InventoryManager : MonoBehaviour
             else
             {
                 go.name = "Slot_Empty";
+
                 Image iconImage = go.transform.Find("Icon")?.GetComponent<Image>();
                 if (iconImage != null)
                 {
                     iconImage.sprite = defaultIcon;
-                    iconImage.color = new Color(1f, 1f, 1f, 0.3f); // 半透明表示空格
+                    iconImage.color = new Color(1f, 1f, 1f, 0.3f);
                 }
 
                 TMP_Text countText = go.transform.Find("CountText")?.GetComponent<TMP_Text>();
@@ -120,9 +123,11 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
+        // ✅ 加上「擴充格子」按鈕
         if (addSlotButtonPrefab != null)
         {
             GameObject addBtn = Instantiate(addSlotButtonPrefab, gridParent);
+            addBtn.name = "AddSlotButton";
             addBtn.GetComponent<Button>().onClick.AddListener(OnClickAddSlot);
         }
         else

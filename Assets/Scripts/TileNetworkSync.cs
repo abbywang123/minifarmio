@@ -4,15 +4,21 @@ using TMPro;
 
 public class TileNetworkSync : NetworkBehaviour
 {
-    public TMP_Text label; // 用於顯示格子資訊（作物名稱 + 座標）
+    public TMP_Text label; // 顯示用的 Label（請在 Inspector 指派）
 
-    // 可同步的變數
-    public NetworkVariable<int> x = new NetworkVariable<int>();
-    public NetworkVariable<int> y = new NetworkVariable<int>();
-    public NetworkVariable<string> cropId = new NetworkVariable<string>();
-    public NetworkVariable<int> growDays = new NetworkVariable<int>();
+    // ✅ 同步格子的資料
+    public NetworkVariable<int> x = new();
+    public NetworkVariable<int> y = new();
+    public NetworkVariable<string> cropId = new();
+    public NetworkVariable<int> growDays = new();
 
-    // 設定格子的基本資料（由 Host 呼叫）
+    // ✅ 提供外部存取用屬性（例如存檔用）
+    public int X => x.Value;
+    public int Y => y.Value;
+    public string CropId => cropId.Value;
+    public int GrowDays => growDays.Value;
+
+    // ✅ 初始化格子資料（由 Host 在 Spawn 時設定）
     public void SetTile(int _x, int _y, string _cropId, int _growDays)
     {
         x.Value = _x;
@@ -21,12 +27,37 @@ public class TileNetworkSync : NetworkBehaviour
         growDays.Value = _growDays;
     }
 
-    // 每幀更新 UI 顯示（只在本地運行，無需同步）
     void Update()
     {
+        // ✅ 更新 UI 顯示（作物名稱 + 座標）
         if (label != null)
         {
-            label.text = $"{cropId.Value}\n({x.Value},{y.Value})";
+            string display = string.IsNullOrEmpty(cropId.Value) ? "空地" : cropId.Value;
+            label.text = $"{display}\n({x.Value},{y.Value})";
         }
+    }
+
+    // ✅ 播種 RPC（由 Client 呼叫，Server 執行）
+    [ServerRpc(RequireOwnership = false)]
+    public void PlantCropServerRpc(string crop)
+    {
+        cropId.Value = crop;
+        growDays.Value = 0;
+    }
+
+    // ✅ 收成 RPC（清除作物）
+    [ServerRpc(RequireOwnership = false)]
+    public void HarvestServerRpc()
+    {
+        cropId.Value = "";
+        growDays.Value = 0;
+    }
+
+    // ✅ 清空格子 RPC（可用於重置農地）
+    [ServerRpc(RequireOwnership = false)]
+    public void ClearTileServerRpc()
+    {
+        cropId.Value = "";
+        growDays.Value = 0;
     }
 }
