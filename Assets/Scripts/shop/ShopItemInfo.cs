@@ -20,8 +20,9 @@ public class ShopItemInfo : ScriptableObject
     public int buyPrice;
     public int sellPrice;
 
-    public bool canBuy = true;
-    public bool canSell = true;
+    public bool canBuy ;
+    public bool canSell;
+
 
     public Sprite icon;
 

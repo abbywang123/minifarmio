@@ -15,7 +15,7 @@ MonoBehaviour:
   cropName: "\u863F\u8514"
   description: "\u6839\u83DC\u985E"
   cropType: 0
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5c88eeb2c72c7864ca5a098c20f4d7e0, type: 3}
   growthRate: 1
   suitableMinTemperature: 16.5
   suitableMaxTemperature: 23.5
@@ -27,3 +27,4 @@ MonoBehaviour:
   recommendedBreeds: []
   specialEffect: 0
   specialEffectDescription: "\u7121\u7279\u6B8A\u6548\u679C"
+  harvestItem: {fileID: 0}

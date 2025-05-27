@@ -1,29 +1,54 @@
 using UnityEngine;
+using System;
 
 public class PlayerWallet : MonoBehaviour
 {
-    public int gold = 100;
+    public static PlayerWallet Instance { get; private set; }
 
-    public bool SpendGold(int amount)
+    [SerializeField]
+    private int currentMoney = 1000;
+
+    public int CurrentMoney => currentMoney;
+
+    // 當金錢變動時觸發的事件（UI 可訂閱）
+    public event Action<int> OnMoneyChanged;
+
+    private void Awake()
     {
-        if (gold >= amount)
+        // Singleton 設置
+        if (Instance != null && Instance != this)
         {
-            gold -= amount;
-            Debug.Log($"💰 支出 {amount} 金幣，目前剩餘 {gold} 金幣。");
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); // 若希望場景切換時仍保留
+    }
+
+    public bool CanAfford(int amount)
+    {
+        return currentMoney >= amount;
+    }
+
+    public bool Spend(int amount)
+    {
+        if (CanAfford(amount))
+        {
+            currentMoney -= amount;
+            Debug.Log($"💸 扣款 {amount}，剩餘:{currentMoney}");
+            OnMoneyChanged?.Invoke(currentMoney); // 觸發事件
             return true;
         }
-        Debug.LogWarning("⚠️ 金幣不足！");
+
+        Debug.Log("❌ 錢不夠");
         return false;
     }
 
-    public void AddGold(int amount)
+    public void Earn(int amount)
     {
-        gold += amount;
-        Debug.Log($"💰 獲得 {amount} 金幣，目前共 {gold} 金幣。");
-    }
-
-    public int GetGold()
-    {
-        return gold;
+        currentMoney += amount;
+        Debug.Log($"💰 收到 {amount}，現在擁有:{currentMoney}");
+        OnMoneyChanged?.Invoke(currentMoney); // 觸發事件
     }
 }

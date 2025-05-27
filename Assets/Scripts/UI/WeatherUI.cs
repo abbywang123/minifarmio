@@ -1,37 +1,24 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class WeatherUI : MonoBehaviour
 {
-    [Header("UI 元件")]
     public TextMeshProUGUI weatherText;
-    public Image weatherIcon;
 
-    [Header("天氣圖示")]
-    public Sprite sunnyIcon;
-    public Sprite cloudyIcon;
-    public Sprite rainIcon;
-    public Sprite defaultIcon;
-
-    public void UpdateWeatherDisplay(string weather, float temperature)
+    public void SetWeather(string weatherType, float temperature)
     {
-        weatherText.text = $"{weather}  ({temperature}°C)";
+        weatherText.text = $"天氣：{ConvertWeatherToChinese(weatherType)}　溫度：{Mathf.RoundToInt(temperature)}°C";
+    }
 
-        switch (weather)
+    private string ConvertWeatherToChinese(string weatherType)
+    {
+        switch (weatherType)
         {
-            case "Clear":
-                weatherIcon.sprite = sunnyIcon;
-                break;
-            case "Clouds":
-                weatherIcon.sprite = cloudyIcon;
-                break;
-            case "Rain":
-                weatherIcon.sprite = rainIcon;
-                break;
-            default:
-                weatherIcon.sprite = defaultIcon;
-                break;
+            case "Sunny": return "晴天";
+            case "Rainy": return "雨天";
+            case "Cloudy": return "多雲";
+            case "Snowy": return "下雪";
+            default: return weatherType;
         }
     }
 }

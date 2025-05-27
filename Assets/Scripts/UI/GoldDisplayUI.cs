@@ -1,16 +1,30 @@
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class GoldDisplayUI : MonoBehaviour
 {
-    public PlayerWallet playerWallet;
-    public TMP_Text goldText;
+    public TextMeshProUGUI goldText;
 
-    void Update()
+    void Start()
     {
-        if (playerWallet != null && goldText != null)
+        if (PlayerWallet.Instance != null)
         {
-            goldText.text = $"金幣：{playerWallet.GetGold()}";
+            // 先顯示初始金額
+            goldText.text = $"Gold: {PlayerWallet.Instance.CurrentMoney}";
+
+            // 訂閱事件
+            PlayerWallet.Instance.OnMoneyChanged += UpdateGoldText;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (PlayerWallet.Instance != null)
+            PlayerWallet.Instance.OnMoneyChanged -= UpdateGoldText;
+    }
+
+    private void UpdateGoldText(int newAmount)
+    {
+        goldText.text = $"Gold: {newAmount}";
     }
 }
