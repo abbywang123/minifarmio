@@ -13,9 +13,9 @@ public class LoginUIManager : MonoBehaviour
     [Header("UI 元件")]
     public TMP_InputField nameInput;
     public Button confirmButton;
-    public Button goFarmButton;           // 單機
-    public Button goMultiplayerButton;    // 多人
-    public TMP_Dropdown modeDropdown;     // Host / Client 選項
+    public Button goFarmButton;           // 單機農場按鈕
+    public Button goMultiplayerButton;    // 多人農場按鈕
+    public TMP_Dropdown modeDropdown;     // Host / Client 模式切換
     public TMP_Text outputText;
 
     private bool dataSaved = false;
@@ -34,12 +34,11 @@ public class LoginUIManager : MonoBehaviour
         {
             string playerId = AuthenticationService.Instance.PlayerId;
             outputText.text = $"✅ 已登入\nID：{playerId}";
-            Debug.Log("✅ 登入成功！");
+            Debug.Log("✅ 登入成功");
 
             try
             {
                 var data = await CloudSaveAPI.LoadFarmData();
-
                 if (data != null)
                 {
                     Debug.Log("✅ Cloud Save 資料已存在");
@@ -49,22 +48,19 @@ public class LoginUIManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("📂 尚無 Cloud Save 資料，請玩家輸入暱稱後建立");
                     outputText.text += "\n請輸入暱稱並點擊『確認』建立資料";
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogError("❌ Cloud Save 載入失敗：" + e.Message);
-                outputText.text += "\n資料載入錯誤，請重新啟動或檢查網路";
+                outputText.text += "\n❌ Cloud Save 載入失敗：" + e.Message;
             }
 
-            // 綁定事件
             confirmButton.onClick.AddListener(OnConfirm);
-            confirmButton.interactable = true;
-
             goFarmButton.onClick.AddListener(OnEnterFarmSingle);
             goMultiplayerButton.onClick.AddListener(OnEnterFarmMultiplayer);
+
+            confirmButton.interactable = true;
         }
         else
         {
@@ -93,7 +89,7 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        string nickname = nameInput.text;
+        string nickname = nameInput.text.Trim();
         Debug.Log("👤 暱稱輸入：" + nickname);
 
         FarmData data = new()
@@ -112,13 +108,16 @@ public class LoginUIManager : MonoBehaviour
             }
         };
 
+        // 儲存到雲端
         await CloudSaveAPI.SaveFarmData(data);
 
-        string id = AuthenticationService.Instance.PlayerId;
-        outputText.text =
-            $"✅ 資料建立完成\n👤 ID：{id}\n" +
-            $"暱稱：{data.playerName}\n💰 金幣：{data.gold} G\n" +
-            string.Join("\n", data.inventory.Select(i => $"🔹 {i.itemId} x{i.count}"));
+        // ✅ 儲存暱稱 & 背包到 PlayerPrefs（給多人同步用）
+        PlayerPrefs.SetString("playerName", nickname);
+        var wrapper = new InventoryWrapper { inventory = data.inventory };
+        PlayerPrefs.SetString("inventoryData", JsonUtility.ToJson(wrapper));
+
+        outputText.text = $"✅ 資料建立完成\n暱稱：{data.playerName}\n💰 金幣：{data.gold}G\n" +
+                          string.Join("\n", data.inventory.Select(i => $"🔹 {i.itemId} x{i.count}"));
 
         dataSaved = true;
         goFarmButton.interactable = true;
@@ -133,7 +132,7 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene("Farm"); // 單機農場場景
+        SceneManager.LoadScene("Farm"); // 單機農場
     }
 
     private void OnEnterFarmMultiplayer()
@@ -144,22 +143,16 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        int mode = modeDropdown.value;
-        if (mode == 0)
-        {
-            Debug.Log("🟢 當房主：StartHost");
-            NetworkManager.Singleton.StartHost();
-        }
-        else
-        {
-            Debug.Log("🔵 加入朋友：StartClient");
-            NetworkManager.Singleton.StartClient();
-        }
-
-        SceneManager.LoadScene("FarmScene_Multiplayer");
+        // ✅ 建議跳轉到 LobbyScene，而非直接切換場景＋開 Host/Client
+        SceneManager.LoadScene("LobbyScene");
     }
 }
 
+[System.Serializable]
+public class InventoryWrapper
+{
+    public List<ItemSlot> inventory;
+}
 
 
 
