@@ -1,21 +1,33 @@
 using UnityEngine;
+using UnityEngine.InputSystem; // ✅ 注意是新版命名空間
 using UnityEngine.EventSystems;
 
 public class TileClickManager : MonoBehaviour
 {
-    void Update()
+    private PlayerControls controls;
+
+    void Awake()
     {
-        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        controls = new PlayerControls();
+        controls.Player.Click.performed += ctx => OnClick();
+    }
+
+    void OnEnable() => controls.Enable();
+    void OnDisable() => controls.Disable();
+
+    void OnClick()
+    {
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Ray ray = Camera.main.ScreenPointToRay(mousePos);
+
+        if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            Vector2 mousePos = Input.mousePosition;
-            Ray ray = Camera.main.ScreenPointToRay(mousePos);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            TileNetworkSync tile = hit.collider.GetComponent<TileNetworkSync>();
+            if (tile != null)
             {
-                TileNetworkSync tile = hit.collider.GetComponent<TileNetworkSync>();
-                if (tile != null)
-                {
-                    tile.PlantCropServerRpc("carrot"); // 播種作物
-                }
+                tile.PlantCropServerRpc("carrot");
             }
         }
     }

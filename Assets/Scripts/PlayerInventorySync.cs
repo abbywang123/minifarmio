@@ -43,7 +43,6 @@ public class PlayerInventorySync : NetworkBehaviour
             LoadFromPlayerPrefs();
         }
 
-        // ✅ 改成正確版本支援的寫法
         syncedInventory.OnListChanged += change =>
         {
             if (debugText != null)
@@ -68,4 +67,32 @@ public class PlayerInventorySync : NetworkBehaviour
             });
         }
     }
+
+    // ✅ 新增：購買道具的同步方法
+    [ServerRpc(RequireOwnership = false)]
+    public void BuyItemServerRpc(string itemId)
+    {
+        // 檢查是否已存在該物品，有的話疊加數量
+        for (int i = 0; i < syncedInventory.Count; i++)
+        {
+            if (syncedInventory[i].itemId.ToString() == itemId)
+            {
+                var slot = syncedInventory[i];
+                slot.count += 1;
+                syncedInventory[i] = slot; // ✅ 替換更新
+                Debug.Log($"🛒 增加背包項目：{itemId} → {slot.count}");
+                return;
+            }
+        }
+
+        // 否則新增新物品
+        syncedInventory.Add(new SyncItemSlot
+        {
+            itemId = new FixedString32Bytes(itemId),
+            count = 1
+        });
+
+        Debug.Log($"🛒 加入新道具：{itemId} x1");
+    }
 }
+
