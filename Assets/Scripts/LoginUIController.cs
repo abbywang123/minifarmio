@@ -15,7 +15,6 @@ public class LoginUIManager : MonoBehaviour
     public Button confirmButton;
     public Button goFarmButton;           // 單機農場按鈕
     public Button goMultiplayerButton;    // 多人農場按鈕
-    public TMP_Dropdown modeDropdown;     // Host / Client 模式切換
     public TMP_Text outputText;
 
     private bool dataSaved = false;
@@ -29,6 +28,7 @@ public class LoginUIManager : MonoBehaviour
 
         await TryLoginSafely();
         await WaitForFinalLoginState();
+        Debug.Log("✅ NetworkManager Singleton 是否存在？" + (NetworkManager.Singleton != null));
 
         if (AuthenticationService.Instance.IsSignedIn)
         {
@@ -143,8 +143,7 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        // ✅ 建議跳轉到 LobbyScene，而非直接切換場景＋開 Host/Client
-        SceneManager.LoadScene("LobbyScene");
+        SceneManager.LoadScene("LobbyScene"); // ✅ 多人連線的選擇場景
     }
 }
 
@@ -153,7 +152,6 @@ public class InventoryWrapper
 {
     public List<ItemSlot> inventory;
 }
-
 
 
 

@@ -4,122 +4,150 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using System;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-
+using Unity.Services.Core;
+using Unity.Services.Authentication;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
-using Unity.Services.Lobbies;
-using Unity.Services.Lobbies.Models;
-using QF = Unity.Services.Lobbies.Models.QueryFilter;   // 別名
 
 public class LobbyUIManager : MonoBehaviour
 {
-    [Header("UI 元件")]
-    public TMP_Dropdown modeDropdown;
-    public TMP_InputField joinCodeInput;
-    public TMP_Text statusText;
-    public Button enterButton;
+    [Header("UI 元件 (請在 Inspector 指派)")]
+    [SerializeField] TMP_Dropdown modeDropdown;
+    [SerializeField] TMP_InputField joinCodeInput;
+    [SerializeField] TMP_Text statusText;
+    [SerializeField] Button enterButton;
 
-    private string currentJoinCode;
+    string currentJoinCode;
 
-    void Start() => enterButton.onClick.AddListener(() => _ = StartMultiplayer());
-
-    async Task StartMultiplayer()
+    async void Start()
     {
-        int mode = modeDropdown.value;
+        if (!CheckUIRefs()) return;
+
+        statusText.text = "🔄 初始化中…";
+        enterButton.interactable = false;
+
+        await EnsureServicesAsync();
+
+        statusText.text = "✅ 請選擇模式並點擊開始";
+        enterButton.interactable = true;
+        enterButton.onClick.AddListener(() => _ = StartMultiplayerAsync());
+    }
+
+    async Task StartMultiplayerAsync()
+    {
+        enterButton.interactable = false;
+        statusText.text = "🔄 連線處理中…";
+
         try
         {
-            statusText.text = "🔄 建立連線中...";
-
-            if (mode == 0)            // Host
+            if (modeDropdown.value == 0) // Host
             {
-                statusText.text = "🟢 建立房主中...";
-                currentJoinCode = await CreateRelay();
-                statusText.text = $"✅ 房間代碼：{currentJoinCode}";
-
-                await LobbyService.Instance.CreateLobbyAsync(
-                    "MyFarmLobby",
-                    2,
-                    new CreateLobbyOptions
-                    {
-                        IsPrivate = false,
-                        Data = { { "S1", new DataObject(DataObject.VisibilityOptions.Public, currentJoinCode) } }
-                    });
-
-                NetworkManager.Singleton.StartHost();
+                currentJoinCode = await CreateRelayAsync();
+                joinCodeInput.text = currentJoinCode ?? "";
+                statusText.text = $"✅ Host 成功！JoinCode: <color=yellow>{currentJoinCode}</color>";
             }
-            else                      // Client
+            else // Client
             {
-                string code = joinCodeInput.text.Trim();
+                string code = joinCodeInput.text.Trim().ToUpper();
                 if (string.IsNullOrEmpty(code))
-                {
-                    statusText.text = "❌ 請輸入房間代碼";
-                    return;
-                }
-
-                statusText.text = "🔵 加入房間中...";
-                await JoinRelay(code);
-                await LobbyService.Instance.QuickJoinLobbyAsync(
-                    new QuickJoinLobbyOptions
-                    {
-                        Filter = new List<QueryFilter>    // ✅ List 形式
-                        {
-                            new QF(
-                                QF.FieldOptions.S1,
-                                code,
-                                QF.OpOptions.EQ)
-                        }
-                    });
-
-                NetworkManager.Singleton.StartClient();
+                    throw new System.Exception("Join Code 不可空白！");
+                await JoinRelayAsync(code);
+                statusText.text = "✅ 加入成功！";
             }
 
-            statusText.text += "\n🚀 進入農場...";
-            await Task.Delay(1000);
             SceneManager.LoadScene("FarmScene_Multiplayer");
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
-            statusText.text = $"❌ 發生錯誤：{ex.Message}";
-            Debug.LogError(ex);
+            Debug.LogError("❌ 連線錯誤: " + ex);
+            statusText.text = $"❌ 失敗：{ex.Message}";
+            enterButton.interactable = true;
         }
     }
 
-    /* ---------- Relay ---------- */
+async Task<string> CreateRelayAsync()
+{
+    statusText.text = "🔄 建立 Relay 中…";
 
-    async Task<string> CreateRelay()
+    Allocation alloc = await RelayService.Instance.CreateAllocationAsync(2);
+    string joinCode = await RelayService.Instance.GetJoinCodeAsync(alloc.AllocationId);
+    Debug.Log("✅ 分配完成，JoinCode: " + joinCode);
+
+    // 🛠️ 加上防呆檢查
+    if (NetworkManager.Singleton == null)
     {
-        Allocation alloc = await RelayService.Instance.CreateAllocationAsync(1);
-        string joinCode  = await RelayService.Instance.GetJoinCodeAsync(alloc.AllocationId);
-
-        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        transport.SetHostRelayData(
-            alloc.RelayServer.IpV4,
-            (ushort)alloc.RelayServer.Port,
-            alloc.AllocationIdBytes,
-            alloc.Key,
-            alloc.ConnectionData);
-
-        return joinCode;
+        Debug.LogError("❌ NetworkManager.Singleton is null！");
+        statusText.text = "❌ 找不到 NetworkManager";
+        return null;
     }
 
-    async Task JoinRelay(string joinCode)
+    var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+    if (transport == null)
     {
-        JoinAllocation alloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
-
-        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        transport.SetClientRelayData(
-            alloc.RelayServer.IpV4,
-            (ushort)alloc.RelayServer.Port,
-            alloc.AllocationIdBytes,
-            alloc.Key,
-            alloc.ConnectionData,
-            alloc.HostConnectionData);
+        Debug.LogError("❌ UnityTransport 組件不存在！");
+        statusText.text = "❌ 找不到 UnityTransport";
+        return null;
     }
+
+    transport.SetRelayServerData(
+        alloc.RelayServer.IpV4,
+        (ushort)alloc.RelayServer.Port,
+        alloc.AllocationIdBytes,
+        alloc.Key,
+        alloc.ConnectionData,
+        alloc.ConnectionData,
+        isSecure: false
+    );
+
+    NetworkManager.Singleton.StartHost();
+    return joinCode;
 }
 
 
 
 
+
+async Task JoinRelayAsync(string joinCode)
+{
+    statusText.text = "🔄 加入 Relay 中…";
+
+    JoinAllocation joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
+
+    var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+    transport.SetRelayServerData(
+        joinAlloc.RelayServer.IpV4,
+        (ushort)joinAlloc.RelayServer.Port,
+        joinAlloc.AllocationIdBytes,
+        joinAlloc.Key,
+        joinAlloc.ConnectionData,
+        joinAlloc.HostConnectionData,  // ✅ Host 的 connection data
+        isSecure: false                // ✅ 是否加密
+    );
+
+    NetworkManager.Singleton.StartClient();
+}
+
+
+
+    async Task EnsureServicesAsync()
+    {
+        if (UnityServices.State != ServicesInitializationState.Initialized)
+            await UnityServices.InitializeAsync();
+
+        if (!AuthenticationService.Instance.IsSignedIn)
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+
+        Debug.Log("✅ 初始化與登入完成");
+    }
+
+    bool CheckUIRefs()
+    {
+        bool ok = true;
+        if (modeDropdown == null) { Debug.LogError("❌ modeDropdown 未指派"); ok = false; }
+        if (joinCodeInput == null) { Debug.LogError("❌ joinCodeInput 未指派"); ok = false; }
+        if (statusText == null) { Debug.LogError("❌ statusText 未指派"); ok = false; }
+        if (enterButton == null) { Debug.LogError("❌ enterButton 未指派"); ok = false; }
+        return ok;
+    }
+}
