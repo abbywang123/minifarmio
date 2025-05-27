@@ -12,26 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-#import "GoogleSignIn.h"
-#import <UnityAppController.h>
+*/
+#import "UnityAppController.h"
 
-// Controller to handle Google SignIn.  The AppController methods are swizzled
-// into the UnityAppController in order to avoid breaking other code that needs
-// to handle these messages also.
-@interface UnityAppController (GoogleSignInAppController)
-// These are the implementations for GSI.  The signatures match the
-// AppController methods.
-- (BOOL)application:(UIApplication *)application
-    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
-
-- (BOOL)application:(UIApplication *)application
-            openURL:(NSURL *)url
-            options:(NSDictionary<NSString *, id> *)options;
-
-- (BOOL)application:(UIApplication *)application
-              openURL:(NSURL *)url
-    sourceApplication:(NSString *)sourceApplication
-           annotation:(id)annotation;
-
+// Extend the UnityAppController so that we can pause the game engine when
+// performing UI operations.
+@interface GoogleSignInAppController : UnityAppController {
+}
 @end
+IMPL_APP_CONTROLLER_SUBCLASS(GoogleSignInAppController)
