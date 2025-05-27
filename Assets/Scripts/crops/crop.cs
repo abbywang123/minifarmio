@@ -43,6 +43,12 @@ public class Crop : MonoBehaviour
 
     private void ApplySpecialEffect(string currentWeather, bool isNight)
     {
+        var player = FindFirstObjectByType<Player>();
+        if (player == null) return;
+
+        var wallet = player.GetComponent<PlayerWallet>();
+        var inventory = player.GetComponent<Inventory>();
+
         switch (cropInfo.specialEffect)
         {
             case SpecialEffectType.NightBoost:
@@ -51,9 +57,10 @@ public class Crop : MonoBehaviour
                 break;
 
             case SpecialEffectType.ExtraGoldOnHarvest:
-                if (Random.value < 0.2f)
+                if (Random.value < 0.2f && wallet != null)
                 {
-                    // PlayerInventory.AddGold(10); // 可在這裡加獎勵金
+                    wallet.Earn(10);
+                    Debug.Log("🎉 你獲得額外金幣 +10！");
                 }
                 break;
 
@@ -67,7 +74,19 @@ public class Crop : MonoBehaviour
                 break;
 
             case SpecialEffectType.ProduceAuraFertilizer:
-                // PlayerInventory.AddItem("AuraFertilizer"); // 可加特殊道具
+                if (inventory != null)
+                {
+                    var fertilizer = ItemDatabase.I.Get("Fertilizer"); // 通用肥料
+                    if (fertilizer != null)
+                    {
+                        inventory.Add(fertilizer, 1);
+                        Debug.Log("✨ 你獲得通用肥料，已放入背包！");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("❌ 找不到通用肥料物品資料！");
+                    }
+                }
                 break;
 
             case SpecialEffectType.StableYield:
@@ -105,4 +124,28 @@ public class Crop : MonoBehaviour
     }
 
     public bool IsMature() => growthProgress >= 100f;
+
+    public void WaterCrop()
+    {
+        Debug.Log($"{cropInfo.cropName} 澆水！");
+        growthProgress += growthRate * 0.2f; // 增加額外生長進度
+        health = Mathf.Min(health + 5f, 100f); // 回復少量健康
+    }
+
+    public void FertilizeCrop()
+    {
+        var inventory = FindFirstObjectByType<Player>()?.GetComponent<Inventory>();
+        var fertilizer = ItemDatabase.I.Get("Fertilizer");
+
+        if (inventory != null && fertilizer != null && inventory.Remove(fertilizer, 1))
+        {
+            Debug.Log($"{cropInfo.cropName} 施肥成功！");
+            quality = Mathf.Min(quality + 10f, 100f);
+            growthProgress += growthRate * 0.1f;
+        }
+        else
+        {
+            Debug.Log("❌ 沒有肥料！");
+        }
+    }
 }

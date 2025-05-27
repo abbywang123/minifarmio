@@ -4,62 +4,35 @@ using TMPro;
 
 public class ShopItemUI : MonoBehaviour
 {
-    public Image iconImage;
-    public TextMeshProUGUI nameText;
-    public TextMeshProUGUI priceText;
-    public Button buySellButton;
-    public TextMeshProUGUI buttonText;
+    [Header("UI 元件")]
+    public Image itemIcon;
+    public TextMeshProUGUI itemNameText;
+    public TextMeshProUGUI itemPriceText;
 
-    private ShopItemInfo item;
-    private bool isBuyMode;
+    public Button buyButton;
+    public Button sellButton;
 
-    public void Setup(ShopItemInfo data, bool buyMode)
+    public void Setup(string name, Sprite icon, string priceText, bool canBuy, bool canSell,
+                      UnityEngine.Events.UnityAction onBuyClicked,
+                      UnityEngine.Events.UnityAction onSellClicked)
     {
-        item = data;
-        isBuyMode = buyMode;
+        itemNameText.text = name;
+        itemIcon.sprite = icon;
+        itemPriceText.text = priceText;
 
-        iconImage.sprite = data.icon;
-        nameText.text = data.itemName;
+        buyButton.gameObject.SetActive(canBuy);
+        sellButton.gameObject.SetActive(canSell);
 
-        if (isBuyMode)
+        if (canBuy)
         {
-            priceText.text = $"價格: {data.buyPrice}";
-            buttonText.text = "購買";
-            buySellButton.interactable = data.canBuy && PlayerWallet.Instance.CanAfford(data.buyPrice);
-        }
-        else
-        {
-            priceText.text = $"價格: {data.sellPrice}";
-            buttonText.text = "賣出";
-            buySellButton.interactable = data.canSell; // 可依擁有數量進一步判斷
+            buyButton.onClick.RemoveAllListeners();
+            buyButton.onClick.AddListener(onBuyClicked);
         }
 
-        buySellButton.onClick.RemoveAllListeners();
-        buySellButton.onClick.AddListener(OnClick);
-    }
-
-    void OnClick()
-    {
-        if (isBuyMode)
+        if (canSell)
         {
-            if (PlayerWallet.Instance.Spend(item.buyPrice))
-            {
-                Debug.Log($"🛒 購買了 {item.itemName}");
-                // 這裡可加到玩家的道具庫存
-            }
-            else
-            {
-                Debug.Log("❌ 錢不夠，無法購買！");
-            }
+            sellButton.onClick.RemoveAllListeners();
+            sellButton.onClick.AddListener(onSellClicked);
         }
-        else
-        {
-            PlayerWallet.Instance.Earn(item.sellPrice);
-            Debug.Log($"💰 賣出了 {item.itemName}");
-            // 這裡應從玩家庫存移除
-        }
-
-        // 更新按鈕狀態（選擇性）
-        Setup(item, isBuyMode);
     }
 }

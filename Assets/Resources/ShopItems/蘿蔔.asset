@@ -19,5 +19,6 @@ MonoBehaviour:
   sellPrice: 70
   canBuy: 0
   canSell: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5c88eeb2c72c7864ca5a098c20f4d7e0, type: 3}
   linkedCrop: {fileID: 11400000, guid: 08dcec659b81b054680cfa2f977062a6, type: 2}
+  itemData: {fileID: 11400000, guid: e98db4f753344af4b900cbb8df66beb2, type: 2}

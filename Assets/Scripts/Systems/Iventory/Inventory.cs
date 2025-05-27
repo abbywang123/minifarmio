@@ -127,4 +127,16 @@ public class Inventory : MonoBehaviour
 
         return true;
     }
+
+        public int CountOf(ItemData data)
+    {
+        int total = 0;
+        foreach (var slot in Slots)
+        {
+            if (slot.item == data)
+                total += slot.count;
+        }
+        return total;
+    }
+
 }

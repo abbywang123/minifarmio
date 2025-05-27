@@ -21,3 +21,4 @@ MonoBehaviour:
   canSell: 1
   icon: {fileID: 21300000, guid: 92ffed8eab98fe146bcb77a99ac6a730, type: 3}
   linkedCrop: {fileID: 11400000, guid: 48dcecda1727d3048aff06293f607567, type: 2}
+  itemData: {fileID: 11400000, guid: 887f5db1efbd9494b861e0bc9923c698, type: 2}

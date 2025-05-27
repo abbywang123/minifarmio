@@ -1,139 +1,135 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ShopManager : MonoBehaviour
 {
     [Header("UI 元件")]
-    public GameObject shopPanel;             // 商店面板
-    public Button shopButton;                // 開關商店按鈕
-    public Transform contentParent;          // 商店物品列表父物件（ScrollView Content）
-    public GameObject shopItemUIPrefab;     // 商店物品 UI 預置物件
-    public Text playerMoneyText;             // 玩家金錢顯示
+    public GameObject shopPanel;
+    public Button openShopButton;
+    public Button buyTabButton;
+    public Button sellTabButton;
 
-    [Header("玩家背包與錢包")]
-    public Inventory playerInventory;        // 玩家背包
-    private PlayerWallet playerWallet;       // 玩家錢包 (從單例拿)
+    public Transform buyContentParent;
+    public Transform sellContentParent;
+    public GameObject shopItemUIPrefab;
+    public TextMeshProUGUI playerMoneyText;
+
+    [Header("遊戲系統")]
+    public Inventory playerInventory;
+
+    private ShopItemInfo[] shopItems;
 
     void Start()
     {
-        playerWallet = PlayerWallet.Instance;
+        shopPanel.SetActive(false);
 
-        shopPanel.SetActive(false);          // 預設隱藏商店
-        shopButton.onClick.AddListener(() => shopPanel.SetActive(!shopPanel.activeSelf));
+        openShopButton.onClick.AddListener(ToggleShopPanel);
+        buyTabButton.onClick.AddListener(() => SwitchTab(true));
+        sellTabButton.onClick.AddListener(() => SwitchTab(false));
 
-        LoadShopItems();
-        UpdateMoneyUI();
+        // 訂閱金錢變動事件
+        if (PlayerWallet.Instance != null)
+            PlayerWallet.Instance.OnMoneyChanged += UpdateMoneyUI;
 
-        // 訂閱錢包變動事件，保持 UI 即時更新
-        if (playerWallet != null)
-            playerWallet.OnMoneyChanged += OnMoneyChanged;
+        UpdateMoneyUI(PlayerWallet.Instance?.CurrentMoney ?? 0);
     }
 
     void OnDestroy()
     {
-        if (playerWallet != null)
-            playerWallet.OnMoneyChanged -= OnMoneyChanged;
+        if (PlayerWallet.Instance != null)
+            PlayerWallet.Instance.OnMoneyChanged -= UpdateMoneyUI;
     }
 
-    void OnMoneyChanged(int newAmount)
+    void ToggleShopPanel()
     {
-        UpdateMoneyUI();
+        bool isActive = !shopPanel.activeSelf;
+        shopPanel.SetActive(isActive);
+
+        if (isActive)
+        {
+            LoadShopItems();
+            SwitchTab(true); // 預設顯示買入頁
+        }
     }
 
-    // 載入商店物品列表
+    void SwitchTab(bool showBuy)
+    {
+        buyContentParent.gameObject.SetActive(showBuy);
+        sellContentParent.gameObject.SetActive(!showBuy);
+
+        buyTabButton.interactable = !showBuy;
+        sellTabButton.interactable = showBuy;
+    }
+
     void LoadShopItems()
     {
-        // 清空舊 UI
-        foreach (Transform child in contentParent)
-            Destroy(child.gameObject);
+        ClearChildren(buyContentParent);
+        ClearChildren(sellContentParent);
 
-        ShopItemInfo[] items = Resources.LoadAll<ShopItemInfo>("ShopItems");
+        shopItems = Resources.LoadAll<ShopItemInfo>("ShopItems");
 
-        foreach (var item in items)
+        foreach (var item in shopItems)
         {
-            GameObject obj = Instantiate(shopItemUIPrefab, contentParent);
+            if (item.canBuy)
+                CreateShopItemUI(item, buyContentParent, true);
 
-            // 設定 UI 元件
-            obj.transform.Find("ItemNameText").GetComponent<Text>().text = item.itemName;
-            obj.transform.Find("ItemPriceText").GetComponent<Text>().text = $"💰{item.buyPrice}/{item.sellPrice}";
-            obj.transform.Find("ItemIcon").GetComponent<Image>().sprite = item.icon;
-
-            Button buyBtn = obj.transform.Find("BuyButton").GetComponent<Button>();
-            Button sellBtn = obj.transform.Find("SellButton").GetComponent<Button>();
-
-            buyBtn.interactable = item.canBuy;
-            sellBtn.interactable = item.canSell;
-
-            // 加入事件 (閉包小心，使用局部變數)
-            ShopItemInfo capturedItem = item;
-
-            buyBtn.onClick.AddListener(() =>
-            {
-                if (TryBuyItem(capturedItem))
-                    UpdateMoneyUI();
-            });
-
-            sellBtn.onClick.AddListener(() =>
-            {
-                if (TrySellItem(capturedItem))
-                    UpdateMoneyUI();
-            });
+            if (item.canSell)
+                CreateShopItemUI(item, sellContentParent, false);
         }
     }
 
-    // 嘗試購買物品
+    void CreateShopItemUI(ShopItemInfo item, Transform parent, bool isBuy)
+    {
+        GameObject obj = Instantiate(shopItemUIPrefab, parent);
+        ShopItemUI ui = obj.GetComponent<ShopItemUI>();
+
+        string priceText = isBuy ? $"買: {item.buyPrice}" : $"賣: {item.sellPrice}";
+
+        ui.Setup(
+            item.itemName,
+            item.icon,
+            priceText,
+            isBuy,
+            !isBuy,
+            () => { if (TryBuyItem(item)) Debug.Log($"✅ 成功購買 {item.itemName}"); },
+            () => { if (TrySellItem(item)) Debug.Log($"✅ 成功販售 {item.itemName}"); }
+        );
+    }
+
     bool TryBuyItem(ShopItemInfo item)
     {
-        if (item.itemData == null)
+        if (PlayerWallet.Instance == null) return false;
+
+        if (!playerInventory.Add(item.itemData, 1)) return false;
+
+        if (!PlayerWallet.Instance.Spend(item.buyPrice))
         {
-            Debug.LogError("商店物品未綁定 ItemData");
+            playerInventory.Remove(item.itemData, 1); // 回收物品
             return false;
         }
 
-        if (!playerWallet.CanAfford(item.buyPrice))
-        {
-            Debug.Log("錢不夠購買此物品");
-            return false;
-        }
-
-        if (playerInventory.Add(item.itemData, 1))
-        {
-            playerWallet.Spend(item.buyPrice);
-            Debug.Log($"購買成功：{item.itemName}");
-            return true;
-        }
-        else
-        {
-            Debug.Log("背包已滿，無法購買");
-            return false;
-        }
+        return true;
     }
 
-    // 嘗試賣出物品
     bool TrySellItem(ShopItemInfo item)
     {
-        if (item.itemData == null)
-        {
-            Debug.LogError("商店物品未綁定 ItemData");
-            return false;
-        }
+        if (PlayerWallet.Instance == null) return false;
 
-        if (playerInventory.Remove(item.itemData, 1))
-        {
-            playerWallet.Earn(item.sellPrice);
-            Debug.Log($"賣出成功：{item.itemName}");
-            return true;
-        }
-        else
-        {
-            Debug.Log("背包內沒有該物品");
-            return false;
-        }
+        if (!playerInventory.Remove(item.itemData, 1)) return false;
+
+        PlayerWallet.Instance.Earn(item.sellPrice);
+        return true;
     }
 
-    // 更新 UI 金錢顯示
-    void UpdateMoneyUI()
+    void UpdateMoneyUI(int currentMoney)
     {
-        playerMoneyText.text = $"金錢：{playerWallet.CurrentMoney}";
+        playerMoneyText.text = $"金錢：{currentMoney}";
+    }
+
+    void ClearChildren(Transform parent)
+    {
+        foreach (Transform child in parent)
+            Destroy(child.gameObject);
     }
 }

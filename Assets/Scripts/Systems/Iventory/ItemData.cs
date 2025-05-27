@@ -1,11 +1,24 @@
-using UnityEngine;        // ← 新增這行
+using UnityEngine;
 
-[CreateAssetMenu(menuName = "Farm/Item")]
+public enum ItemType
+{
+    Seed,
+    Fertilizer,
+    Crop,
+    Misc  // 新增這一行
+}
+
+
+[CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
 public class ItemData : ScriptableObject
 {
-    public string id;               // 唯一識別，可用英數
-    public string displayName;      // 顯示名稱
-    public Sprite icon;             // UI 圖示
-    public bool  stackable = true;
-    [Range(1, 999)] public int maxStack = 99;
+    public string id;              // 唯一 ID：AuraFertilizer
+    public string itemName;        // 顯示名稱：光之肥料
+    public Sprite icon;            // 圖示
+    public ItemType itemType;      // 類型：Fertilizer
+    public int maxStack = 99;      // 疊加數量
+    public string description;     // 說明文字
+
+    // 新增屬性，判斷是否可堆疊
+    public bool stackable => maxStack > 1;
 }
