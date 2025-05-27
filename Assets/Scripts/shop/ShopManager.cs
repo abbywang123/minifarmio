@@ -5,18 +5,26 @@ using TMPro;
 public class ShopManager : MonoBehaviour
 {
     [Header("UI 元件")]
-    public GameObject shopPanel;
-    public Button openShopButton;
-    public Button buyTabButton;
-    public Button sellTabButton;
+    public GameObject shopPanel;                    // 整體商店面板
+    public Button openShopButton;                   // 開啟商店按鈕
+    public Button buyTabButton;                     // 買入分頁按鈕
+    public Button sellTabButton;                    // 賣出分頁按鈕
 
-    public Transform buyContentParent;
-    public Transform sellContentParent;
-    public GameObject shopItemUIPrefab;
+    [Header("ScrollView 面板")]
+    public GameObject buyScrollView;                // Buy 的 ScrollView 整體物件
+    public GameObject sellScrollView;               // Sell 的 ScrollView 整體物件
+    public Transform buyContentParent;              // Buy ScrollView 中的 Content
+    public Transform sellContentParent;             // Sell ScrollView 中的 Content
+
+    [Header("Prefab")]
+    public GameObject shopItemUIPrefab;             // 商品項目預製體
+
+    [Header("玩家系統")]
+    public PlayerWallet playerWallet;               // 玩家錢包
+    public Inventory playerInventory;               // 玩家背包
+
+    [Header("顯示金錢")]
     public TextMeshProUGUI playerMoneyText;
-
-    [Header("遊戲系統")]
-    public Inventory playerInventory;
 
     private ShopItemInfo[] shopItems;
 
@@ -27,18 +35,6 @@ public class ShopManager : MonoBehaviour
         openShopButton.onClick.AddListener(ToggleShopPanel);
         buyTabButton.onClick.AddListener(() => SwitchTab(true));
         sellTabButton.onClick.AddListener(() => SwitchTab(false));
-
-        // 訂閱金錢變動事件
-        if (PlayerWallet.Instance != null)
-            PlayerWallet.Instance.OnMoneyChanged += UpdateMoneyUI;
-
-        UpdateMoneyUI(PlayerWallet.Instance?.CurrentMoney ?? 0);
-    }
-
-    void OnDestroy()
-    {
-        if (PlayerWallet.Instance != null)
-            PlayerWallet.Instance.OnMoneyChanged -= UpdateMoneyUI;
     }
 
     void ToggleShopPanel()
@@ -49,14 +45,15 @@ public class ShopManager : MonoBehaviour
         if (isActive)
         {
             LoadShopItems();
-            SwitchTab(true); // 預設顯示買入頁
+            SwitchTab(true); // 預設顯示買入
+            UpdateMoneyUI();
         }
     }
 
     void SwitchTab(bool showBuy)
     {
-        buyContentParent.gameObject.SetActive(showBuy);
-        sellContentParent.gameObject.SetActive(!showBuy);
+        buyScrollView.SetActive(showBuy);
+        sellScrollView.SetActive(!showBuy);
 
         buyTabButton.interactable = !showBuy;
         sellTabButton.interactable = showBuy;
@@ -84,7 +81,7 @@ public class ShopManager : MonoBehaviour
         GameObject obj = Instantiate(shopItemUIPrefab, parent);
         ShopItemUI ui = obj.GetComponent<ShopItemUI>();
 
-        string priceText = isBuy ? $"買: {item.buyPrice}" : $"賣: {item.sellPrice}";
+        string priceText = isBuy ? $"買：{item.buyPrice}" : $"賣：{item.sellPrice}";
 
         ui.Setup(
             item.itemName,
@@ -92,44 +89,42 @@ public class ShopManager : MonoBehaviour
             priceText,
             isBuy,
             !isBuy,
-            () => { if (TryBuyItem(item)) Debug.Log($"✅ 成功購買 {item.itemName}"); },
-            () => { if (TrySellItem(item)) Debug.Log($"✅ 成功販售 {item.itemName}"); }
+            () => {
+                if (TryBuyItem(item)) UpdateMoneyUI();
+            },
+            () => {
+                if (TrySellItem(item)) UpdateMoneyUI();
+            }
         );
     }
 
     bool TryBuyItem(ShopItemInfo item)
     {
-        if (PlayerWallet.Instance == null) return false;
-
+        if (!playerWallet.CanAfford(item.buyPrice)) return false;
         if (!playerInventory.Add(item.itemData, 1)) return false;
 
-        if (!PlayerWallet.Instance.Spend(item.buyPrice))
-        {
-            playerInventory.Remove(item.itemData, 1); // 回收物品
-            return false;
-        }
-
+        playerWallet.Spend(item.buyPrice);
         return true;
     }
 
     bool TrySellItem(ShopItemInfo item)
     {
-        if (PlayerWallet.Instance == null) return false;
-
         if (!playerInventory.Remove(item.itemData, 1)) return false;
 
-        PlayerWallet.Instance.Earn(item.sellPrice);
+        playerWallet.Earn(item.sellPrice);
         return true;
     }
 
-    void UpdateMoneyUI(int currentMoney)
+    void UpdateMoneyUI()
     {
-        playerMoneyText.text = $"金錢：{currentMoney}";
+        playerMoneyText.text = $"金錢：{playerWallet.CurrentMoney}";
     }
 
     void ClearChildren(Transform parent)
     {
         foreach (Transform child in parent)
+        {
             Destroy(child.gameObject);
+        }
     }
 }
