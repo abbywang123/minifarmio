@@ -30,6 +30,13 @@ public class FarmInput : MonoBehaviour
                 {
                     tile.Harvest();
                 }
+                else
+                {
+                    // 👉 顯示作物狀態面板
+                    var panel = FindObjectOfType<CropInfoPanel>();
+                    if (panel != null)
+                        panel.Show(tile.plantedCrop);
+                }
             }
         }
     }

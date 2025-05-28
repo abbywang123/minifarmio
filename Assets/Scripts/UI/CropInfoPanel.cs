@@ -94,4 +94,21 @@ public class CropInfoPanel : MonoBehaviour
             UpdateUI();
         }
     }
+
+    void OnEnable()
+    {
+        GameCalendar.OnNewDay += NewDayReset;
+    }
+
+    void OnDisable()
+    {
+        GameCalendar.OnNewDay -= NewDayReset;
+    }
+
+    void NewDayReset()
+    {
+        waterLeft = dailyWaterLimit;
+        UpdateUI();
+    }
+
 }
