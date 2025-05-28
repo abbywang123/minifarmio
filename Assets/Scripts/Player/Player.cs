@@ -9,25 +9,32 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 movement;
 
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // 嘗試移動到出生點（由 SpawnManager 控制）
-        MoveToSpawnPoint();
+        // 嘗試取得 SpawnManager 中設置的出生點名稱
+        if (SpawnManager.Instance != null)
+        {
+            string spawnPoint = SpawnManager.Instance.SpawnPointName;
+            Debug.Log($"[Player] Loaded with spawn point: {spawnPoint}");
+
+            MoveToSpawnPoint(); // 呼叫移動方法
+        }
+        else
+        {
+            Debug.LogWarning("[Player] SpawnManager not found!");
+        }
     }
 
-    void Update()
+    private void Update()
     {
-        // 接收鍵盤輸入（舊輸入系統）
+        // 接收鍵盤輸入
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
-
-        // 印出輸入狀態（用於除錯）
-        Debug.Log("Move input: " + movement);
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         // 移動玩家
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
@@ -35,24 +42,17 @@ public class Player : MonoBehaviour
 
     private void MoveToSpawnPoint()
     {
-        if (SpawnManager.Instance != null)
-        {
-            string spawnName = SpawnManager.Instance.SpawnPointName; // 你應該有這個 getter
-            GameObject spawnPoint = GameObject.Find(spawnName);
+        string spawnName = SpawnManager.Instance.SpawnPointName;
+        GameObject spawnPoint = GameObject.Find(spawnName);
 
-            if (spawnPoint != null)
-            {
-                transform.position = spawnPoint.transform.position;
-                Debug.Log($"玩家移動到出生點：{spawnName}");
-            }
-            else
-            {
-                Debug.LogWarning($"找不到出生點：{spawnName}");
-            }
+        if (spawnPoint != null)
+        {
+            transform.position = spawnPoint.transform.position;
+            Debug.Log($"玩家移動到出生點：{spawnName}");
         }
         else
         {
-            Debug.LogWarning("SpawnManager.Instance 為 null！");
+            Debug.LogWarning($"找不到出生點：{spawnName}");
         }
     }
 }
