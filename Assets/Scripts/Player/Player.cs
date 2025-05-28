@@ -3,8 +3,11 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
 {
-    [Header("移動速度")]
+    [Header("移動設定")]
     public float moveSpeed = 5f;
+
+    [Header("動畫設定")]
+    public Animator animator;
 
     private Rigidbody2D rb;
     private Vector2 movement;
@@ -13,46 +16,30 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // 嘗試移動到出生點（由 SpawnManager 控制）
-        MoveToSpawnPoint();
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>(); // 可選
+        }
     }
 
     void Update()
     {
-        // 接收鍵盤輸入（舊輸入系統）
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+        // 取得鍵盤輸入
+        movement.x = Input.GetAxisRaw("Horizontal"); // 左右 A/D or ←/→
+        movement.y = Input.GetAxisRaw("Vertical");   // 上下 W/S or ↑/↓
 
-        // 印出輸入狀態（用於除錯）
-        Debug.Log("Move input: " + movement);
+        // 更新動畫參數
+        if (animator != null)
+        {
+            animator.SetFloat("Horizontal", movement.x);
+            animator.SetFloat("Vertical", movement.y);
+            animator.SetFloat("Speed", movement.sqrMagnitude);
+        }
     }
 
     void FixedUpdate()
     {
-        // 移動玩家
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
-    }
-
-    private void MoveToSpawnPoint()
-    {
-        if (SpawnManager.Instance != null)
-        {
-            string spawnName = SpawnManager.Instance.SpawnPointName; // 你應該有這個 getter
-            GameObject spawnPoint = GameObject.Find(spawnName);
-
-            if (spawnPoint != null)
-            {
-                transform.position = spawnPoint.transform.position;
-                Debug.Log($"玩家移動到出生點：{spawnName}");
-            }
-            else
-            {
-                Debug.LogWarning($"找不到出生點：{spawnName}");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("SpawnManager.Instance 為 null！");
-        }
+        // 實際移動角色
+        rb.MovePosition(rb.position + movement.normalized * moveSpeed * Time.fixedDeltaTime);
     }
 }

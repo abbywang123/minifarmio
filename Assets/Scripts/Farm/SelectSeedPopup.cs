@@ -8,12 +8,12 @@ public class SelectSeedPopup : MonoBehaviour
     public GameObject slotPrefab;
     FarmUIManager manager;
 
-    void Awake() => manager = FindObjectOfType<FarmUIManager>();
+    void Awake() => manager = FindFirstObjectByType<FarmUIManager>();
 
     public void Show(FarmTile tile)
     {
         gameObject.SetActive(true);
-        foreach (Transform c in gridParent) Destory(c.gameObject);
+        foreach (Transform c in gridParent) Destroy(c.gameObject);
 
         foreach (var item in InventoryManager.Instance.GetAllitems())
         {
