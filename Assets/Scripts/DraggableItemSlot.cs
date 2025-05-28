@@ -3,7 +3,9 @@ using UnityEngine.EventSystems;
 
 public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public Canvas canvas;  // 🟡 可以不指定，會自動抓最近的 Canvas
+    public string itemId; // ✅ 加上這行！
+
+    public Canvas canvas;
 
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;

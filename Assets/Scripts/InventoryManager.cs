@@ -1,3 +1,4 @@
+// ✅ InventoryManager.cs（完整整合拖曳圖片）
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -49,7 +50,7 @@ public class InventoryManager : MonoBehaviour
             {
                 playerName = "新玩家",
                 gold = 999,
-                maxInventorySize = 20,
+                maxInventorySize = 12,
                 inventory = new List<ItemSlot>
                 {
                     new ItemSlot { itemId = "wheat", count = 3 },
@@ -76,11 +77,9 @@ public class InventoryManager : MonoBehaviour
 
     void RefreshInventoryUI()
     {
-        // ✅ 清空背包格子與按鈕
         foreach (Transform child in gridParent)
             Destroy(child.gameObject);
 
-        // ✅ 產生格子
         for (int i = 0; i < farmData.maxInventorySize; i++)
         {
             GameObject go = Instantiate(slotPrefab, gridParent);
@@ -92,7 +91,19 @@ public class InventoryManager : MonoBehaviour
 
                 Image iconImage = go.transform.Find("Icon")?.GetComponent<Image>();
                 if (iconImage != null)
+                {
                     iconImage.sprite = iconMap.ContainsKey(slot.itemId) ? iconMap[slot.itemId] : defaultIcon;
+
+                    if (!iconImage.GetComponent<CanvasGroup>())
+                        iconImage.gameObject.AddComponent<CanvasGroup>();
+
+                    DraggableItemSlot drag = iconImage.GetComponent<DraggableItemSlot>();
+                    if (drag == null)
+                        drag = iconImage.gameObject.AddComponent<DraggableItemSlot>();
+
+                    drag.canvas = GetComponentInParent<Canvas>();
+                    drag.itemId = slot.itemId;
+                }
 
                 TMP_Text countText = go.transform.Find("CountText")?.GetComponent<TMP_Text>();
                 if (countText != null)
@@ -101,10 +112,6 @@ public class InventoryManager : MonoBehaviour
                 string id = slot.itemId;
                 int count = slot.count;
                 go.GetComponent<Button>().onClick.AddListener(() => ShowItemInfo(id, count));
-
-                DraggableItemSlot drag = go.GetComponent<DraggableItemSlot>();
-                if (drag != null)
-                    drag.canvas = GetComponentInParent<Canvas>();
             }
             else
             {
@@ -123,7 +130,6 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        // ✅ 加上「擴充格子」按鈕
         if (addSlotButtonPrefab != null)
         {
             GameObject addBtn = Instantiate(addSlotButtonPrefab, gridParent);
@@ -158,42 +164,38 @@ public class InventoryManager : MonoBehaviour
     }
 
     void UseItem(string itemId)
-{
-    Debug.Log($"🧪 使用物品：{itemId}");
-
-    var item = inventoryData.Find(slot => slot.itemId == itemId);
-
-    if (item != null)
     {
-        item.count--;
+        Debug.Log($"🧪 使用物品：{itemId}");
 
-        if (item.count <= 0)
-            inventoryData.Remove(item);
+        var item = inventoryData.Find(slot => slot.itemId == itemId);
 
-        _ = SaveInventoryThenRefresh();
+        if (item != null)
+        {
+            item.count--;
+
+            if (item.count <= 0)
+                inventoryData.Remove(item);
+
+            _ = SaveInventoryThenRefresh();
+        }
     }
-}
 
-
-  void DiscardItem(string itemId)
-{
-    Debug.Log($"🗑️ 丟棄物品：{itemId}");
-
-    // 找到第一個符合 itemId 的物品
-    var item = inventoryData.Find(slot => slot.itemId == itemId);
-
-    if (item != null)
+    void DiscardItem(string itemId)
     {
-        item.count--;
+        Debug.Log($"🗑️ 丟棄物品：{itemId}");
 
-        // 如果數量歸零就移除
-        if (item.count <= 0)
-            inventoryData.Remove(item);
+        var item = inventoryData.Find(slot => slot.itemId == itemId);
 
-        _ = SaveInventoryThenRefresh();
+        if (item != null)
+        {
+            item.count--;
+
+            if (item.count <= 0)
+                inventoryData.Remove(item);
+
+            _ = SaveInventoryThenRefresh();
+        }
     }
-}
-
 
     async Task SaveInventoryThenRefresh()
     {

@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4188744053963564979}
   - component: {fileID: 874917610902873240}
   - component: {fileID: 3592478524311994412}
-  - component: {fileID: 3733315934197140739}
   m_Layer: 5
   m_Name: InventorySlot
   m_TagString: Untagged
@@ -136,19 +135,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &3733315934197140739
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 711137403935620166}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 953912f4bdadc9742a802eb4fbccedd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvas: {fileID: 0}
 --- !u!1 &5498146334028417648
 GameObject:
   m_ObjectHideFlags: 0
@@ -160,6 +146,8 @@ GameObject:
   - component: {fileID: 8380344475444572499}
   - component: {fileID: 7213637474205669673}
   - component: {fileID: 2815209942160577118}
+  - component: {fileID: 679742344428871598}
+  - component: {fileID: 1512121417881981781}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -224,6 +212,31 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &679742344428871598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5498146334028417648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 953912f4bdadc9742a802eb4fbccedd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvas: {fileID: 0}
+--- !u!225 &1512121417881981781
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5498146334028417648}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7019290371106667186
 GameObject:
   m_ObjectHideFlags: 0
@@ -258,8 +271,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -50, y: 20.091}
-  m_SizeDelta: {x: 100, y: 40.1825}
+  m_AnchoredPosition: {x: -51.9, y: 5.7}
+  m_SizeDelta: {x: 92.8286, y: 20.2458}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5480960711736877024
 CanvasRenderer:
@@ -298,8 +311,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294166955
-  m_fontColor: {r: 0.66967785, g: 0.7879285, b: 0.9528302, a: 1}
+    rgba: 4288426504
+  m_fontColor: {r: 0.031817377, g: 0.19494082, b: 0.6132076, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
