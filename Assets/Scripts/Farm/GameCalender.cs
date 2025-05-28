@@ -20,14 +20,6 @@ public class GameCalendar : MonoBehaviour
         }
     }
 
-    void OnEnable()
-    {
-        GameCalendar.OnNewDay += NewDayReset;
-    }
 
-    void OnDisable()
-    {
-        GameCalendar.OnNewDay -= NewDayReset;
-}
 
 }

@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      OIP-fotor-bg-remover-20250528121328_0: 1519490877719927896
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
