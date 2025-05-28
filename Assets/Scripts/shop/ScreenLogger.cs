@@ -7,21 +7,18 @@ public class ScreenLogger : MonoBehaviour, IPointerClickHandler
 {
     [Header("UI 元件")]
     public TextMeshProUGUI logText;
-    public GameObject panelToClose; // ✅ 要控制顯示/隱藏的面板（建議是背景整個 log panel）
+    public GameObject panelToClose; // ✅ 這是整個 log UI 面板（例如一個含背景的 Panel）
 
     private Queue<string> logs = new Queue<string>();
     private int maxLines = 10;
 
-    void Awake()
-    {
-        // 一開始隱藏面板
-        if (panelToClose != null)
-            panelToClose.SetActive(false);
-    }
-
     void OnEnable()
     {
         Application.logMessageReceived += HandleLog;
+
+        // 啟動時預設不顯示
+        if (panelToClose != null)
+            panelToClose.SetActive(false);
     }
 
     void OnDisable()
@@ -31,22 +28,26 @@ public class ScreenLogger : MonoBehaviour, IPointerClickHandler
 
     void HandleLog(string logString, string stackTrace, LogType type)
     {
-        // 限制最多顯示的行數
         if (logs.Count >= maxLines)
             logs.Dequeue();
 
         logs.Enqueue(logString);
         logText.text = string.Join("\n", logs);
 
-        // 有 log 時自動顯示面板
-        if (panelToClose != null && !panelToClose.activeSelf)
+        // ✅ 有訊息時顯示 + 浮到最上層
+        if (panelToClose != null)
+        {
             panelToClose.SetActive(true);
+            panelToClose.transform.SetAsLastSibling(); // 確保在最上層顯示
+        }
     }
 
-    // 點擊面板任意位置關閉 log 視窗
+    // ✅ 點擊任意區域關閉 Log 面板
     public void OnPointerClick(PointerEventData eventData)
     {
         if (panelToClose != null)
+        {
             panelToClose.SetActive(false);
+        }
     }
 }
