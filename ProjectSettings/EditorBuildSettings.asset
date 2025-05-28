@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FarmScene_Multiplayer.unity
     guid: 7a2ab3df3fbe9ce4483719119b1d27ad
+  - enabled: 1
+    path: Assets/Scenes/map.unity
+    guid: 80b854815c62ffc48992023f17187bc7
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

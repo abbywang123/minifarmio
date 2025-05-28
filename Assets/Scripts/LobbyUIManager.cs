@@ -17,9 +17,8 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] TMP_InputField joinCodeInput;
     [SerializeField] TMP_Text statusText;
     [SerializeField] Button enterButton;
-    [SerializeField] TMP_Text joinCodeText;
     [SerializeField] Button startGameButton;
-    [SerializeField] Button backToLoginButton; // ✅ 新增
+    [SerializeField] Button backToLoginButton;
 
     string currentJoinCode;
 
@@ -30,11 +29,12 @@ public class LobbyUIManager : MonoBehaviour
         statusText.text = "🔄 初始化中…";
         enterButton.interactable = false;
         startGameButton.gameObject.SetActive(false);
+        joinCodeInput.gameObject.SetActive(false); // 預設先隱藏，待判斷顯示
 
         // ✅ 綁定返回登入事件
         backToLoginButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("LoginScene");
+            SceneManager.LoadScene("login");
         });
 
         await EnsureServicesAsync();
@@ -54,12 +54,14 @@ public class LobbyUIManager : MonoBehaviour
         {
             if (modeDropdown.value == 0) // Host
             {
+                joinCodeInput.gameObject.SetActive(false);
+
                 currentJoinCode = await CreateRelayAsync();
                 joinCodeInput.text = currentJoinCode ?? "";
-                statusText.text = $"✅ Host 成功！JoinCode: <color=yellow>{currentJoinCode}</color>";
-                joinCodeText.text = $"🎮 房間代碼：{currentJoinCode}";
 
-                // ✅ 顯示開始農場按鈕
+                statusText.text = $"✅ Host 成功！JoinCode: <color=yellow>{currentJoinCode}</color>";
+
+                // ✅ 顯示「開始遊戲」按鈕，僅 Host 可用
                 startGameButton.gameObject.SetActive(true);
                 startGameButton.onClick.RemoveAllListeners();
                 startGameButton.onClick.AddListener(() =>
@@ -77,15 +79,16 @@ public class LobbyUIManager : MonoBehaviour
             }
             else // Client
             {
+                joinCodeInput.gameObject.SetActive(true);
+
                 string code = joinCodeInput.text.Trim().ToUpper();
                 if (string.IsNullOrEmpty(code))
                     throw new System.Exception("Join Code 不可空白！");
 
                 await JoinRelayAsync(code);
-                statusText.text = "✅ 加入成功！";
+                statusText.text = "✅ 加入成功！等待房主開始遊戲…";
 
-                // ✅ Client 自動切場景（建議之後改為等 Host 切）
-                SceneManager.LoadScene("FarmScene_Multiplayer");
+                // ❌ 不自動切場景，等 Host 切換
             }
         }
         catch (System.Exception ex)
@@ -103,13 +106,6 @@ public class LobbyUIManager : MonoBehaviour
         Allocation alloc = await RelayService.Instance.CreateAllocationAsync(2);
         string joinCode = await RelayService.Instance.GetJoinCodeAsync(alloc.AllocationId);
         Debug.Log("✅ 分配完成，JoinCode: " + joinCode);
-
-        if (NetworkManager.Singleton == null)
-        {
-            Debug.LogError("❌ NetworkManager.Singleton is null！");
-            statusText.text = "❌ 找不到 NetworkManager";
-            return null;
-        }
 
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         if (transport == null)
@@ -171,7 +167,6 @@ public class LobbyUIManager : MonoBehaviour
         if (joinCodeInput == null) { Debug.LogError("❌ joinCodeInput 未指派"); ok = false; }
         if (statusText == null) { Debug.LogError("❌ statusText 未指派"); ok = false; }
         if (enterButton == null) { Debug.LogError("❌ enterButton 未指派"); ok = false; }
-        if (joinCodeText == null) { Debug.LogError("❌ joinCodeText 未指派"); ok = false; }
         if (startGameButton == null) { Debug.LogError("❌ startGameButton 未指派"); ok = false; }
         if (backToLoginButton == null) { Debug.LogError("❌ backToLoginButton 未指派"); ok = false; }
         return ok;
