@@ -7,6 +7,15 @@ public class Crop : MonoBehaviour
     private float growthProgress = 0f;
     private float health = 100f;
     private float quality = 100f;
+    public float GetGrowthProgress() => growthProgress;
+    public float GetHealth() => health;
+    public float GetQuality() => quality;
+    public CropInfo GetInfo() => cropInfo;
+    public float GetGrowthProgressNormalized() => Mathf.Clamp01(growthProgress / 100f);
+    public float GetHealthNormalized() => Mathf.Clamp01(health / 100f);
+    public float GetQualityNormalized() => Mathf.Clamp01(quality / 100f);
+
+
 
     private float growthRate => cropInfo.growthRate;
 
