@@ -158,16 +158,42 @@ public class InventoryManager : MonoBehaviour
     }
 
     void UseItem(string itemId)
-    {
-        Debug.Log($"🧪 使用物品：{itemId}");
-    }
+{
+    Debug.Log($"🧪 使用物品：{itemId}");
 
-    void DiscardItem(string itemId)
+    var item = inventoryData.Find(slot => slot.itemId == itemId);
+
+    if (item != null)
     {
-        Debug.Log($"🗑️ 丟棄物品：{itemId}");
-        inventoryData.RemoveAll(item => item.itemId == itemId);
+        item.count--;
+
+        if (item.count <= 0)
+            inventoryData.Remove(item);
+
         _ = SaveInventoryThenRefresh();
     }
+}
+
+
+  void DiscardItem(string itemId)
+{
+    Debug.Log($"🗑️ 丟棄物品：{itemId}");
+
+    // 找到第一個符合 itemId 的物品
+    var item = inventoryData.Find(slot => slot.itemId == itemId);
+
+    if (item != null)
+    {
+        item.count--;
+
+        // 如果數量歸零就移除
+        if (item.count <= 0)
+            inventoryData.Remove(item);
+
+        _ = SaveInventoryThenRefresh();
+    }
+}
+
 
     async Task SaveInventoryThenRefresh()
     {
