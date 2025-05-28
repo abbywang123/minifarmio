@@ -34,7 +34,7 @@ public class LobbyUIManager : MonoBehaviour
         // ✅ 綁定返回登入事件
         backToLoginButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("LoginScene");
+            SceneManager.LoadScene("Login");
         });
 
         await EnsureServicesAsync();

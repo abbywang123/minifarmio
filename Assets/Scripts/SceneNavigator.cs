@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 public class SceneNavigator : MonoBehaviour
 {
     public Button backButton;
-    public string farmSceneName = "FarmScene";
+    public string farmSceneName = "map";
     public TMP_Text saveStatusText;
     public InventoryManager inventoryManager;
 
