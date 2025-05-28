@@ -17,6 +17,9 @@ public class InventoryManager_Multiplayer : MonoBehaviour
     public Sprite wheatIcon;
     public Sprite carrotIcon;
 
+    [Header("設定")]
+    public int defaultSlotCount = 20; // ✅ 預設顯示格子數
+
     private Dictionary<string, Sprite> iconMap;
 
     void Start()
@@ -31,8 +34,8 @@ public class InventoryManager_Multiplayer : MonoBehaviour
 
         backToFarmButton.onClick.AddListener(async () =>
         {
-            await SaveInventoryAsync(); // ✅ 加入儲存
-            gameObject.SetActive(false); // ✅ 關閉 UI
+            await SaveInventoryAsync();
+            gameObject.SetActive(false); // ✅ 關閉背包 UI
         });
 
         RefreshInventoryUI();
@@ -57,19 +60,36 @@ public class InventoryManager_Multiplayer : MonoBehaviour
             return;
         }
 
-        foreach (var slot in inventory.syncedInventory)
+        for (int i = 0; i < defaultSlotCount; i++)
         {
             GameObject go = Instantiate(slotPrefab, gridParent);
+            go.name = $"Slot_{i}";
 
             Image iconImage = go.transform.Find("Icon")?.GetComponent<Image>();
-            if (iconImage != null)
-                iconImage.sprite = iconMap.ContainsKey(slot.itemId.ToString()) ? iconMap[slot.itemId.ToString()] : defaultIcon;
-
             TMP_Text countText = go.transform.Find("CountText")?.GetComponent<TMP_Text>();
-            if (countText != null)
-                countText.text = $"x{slot.count}";
 
-            go.name = $"Slot_{slot.itemId}";
+            if (i < inventory.syncedInventory.Count)
+            {
+                var slot = inventory.syncedInventory[i];
+
+                if (iconImage != null)
+                    iconImage.sprite = iconMap.ContainsKey(slot.itemId.ToString()) ? iconMap[slot.itemId.ToString()] : defaultIcon;
+
+                if (countText != null)
+                    countText.text = $"x{slot.count}";
+            }
+            else
+            {
+                // 空格子顯示淡淡的預設圖
+                if (iconImage != null)
+                {
+                    iconImage.sprite = defaultIcon;
+                    iconImage.color = new Color(1f, 1f, 1f, 0.3f); // 半透明
+                }
+
+                if (countText != null)
+                    countText.text = "";
+            }
         }
     }
 
