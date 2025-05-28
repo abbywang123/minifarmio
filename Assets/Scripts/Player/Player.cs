@@ -3,56 +3,43 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
 {
-    [Header("移動速度")]
+    [Header("移動設定")]
     public float moveSpeed = 5f;
+
+    [Header("動畫設定")]
+    public Animator animator;
 
     private Rigidbody2D rb;
     private Vector2 movement;
 
-    private void Start()
+    void Start()
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // 嘗試取得 SpawnManager 中設置的出生點名稱
-        if (SpawnManager.Instance != null)
+        if (animator == null)
         {
-            string spawnPoint = SpawnManager.Instance.SpawnPointName;
-            Debug.Log($"[Player] Loaded with spawn point: {spawnPoint}");
-
-            MoveToSpawnPoint(); // 呼叫移動方法
-        }
-        else
-        {
-            Debug.LogWarning("[Player] SpawnManager not found!");
+            animator = GetComponent<Animator>(); // 可選
         }
     }
 
-    private void Update()
+    void Update()
     {
-        // 接收鍵盤輸入
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+        // 取得鍵盤輸入
+        movement.x = Input.GetAxisRaw("Horizontal"); // 左右 A/D or ←/→
+        movement.y = Input.GetAxisRaw("Vertical");   // 上下 W/S or ↑/↓
+
+        // 更新動畫參數
+        if (animator != null)
+        {
+            animator.SetFloat("Horizontal", movement.x);
+            animator.SetFloat("Vertical", movement.y);
+            animator.SetFloat("Speed", movement.sqrMagnitude);
+        }
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
-        // 移動玩家
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
-    }
-
-    private void MoveToSpawnPoint()
-    {
-        string spawnName = SpawnManager.Instance.SpawnPointName;
-        GameObject spawnPoint = GameObject.Find(spawnName);
-
-        if (spawnPoint != null)
-        {
-            transform.position = spawnPoint.transform.position;
-            Debug.Log($"玩家移動到出生點：{spawnName}");
-        }
-        else
-        {
-            Debug.LogWarning($"找不到出生點：{spawnName}");
-        }
+        // 實際移動角色
+        rb.MovePosition(rb.position + movement.normalized * moveSpeed * Time.fixedDeltaTime);
     }
 }
