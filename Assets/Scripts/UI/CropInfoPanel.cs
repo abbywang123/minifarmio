@@ -35,12 +35,6 @@ public class CropInfoPanel : MonoBehaviour
         Hide();
     }
 
-    public void NewDayReset()
-    {
-        waterLeft = dailyWaterLimit;
-        UpdateUI();
-    }
-
     public void Show(Crop crop)
     {
         currentCrop = crop;
@@ -52,6 +46,12 @@ public class CropInfoPanel : MonoBehaviour
     {
         currentCrop = null;
         gameObject.SetActive(false);
+    }
+
+    public void NewDayReset()
+    {
+        waterLeft = dailyWaterLimit;
+        UpdateUI();
     }
 
     void UpdateUI()
@@ -104,11 +104,4 @@ public class CropInfoPanel : MonoBehaviour
     {
         GameCalendar.OnNewDay -= NewDayReset;
     }
-
-    void NewDayReset()
-    {
-        waterLeft = dailyWaterLimit;
-        UpdateUI();
-    }
-
 }
