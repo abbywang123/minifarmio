@@ -3,8 +3,10 @@ using UnityEngine.EventSystems;
 
 public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public string itemId; // ✅ 加上這行！
+    [Header("道具資訊")]
+    public string itemId; // ✅ 拖曳的道具 ID
 
+    [Header("UI 設定")]
     public Canvas canvas;
 
     private RectTransform rectTransform;
@@ -32,6 +34,16 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         canvasGroup.alpha = 0.6f;
         canvasGroup.blocksRaycasts = false;
+
+        // ✅ 通知 InventoryManager：開始拖曳這個道具
+        InventoryManager.Instance?.SetDraggingItem(itemId);
+        Debug.Log($"🟡 開始拖曳道具：{itemId}");
+
+        // ✅ 顯示滑鼠下的圖示
+        if (InventoryManager.Instance.IconMap.TryGetValue(itemId, out var sprite))
+        {
+            DragItemIcon.Instance?.Show(sprite);
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -49,5 +61,8 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
+
+        // ✅ 隱藏滑鼠下的圖示
+        DragItemIcon.Instance?.Hide();
     }
 }

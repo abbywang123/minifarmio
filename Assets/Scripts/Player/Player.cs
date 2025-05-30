@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
@@ -10,36 +11,35 @@ public class Player : MonoBehaviour
     public Animator animator;
 
     private Rigidbody2D rb;
-    private Vector2 movement;
+    private Vector2 movementInput;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-
         if (animator == null)
         {
-            animator = GetComponent<Animator>(); // 可選
+            animator = GetComponent<Animator>();
         }
+    }
+
+    // ✅ 新增這個函數，會自動被 PlayerInput 呼叫
+    public void OnMove(InputValue value)
+    {
+        movementInput = value.Get<Vector2>();
     }
 
     void Update()
     {
-        // 取得鍵盤輸入
-        movement.x = Input.GetAxisRaw("Horizontal"); // 左右 A/D or ←/→
-        movement.y = Input.GetAxisRaw("Vertical");   // 上下 W/S or ↑/↓
-
-        // 更新動畫參數
         if (animator != null)
         {
-            animator.SetFloat("Horizontal", movement.x);
-            animator.SetFloat("Vertical", movement.y);
-            animator.SetFloat("Speed", movement.sqrMagnitude);
+            animator.SetFloat("Horizontal", movementInput.x);
+            animator.SetFloat("Vertical", movementInput.y);
+            animator.SetFloat("Speed", movementInput.sqrMagnitude);
         }
     }
 
     void FixedUpdate()
     {
-        // 實際移動角色
-        rb.MovePosition(rb.position + movement.normalized * moveSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + movementInput.normalized * moveSpeed * Time.fixedDeltaTime);
     }
 }

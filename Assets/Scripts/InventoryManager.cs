@@ -1,4 +1,3 @@
-// ✅ InventoryManager.cs（完整整合拖曳圖片）
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,6 +6,24 @@ using System.Threading.Tasks;
 
 public class InventoryManager : MonoBehaviour
 {
+    // ✅ Singleton
+    public static InventoryManager Instance { get; private set; }
+
+    // ✅ 跨場景記住目前正在拖曳的物品 ID（如 "carrotseed"）
+    public string currentlyDraggingItemId = null;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     [Header("UI References")]
     public GameObject slotPrefab;
     public GameObject addSlotButtonPrefab;
@@ -16,6 +33,7 @@ public class InventoryManager : MonoBehaviour
     public Sprite defaultIcon;
     public Sprite wheatIcon;
     public Sprite carrotIcon;
+    public Sprite carrotSeedIcon;
 
     [Header("Item Info Popup")]
     public GameObject itemInfoPopup;
@@ -27,6 +45,8 @@ public class InventoryManager : MonoBehaviour
     [Header("UI 提示彈窗")]
     public GameObject popupMessage;
     public TMP_Text messageText;
+
+    public Dictionary<string, Sprite> IconMap => iconMap;
 
     private Dictionary<string, Sprite> iconMap;
     private List<ItemSlot> inventoryData;
@@ -44,7 +64,7 @@ public class InventoryManager : MonoBehaviour
 
         if (farmData == null)
         {
-            Debug.LogWarning("📭 Cloud Save 無資料，自動建立新存檔");
+            Debug.LogWarning("📬 Cloud Save 無資料，自動建立新存檔");
 
             farmData = new FarmData
             {
@@ -54,7 +74,8 @@ public class InventoryManager : MonoBehaviour
                 inventory = new List<ItemSlot>
                 {
                     new ItemSlot { itemId = "wheat", count = 3 },
-                    new ItemSlot { itemId = "carrot", count = 5 }
+                    new ItemSlot { itemId = "carrot", count = 5 },
+                    new ItemSlot { itemId = "carrotseed", count = 10 }
                 },
                 farmland = new List<FarmlandTile>()
             };
@@ -69,7 +90,8 @@ public class InventoryManager : MonoBehaviour
         iconMap = new Dictionary<string, Sprite>
         {
             { "wheat", wheatIcon },
-            { "carrot", carrotIcon }
+            { "carrot", carrotIcon },
+            { "carrotseed", carrotSeedIcon }
         };
 
         RefreshInventoryUI();
@@ -138,7 +160,7 @@ public class InventoryManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("❌ addSlotButtonPrefab 尚未設定");
+            Debug.LogWarning("❌ addSlotButtonPrefab 未設定");
         }
     }
 
@@ -151,6 +173,7 @@ public class InventoryManager : MonoBehaviour
         {
             "wheat" => "小麥",
             "carrot" => "紅蘿蔔",
+            "carrotseed" => "紅蘿蔔種子",
             _ => "未知物品"
         };
 
@@ -229,7 +252,7 @@ public class InventoryManager : MonoBehaviour
         farmData.gold -= cost;
         farmData.maxInventorySize += 1;
 
-        Debug.Log($"🧳 擴充成功，目前 {farmData.maxInventorySize} 格，剩餘金幣：{farmData.gold}");
+        Debug.Log($"👛 擴充成功，目前 {farmData.maxInventorySize} 格，剩餘金幣：{farmData.gold}");
         ShowPopup($"✅ 擴充成功！剩餘金幣：{farmData.gold}");
 
         _ = SaveInventoryThenRefresh();
@@ -254,4 +277,24 @@ public class InventoryManager : MonoBehaviour
     {
         return inventoryData;
     }
+
+    // ✅ 提供取得拖曳中的物品 ID
+    public string GetDraggingItem()
+    {
+        return currentlyDraggingItemId;
+    }
+
+    // ✅ 設定拖曳中的物品 ID
+    public void SetDraggingItem(string itemId)
+    {
+        currentlyDraggingItemId = itemId;
+    }
+
+    // ✅ 清除拖曳中的物品 ID
+    public void ClearDraggingItem()
+    {
+        currentlyDraggingItemId = null;
+    }
 }
+
+

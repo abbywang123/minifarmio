@@ -21,7 +21,7 @@ public class LoginUIManager : MonoBehaviour
 
     async void Start()
     {
-        outputText.text = "🔄 初始化中...";
+        outputText.text = "🔀 初始化中...";
         confirmButton.interactable = false;
         goFarmButton.interactable = false;
         goMultiplayerButton.interactable = false;
@@ -48,7 +48,7 @@ public class LoginUIManager : MonoBehaviour
                 }
                 else
                 {
-                    outputText.text += "\n請輸入暱稱並點擊『確認』建立資料";
+                    outputText.text += "\n請輸入曉名並點擊『確認』建立資料";
                 }
             }
             catch (System.Exception e)
@@ -85,12 +85,12 @@ public class LoginUIManager : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(nameInput.text))
         {
-            outputText.text = "❌ 請輸入暱稱";
+            outputText.text = "❌ 請輸入曉名";
             return;
         }
 
         string nickname = nameInput.text.Trim();
-        Debug.Log("👤 暱稱輸入：" + nickname);
+        Debug.Log("👤 曉名輸入：" + nickname);
 
         FarmData data = new()
         {
@@ -99,7 +99,8 @@ public class LoginUIManager : MonoBehaviour
             inventory = new List<ItemSlot>
             {
                 new ItemSlot { itemId = "wheat", count = 3 },
-                new ItemSlot { itemId = "carrot", count = 5 }
+                new ItemSlot { itemId = "carrot", count = 5 },
+                new ItemSlot { itemId = "carrotseed", count = 10 } // 新增種子
             },
             farmland = new List<FarmlandTile>
             {
@@ -108,15 +109,13 @@ public class LoginUIManager : MonoBehaviour
             }
         };
 
-        // 儲存到雲端
         await CloudSaveAPI.SaveFarmData(data);
 
-        // ✅ 儲存暱稱 & 背包到 PlayerPrefs（給多人同步用）
         PlayerPrefs.SetString("playerName", nickname);
         var wrapper = new InventoryWrapper { inventory = data.inventory };
         PlayerPrefs.SetString("inventoryData", JsonUtility.ToJson(wrapper));
 
-        outputText.text = $"✅ 資料建立完成\n暱稱：{data.playerName}\n💰 金幣：{data.gold}G\n" +
+        outputText.text = $"✅ 資料建立完成\n曉名：{data.playerName}\n💰 金幣：{data.gold}G\n" +
                           string.Join("\n", data.inventory.Select(i => $"🔹 {i.itemId} x{i.count}"));
 
         dataSaved = true;
@@ -132,7 +131,7 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene("map"); // 單機農場
+        SceneManager.LoadScene("map");
     }
 
     private void OnEnterFarmMultiplayer()
@@ -143,7 +142,7 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene("LobbyScene"); // ✅ 多人連線的選擇場景
+        SceneManager.LoadScene("LobbyScene");
     }
 }
 
@@ -152,6 +151,3 @@ public class InventoryWrapper
 {
     public List<ItemSlot> inventory;
 }
-
-
-

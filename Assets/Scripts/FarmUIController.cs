@@ -7,13 +7,13 @@ using UnityEngine.EventSystems;
 
 public class FarmUIController : MonoBehaviour
 {
-    public GameObject openInventoryButtonObject; // ✅ GameObject 類型
+    public GameObject openInventoryButtonObject; // ✅ UI 按鈕物件
 
     void Start()
     {
         Debug.Log("🟡 Start() 被執行了");
 
-        // 取出 Button 元件並綁定事件
+        // 綁定按鈕事件
         var btn = openInventoryButtonObject.GetComponent<Button>();
         if (btn == null)
         {
@@ -42,8 +42,11 @@ public class FarmUIController : MonoBehaviour
     {
         Debug.Log("✅ 點擊成功：切換到背包場景");
 
-        // 額外測試行為：改變顏色（可刪）
-        openInventoryButtonObject.GetComponent<Image>().color = Color.red;
+        // 🟡 檢查是否正在拖曳物品（跨場景時可讀取）
+        if (!string.IsNullOrEmpty(InventoryManager.Instance?.GetDraggingItem()))
+        {
+            Debug.Log($"📦 正在拖曳中：{InventoryManager.Instance.GetDraggingItem()}");
+        }
 
         // 切換場景
         SceneManager.LoadScene("Inventory");
@@ -60,5 +63,6 @@ public class FarmUIController : MonoBehaviour
         }
     }
 }
+
 
 
