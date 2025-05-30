@@ -1,68 +1,96 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [Header("道具資訊")]
-    public string itemId; // ✅ 拖曳的道具 ID
-
-    [Header("UI 設定")]
+    public string itemId;
     public Canvas canvas;
 
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
+    private Image image;
+
+    private Transform originalParent;
+    private Vector3 originalWorldPosition;
+    private Transform dragLayer;
 
     void Awake()
     {
+        Debug.Log("🛠️ Awake: 初始化");
+
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
-    }
+        image = GetComponent<Image>();
 
-    void Start()
-    {
         if (canvas == null)
         {
             canvas = GetComponentInParent<Canvas>();
-            if (canvas == null)
-            {
-                Debug.LogWarning("❌ [DraggableItemSlot] 無法自動取得 Canvas！");
-            }
+            Debug.Log($"🖼️ 自動抓到 Canvas：{canvas?.name}");
+        }
+
+        GameObject layerObj = GameObject.Find("DragLayer");
+        if (layerObj != null)
+        {
+            dragLayer = layerObj.transform;
+            Debug.Log("✅ 找到 DragLayer");
+        }
+        else
+        {
+            Debug.LogWarning("❌ 沒找到 DragLayer");
         }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        canvasGroup.alpha = 0.6f;
-        canvasGroup.blocksRaycasts = false;
+        Debug.Log($"🟡 開始拖曳 itemId = {itemId}");
 
-        // ✅ 通知 InventoryManager：開始拖曳這個道具
-        InventoryManager.Instance?.SetDraggingItem(itemId);
-        Debug.Log($"🟡 開始拖曳道具：{itemId}");
+        originalParent = transform.parent;
+        originalWorldPosition = rectTransform.position;
 
-        // ✅ 顯示滑鼠下的圖示
-        if (InventoryManager.Instance.IconMap.TryGetValue(itemId, out var sprite))
+        if (dragLayer != null)
         {
-            DragItemIcon.Instance?.Show(sprite);
+            transform.SetParent(dragLayer, true);
+            Debug.Log("📤 已移動到 DragLayer");
+        }
+
+        // 🟡 視覺效果
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0.5f;
+            canvasGroup.blocksRaycasts = false;
+        }
+
+        if (image != null)
+        {
+            image.raycastTarget = false; // 讓目標可以接收 drop
         }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (canvas == null)
-        {
-            Debug.LogWarning("❌ Canvas 尚未設定，拖曳取消");
-            return;
-        }
-
-        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+        rectTransform.position += (Vector3)(eventData.delta / canvas.scaleFactor);
+        Debug.Log($"➡️ 拖曳中... 當前位置：{rectTransform.position}");
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        canvasGroup.alpha = 1f;
-        canvasGroup.blocksRaycasts = true;
+        Debug.Log("🟢 結束拖曳");
 
-        // ✅ 隱藏滑鼠下的圖示
-        DragItemIcon.Instance?.Hide();
+        transform.SetParent(originalParent, true);
+        rectTransform.position = originalWorldPosition;
+
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = true;
+        }
+
+        if (image != null)
+        {
+            image.raycastTarget = true;
+        }
     }
 }
+
+

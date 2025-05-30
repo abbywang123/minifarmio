@@ -1,15 +1,14 @@
+// ✅ InventoryManager.cs：背包管理，支援拖曳與跨場景種植
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 public class InventoryManager : MonoBehaviour
 {
-    // ✅ Singleton
     public static InventoryManager Instance { get; private set; }
-
-    // ✅ 跨場景記住目前正在拖曳的物品 ID（如 "carrotseed"）
     public string currentlyDraggingItemId = null;
 
     void Awake()
@@ -19,13 +18,12 @@ public class InventoryManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
     [Header("UI References")]
-    public GameObject slotPrefab;
+    public GameObject slotDraggablePrefab;
     public GameObject addSlotButtonPrefab;
     public Transform gridParent;
 
@@ -104,51 +102,21 @@ public class InventoryManager : MonoBehaviour
 
         for (int i = 0; i < farmData.maxInventorySize; i++)
         {
-            GameObject go = Instantiate(slotPrefab, gridParent);
-
             if (i < inventoryData.Count)
             {
                 var slot = inventoryData[i];
-                go.name = $"Slot_{slot.itemId}";
-
-                Image iconImage = go.transform.Find("Icon")?.GetComponent<Image>();
-                if (iconImage != null)
-                {
-                    iconImage.sprite = iconMap.ContainsKey(slot.itemId) ? iconMap[slot.itemId] : defaultIcon;
-
-                    if (!iconImage.GetComponent<CanvasGroup>())
-                        iconImage.gameObject.AddComponent<CanvasGroup>();
-
-                    DraggableItemSlot drag = iconImage.GetComponent<DraggableItemSlot>();
-                    if (drag == null)
-                        drag = iconImage.gameObject.AddComponent<DraggableItemSlot>();
-
-                    drag.canvas = GetComponentInParent<Canvas>();
-                    drag.itemId = slot.itemId;
-                }
-
-                TMP_Text countText = go.transform.Find("CountText")?.GetComponent<TMP_Text>();
-                if (countText != null)
-                    countText.text = $"x{slot.count}";
-
-                string id = slot.itemId;
-                int count = slot.count;
-                go.GetComponent<Button>().onClick.AddListener(() => ShowItemInfo(id, count));
+                GameObject go = Instantiate(slotDraggablePrefab, gridParent);
+                var ui = go.GetComponent<InventorySlotUI>();
+                ui.canvas = GetComponentInParent<Canvas>();
+                ui.Setup(iconMap.ContainsKey(slot.itemId) ? iconMap[slot.itemId] : defaultIcon, slot.itemId, slot.count);
+                ui.EnableDragging();
             }
             else
             {
-                go.name = "Slot_Empty";
-
-                Image iconImage = go.transform.Find("Icon")?.GetComponent<Image>();
-                if (iconImage != null)
-                {
-                    iconImage.sprite = defaultIcon;
-                    iconImage.color = new Color(1f, 1f, 1f, 0.3f);
-                }
-
-                TMP_Text countText = go.transform.Find("CountText")?.GetComponent<TMP_Text>();
-                if (countText != null)
-                    countText.text = "";
+                GameObject go = Instantiate(slotDraggablePrefab, gridParent);
+                var ui = go.GetComponent<InventorySlotUI>();
+                ui.canvas = GetComponentInParent<Canvas>();
+                ui.Setup(defaultIcon, "", 0);
             }
         }
 
@@ -162,6 +130,16 @@ public class InventoryManager : MonoBehaviour
         {
             Debug.LogWarning("❌ addSlotButtonPrefab 未設定");
         }
+    }
+
+    public void OnClickBackToFarm()
+    {
+        string seedId = GetDraggingItem();
+        if (!string.IsNullOrEmpty(seedId) && iconMap.ContainsKey(seedId))
+        {
+            DragItemIcon.Instance.Show(iconMap[seedId]);
+        }
+        SceneManager.LoadScene("FarmScene");
     }
 
     void ShowItemInfo(string itemId, int count)
@@ -195,7 +173,6 @@ public class InventoryManager : MonoBehaviour
         if (item != null)
         {
             item.count--;
-
             if (item.count <= 0)
                 inventoryData.Remove(item);
 
@@ -212,7 +189,6 @@ public class InventoryManager : MonoBehaviour
         if (item != null)
         {
             item.count--;
-
             if (item.count <= 0)
                 inventoryData.Remove(item);
 
@@ -273,28 +249,8 @@ public class InventoryManager : MonoBehaviour
         popupMessage.SetActive(false);
     }
 
-    public List<ItemSlot> GetInventoryData()
-    {
-        return inventoryData;
-    }
-
-    // ✅ 提供取得拖曳中的物品 ID
-    public string GetDraggingItem()
-    {
-        return currentlyDraggingItemId;
-    }
-
-    // ✅ 設定拖曳中的物品 ID
-    public void SetDraggingItem(string itemId)
-    {
-        currentlyDraggingItemId = itemId;
-    }
-
-    // ✅ 清除拖曳中的物品 ID
-    public void ClearDraggingItem()
-    {
-        currentlyDraggingItemId = null;
-    }
+    public List<ItemSlot> GetInventoryData() => inventoryData;
+    public string GetDraggingItem() => currentlyDraggingItemId;
+    public void SetDraggingItem(string itemId) => currentlyDraggingItemId = itemId;
+    public void ClearDraggingItem() => currentlyDraggingItemId = null;
 }
-
-

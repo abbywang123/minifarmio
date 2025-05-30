@@ -10,6 +10,7 @@ public class DragItemIcon : MonoBehaviour
 
     void Awake()
     {
+        // 確保只有一個實例存在（單例）
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -21,24 +22,49 @@ public class DragItemIcon : MonoBehaviour
 
         iconTransform = GetComponent<RectTransform>();
         iconImage = GetComponent<Image>();
+
+        if (iconImage == null)
+        {
+            Debug.LogError("❌ DragItemIcon 上缺少 Image 組件！");
+            return;
+        }
+
+        if (iconTransform == null)
+        {
+            Debug.LogError("❌ DragItemIcon 上缺少 RectTransform！");
+            return;
+        }
+
         Hide();
     }
 
     void Update()
     {
+        // 將圖示跟著滑鼠移動
         if (iconImage.enabled)
         {
             iconTransform.position = Input.mousePosition;
         }
     }
 
+    /// <summary>
+    /// 顯示拖曳圖示
+    /// </summary>
     public void Show(Sprite sprite)
     {
-        if (sprite == null) return;
+        if (sprite == null)
+        {
+            Debug.LogWarning("⚠️ 嘗試顯示空圖示");
+            return;
+        }
+
         iconImage.sprite = sprite;
         iconImage.enabled = true;
     }
 
+    /// <summary>
+    /// 隱藏拖曳圖示
+    /// </summary>
     public void Hide()
     {
         iconImage.enabled = false;

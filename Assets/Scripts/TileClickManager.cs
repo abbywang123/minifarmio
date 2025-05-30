@@ -1,3 +1,4 @@
+// ✅ TileClickManager.cs：點擊農田種植並處理拖曳圖示
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
@@ -34,11 +35,22 @@ public class TileClickManager : MonoBehaviour
             TileNetworkSync tile = hit.collider.GetComponent<TileNetworkSync>();
             if (tile != null)
             {
-                tile.PlantCropServerRpc("carrot");
-                Debug.Log("🌱 種植紅蘿蔔！");
+                string seedId = InventoryManager.Instance.GetDraggingItem();
+
+                if (!string.IsNullOrEmpty(seedId))
+                {
+                    tile.PlantCropServerRpc(seedId);
+                    Debug.Log($"🌱 種植 {seedId} 成功！");
+
+                    InventoryManager.Instance.ClearDraggingItem();
+                    DragItemIcon.Instance.Hide();
+                }
+                else
+                {
+                    Debug.Log("⚠️ 沒有拖曳的種子");
+                }
             }
         }
     }
 }
-
 
