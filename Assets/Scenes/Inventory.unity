@@ -671,7 +671,6 @@ RectTransform:
   - {fileID: 126611899}
   - {fileID: 735174613}
   - {fileID: 216856752}
-  - {fileID: 1086310779}
   - {fileID: 1139785689}
   - {fileID: 588772333}
   m_Father: {fileID: 0}
@@ -1186,11 +1185,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1371364384}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 683, y: 384}
+  m_AnchoredPosition: {x: 683, y: -384}
   m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &983697687
@@ -1212,7 +1211,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 983697685}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1276,6 +1275,7 @@ MonoBehaviour:
   slotDraggablePrefab: {fileID: 8486015703066670905, guid: 997ce9eff016172409d93429bf1b437b, type: 3}
   addSlotButtonPrefab: {fileID: 1139785688}
   gridParent: {fileID: 1951954842}
+  mainCanvas: {fileID: 310147172}
   defaultIcon: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
   wheatIcon: {fileID: 21300000, guid: f7191211086673745974a1f1bc07a282, type: 3}
   carrotIcon: {fileID: 21300000, guid: 5c88eeb2c72c7864ca5a098c20f4d7e0, type: 3}
@@ -1296,11 +1296,11 @@ Transform:
   m_GameObject: {fileID: 1086310777}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -360.39056, y: -70.429535, z: 0}
+  m_LocalPosition: {x: 322.60944, y: 313.57047, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 310147173}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1139785688 stripped
 GameObject:
@@ -1477,7 +1477,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 983697686}
   m_Father: {fileID: 310147173}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2606,8 +2607,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 535709505}
-  - {fileID: 983697686}
   - {fileID: 1801351653}
+  - {fileID: 1086310779}
   - {fileID: 310147173}
   - {fileID: 101639505}
   - {fileID: 119218057}

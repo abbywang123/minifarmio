@@ -1,4 +1,3 @@
-// ✅ TileClickManager.cs：點擊農田種植並處理拖曳圖示
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
@@ -42,7 +41,9 @@ public class TileClickManager : MonoBehaviour
                     tile.PlantCropServerRpc(seedId);
                     Debug.Log($"🌱 種植 {seedId} 成功！");
 
+                    // ✅ 清除拖拽狀態
                     InventoryManager.Instance.ClearDraggingItem();
+                    DragItemData.draggingItemId = null;
                     DragItemIcon.Instance.Hide();
                 }
                 else
@@ -53,4 +54,3 @@ public class TileClickManager : MonoBehaviour
         }
     }
 }
-

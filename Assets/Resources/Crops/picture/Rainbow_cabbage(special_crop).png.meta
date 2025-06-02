@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f7191211086673745974a1f1bc07a282
+guid: 77a0f855f687f374d8d21deedbb91f55
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7008542139053323590
-    second: Wheat(crop)_0
+      213: -7415697560300472079
+    second: Rainbow_cabbage(special_crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wheat(crop)_0
+      name: Rainbow_cabbage(special_crop)_0
       rect:
         serializedVersion: 2
-        x: 107
-        y: 97
-        width: 79
-        height: 125
+        x: 44
+        y: 100
+        width: 155
+        height: 105
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 64531af41f7534160800000000000000
-      internalID: 7008542139053323590
+      spriteID: 1f83f84eb56261990800000000000000
+      internalID: -7415697560300472079
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Wheat(crop)_0: 7008542139053323590
+      Rainbow_cabbage(special_crop)_0: -7415697560300472079
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

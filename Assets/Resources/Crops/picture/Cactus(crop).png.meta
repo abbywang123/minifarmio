@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 77a0f855f687f374d8d21deedbb91f55
+guid: 92ffed8eab98fe146bcb77a99ac6a730
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7415697560300472079
-    second: Rainbow_cabbage(special_crop)_0
+      213: -8781055542158561890
+    second: Cactus(crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rainbow_cabbage(special_crop)_0
+      name: Cactus(crop)_0
       rect:
         serializedVersion: 2
-        x: 44
-        y: 100
-        width: 155
-        height: 105
+        x: 81
+        y: 102
+        width: 125
+        height: 124
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1f83f84eb56261990800000000000000
-      internalID: -7415697560300472079
+      spriteID: e9de9a8228c632680800000000000000
+      internalID: -8781055542158561890
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Rainbow_cabbage(special_crop)_0: -7415697560300472079
+      Cactus(crop)_0: -8781055542158561890
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

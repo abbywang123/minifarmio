@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b2d7b3a8733dbf7419841f6993ded976
+guid: 5e51779519bc04f4ea127b9e4d67f089
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3027925917966964075
-    second: Starberry(special_crop)_0
+      213: -4653993746438197980
+    second: Pumpkin(crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Starberry(special_crop)_0
+      name: Pumpkin(crop)_0
       rect:
         serializedVersion: 2
-        x: 96
+        x: 98
         y: 104
-        width: 102
-        height: 121
+        width: 91
+        height: 98
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b659e9a649a550a20800000000000000
-      internalID: 3027925917966964075
+      spriteID: 42d69a47851b96fb0800000000000000
+      internalID: -4653993746438197980
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Starberry(special_crop)_0: 3027925917966964075
+      Pumpkin(crop)_0: -4653993746438197980
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

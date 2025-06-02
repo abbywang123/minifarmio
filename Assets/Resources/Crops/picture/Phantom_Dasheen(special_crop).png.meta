@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5c88eeb2c72c7864ca5a098c20f4d7e0
+guid: cd5655cdf4ef5534aa6da46bba200f9e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6253437896504575083
-    second: Carrot(crop)_0
+      213: -8022930018412111018
+    second: Phantom_Dasheen(special_crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Carrot(crop)_0
+      name: Phantom_Dasheen(special_crop)_0
       rect:
         serializedVersion: 2
-        x: 113
-        y: 107
-        width: 72
-        height: 87
+        x: 80
+        y: 102
+        width: 126
+        height: 93
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b640f1e72aca8c650800000000000000
-      internalID: 6253437896504575083
+      spriteID: 65b5ab2d7a3d8a090800000000000000
+      internalID: -8022930018412111018
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Carrot(crop)_0: 6253437896504575083
+      Phantom_Dasheen(special_crop)_0: -8022930018412111018
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

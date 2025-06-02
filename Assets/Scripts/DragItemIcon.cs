@@ -7,19 +7,31 @@ public class DragItemIcon : MonoBehaviour
 
     private RectTransform iconTransform;
     private Image iconImage;
+    private Canvas canvas;
 
     void Awake()
     {
-        // 確保只有一個實例存在（單例）
+        // 單例模式
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
-        DontDestroyOnLoad(gameObject); // ✅ 跨場景保留
 
+        // ✅ 自動尋找並掛到 Canvas 下（不管是 Overlay 或 World）
+        canvas = FindObjectOfType<Canvas>();
+        if (canvas != null && transform.parent != canvas.transform && !IsChildOf(canvas.transform))
+        {
+            transform.SetParent(canvas.transform, false);
+            Debug.Log("✅ DragItemIcon 已掛回 Canvas：" + canvas.name);
+        }
+        else if (canvas == null)
+        {
+            Debug.LogError("❌ 找不到 Canvas！");
+        }
+
+        // 抓 UI 組件
         iconTransform = GetComponent<RectTransform>();
         iconImage = GetComponent<Image>();
 
@@ -35,21 +47,37 @@ public class DragItemIcon : MonoBehaviour
             return;
         }
 
+        // ✅ 保持原比例、不變形
+        iconImage.preserveAspect = true;
+
+        // ✅ 設定預設大小
+        iconTransform.sizeDelta = new Vector2(2, 2);
+
         Hide();
     }
 
     void Update()
     {
-        // 將圖示跟著滑鼠移動
-        if (iconImage.enabled)
+        if (iconImage != null && iconImage.enabled && canvas != null)
         {
-            iconTransform.position = Input.mousePosition;
+            if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+            {
+                iconTransform.position = Input.mousePosition;
+            }
+            else
+            {
+                Vector2 pos;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvas.transform as RectTransform,
+                    Input.mousePosition,
+                    canvas.worldCamera,
+                    out pos
+                );
+                iconTransform.localPosition = pos;
+            }
         }
     }
 
-    /// <summary>
-    /// 顯示拖曳圖示
-    /// </summary>
     public void Show(Sprite sprite)
     {
         if (sprite == null)
@@ -60,14 +88,27 @@ public class DragItemIcon : MonoBehaviour
 
         iconImage.sprite = sprite;
         iconImage.enabled = true;
+        Debug.Log($"✅ Show 被呼叫，圖示名稱：{sprite.name}");
     }
 
-    /// <summary>
-    /// 隱藏拖曳圖示
-    /// </summary>
     public void Hide()
     {
-        iconImage.enabled = false;
-        iconImage.sprite = null;
+        if (iconImage != null)
+        {
+            iconImage.enabled = false;
+            iconImage.sprite = null;
+        }
+    }
+
+    private bool IsChildOf(Transform parent)
+    {
+        Transform current = transform.parent;
+        while (current != null)
+        {
+            if (current == parent) return true;
+            current = current.parent;
+        }
+        return false;
     }
 }
+

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e0b421a81462c08439ad20dd6882a613
+guid: f7191211086673745974a1f1bc07a282
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4542015027833534778
-    second: Tomato(crop)_0
+      213: 7008542139053323590
+    second: Wheat(crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Tomato(crop)_0
+      name: Wheat(crop)_0
       rect:
         serializedVersion: 2
-        x: 98
+        x: 107
         y: 97
-        width: 185
-        height: 91
+        width: 79
+        height: 125
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6c60f75956587f0c0800000000000000
-      internalID: -4542015027833534778
+      spriteID: 64531af41f7534160800000000000000
+      internalID: 7008542139053323590
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Tomato(crop)_0: -4542015027833534778
+      Wheat(crop)_0: 7008542139053323590
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

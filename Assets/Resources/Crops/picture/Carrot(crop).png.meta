@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 344451a4d9e58fd4c995ee07a130006a
+guid: 5c88eeb2c72c7864ca5a098c20f4d7e0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6687328314864623058
-    second: Laughing_Carrot(special_crop)_0
+      213: 6253437896504575083
+    second: Carrot(crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Laughing_Carrot(special_crop)_0
+      name: Carrot(crop)_0
       rect:
         serializedVersion: 2
         x: 113
-        y: 105
+        y: 107
         width: 72
-        height: 89
+        height: 87
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e2225102456d133a0800000000000000
-      internalID: -6687328314864623058
+      spriteID: b640f1e72aca8c650800000000000000
+      internalID: 6253437896504575083
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Laughing_Carrot(special_crop)_0: -6687328314864623058
+      Carrot(crop)_0: 6253437896504575083
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

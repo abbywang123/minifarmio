@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 00a589310ed29ba4bb896a40834e1450
+guid: d370d677775c66745b601750f5bea5ad
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 691268443912907008
-    second: Fluorescent_Mushroom(crop)_0
+      213: -4542855616364599290
+    second: Strawberry(crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Fluorescent_Mushroom(crop)_0
+      name: Strawberry(crop)_0
       rect:
         serializedVersion: 2
-        x: 95
-        y: 111
-        width: 95
-        height: 90
+        x: 110
+        y: 100
+        width: 88
+        height: 102
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 009addbbcf0e79900800000000000000
-      internalID: 691268443912907008
+      spriteID: 60823b0d2e884f0c0800000000000000
+      internalID: -4542855616364599290
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Fluorescent_Mushroom(crop)_0: 691268443912907008
+      Strawberry(crop)_0: -4542855616364599290
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

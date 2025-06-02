@@ -12,6 +12,23 @@ public class FarmUIController : MonoBehaviour
     void Start()
     {
         Debug.Log("🟡 Start() 被執行了");
+         Debug.Log("是否有 InventoryManager：" + (InventoryManager.Instance != null));
+         Debug.Log("是否有 DragItemIcon：" + (DragItemIcon.Instance != null));
+
+        // ✅ 團隊新增：若拖曳 itemId 存在 → 顯示拖拽圖示
+        if (!string.IsNullOrEmpty(DragItemData.draggingItemId))
+        {
+            Sprite icon = IconDatabase.GetSpriteById(DragItemData.draggingItemId);
+            if (icon != null)
+            {
+                DragItemIcon.Instance.Show(icon);
+                Debug.Log($"✅ 恢復拖拽圖示：{DragItemData.draggingItemId}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ 找不到對應圖示：{DragItemData.draggingItemId}");
+            }
+        }
 
         // 綁定按鈕事件
         var btn = openInventoryButtonObject.GetComponent<Button>();
@@ -42,13 +59,12 @@ public class FarmUIController : MonoBehaviour
     {
         Debug.Log("✅ 點擊成功：切換到背包場景");
 
-        // 🟡 檢查是否正在拖曳物品（跨場景時可讀取）
+        // 若有拖拽資料，可額外處理（目前只是 Debug）
         if (!string.IsNullOrEmpty(InventoryManager.Instance?.GetDraggingItem()))
         {
             Debug.Log($"📦 正在拖曳中：{InventoryManager.Instance.GetDraggingItem()}");
         }
 
-        // 切換場景
         SceneManager.LoadScene("Inventory");
     }
 
