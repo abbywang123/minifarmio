@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d370d677775c66745b601750f5bea5ad
+guid: b2d7b3a8733dbf7419841f6993ded976
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4542855616364599290
-    second: Strawberry(crop)_0
+      213: 3027925917966964075
+    second: Starberry(special_crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Strawberry(crop)_0
+      name: Starberry(special_crop)_0
       rect:
         serializedVersion: 2
-        x: 110
-        y: 100
-        width: 88
-        height: 102
+        x: 96
+        y: 104
+        width: 102
+        height: 121
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 60823b0d2e884f0c0800000000000000
-      internalID: -4542855616364599290
+      spriteID: b659e9a649a550a20800000000000000
+      internalID: 3027925917966964075
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Strawberry(crop)_0: -4542855616364599290
+      Starberry(special_crop)_0: 3027925917966964075
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

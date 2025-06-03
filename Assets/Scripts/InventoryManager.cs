@@ -1,4 +1,3 @@
-// ✅ InventoryManager.cs：背包管理，支援拖曳與跨場景種植
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -27,6 +26,9 @@ public class InventoryManager : MonoBehaviour
     public GameObject addSlotButtonPrefab;
     public Transform gridParent;
 
+    [Header("拖曳所需 Canvas（務必從 Inspector 指定）")]
+    public Canvas mainCanvas; // ✅ 你要從 Inspector 拖入 Canvas_Backpack
+
     [Header("Icon Resources")]
     public Sprite defaultIcon;
     public Sprite wheatIcon;
@@ -54,6 +56,7 @@ public class InventoryManager : MonoBehaviour
     async void Start()
     {
         Debug.Log("🟡 InventoryManager 啟動");
+         
 
         await AuthHelper.EnsureSignedIn();
         Debug.Log("✅ 登入完成，開始載入 Cloud Save");
@@ -102,20 +105,24 @@ public class InventoryManager : MonoBehaviour
 
         for (int i = 0; i < farmData.maxInventorySize; i++)
         {
+            GameObject go = Instantiate(slotDraggablePrefab, gridParent);
+            var ui = go.GetComponent<InventorySlotUI>();
+
+            // ✅ 使用主 Canvas（防止 null）
+            if (mainCanvas == null)
+            {
+                Debug.LogError("❌ InventoryManager.mainCanvas 尚未指定！拖曳將無法運作！");
+            }
+            ui.canvas = mainCanvas;
+
             if (i < inventoryData.Count)
             {
                 var slot = inventoryData[i];
-                GameObject go = Instantiate(slotDraggablePrefab, gridParent);
-                var ui = go.GetComponent<InventorySlotUI>();
-                ui.canvas = GetComponentInParent<Canvas>();
                 ui.Setup(iconMap.ContainsKey(slot.itemId) ? iconMap[slot.itemId] : defaultIcon, slot.itemId, slot.count);
                 ui.EnableDragging();
             }
             else
             {
-                GameObject go = Instantiate(slotDraggablePrefab, gridParent);
-                var ui = go.GetComponent<InventorySlotUI>();
-                ui.canvas = GetComponentInParent<Canvas>();
                 ui.Setup(defaultIcon, "", 0);
             }
         }
@@ -137,6 +144,7 @@ public class InventoryManager : MonoBehaviour
         string seedId = GetDraggingItem();
         if (!string.IsNullOrEmpty(seedId) && iconMap.ContainsKey(seedId))
         {
+            DragItemData.draggingItemId = seedId;
             DragItemIcon.Instance.Show(iconMap[seedId]);
         }
         SceneManager.LoadScene("FarmScene");

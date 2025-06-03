@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ebe10873293c51b40b9bef123c24eb25
+guid: b048728904de51747a58d5a334aafa47
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1112554123507010708
-    second: Magic_Tree_0
+      213: -7637193055873719645
+    second: Lava_Corn(special_crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Magic_Tree_0
+      name: Lava_Corn(special_crop)_0
       rect:
         serializedVersion: 2
-        x: 98
-        y: 98
-        width: 88
-        height: 103
+        x: 114
+        y: 104
+        width: 86
+        height: 117
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 49c080da416907f00800000000000000
-      internalID: 1112554123507010708
+      spriteID: 3a22197116d330690800000000000000
+      internalID: -7637193055873719645
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Magic_Tree_0: 1112554123507010708
+      Lava_Corn(special_crop)_0: -7637193055873719645
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

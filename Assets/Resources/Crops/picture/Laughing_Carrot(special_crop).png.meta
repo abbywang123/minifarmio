@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 38f468f23bfd8b242a401bddb967a170
+guid: 344451a4d9e58fd4c995ee07a130006a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3629808585606365508
-    second: Potato(crop)_0
+      213: -6687328314864623058
+    second: Laughing_Carrot(special_crop)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Potato(crop)_0
+      name: Laughing_Carrot(special_crop)_0
       rect:
         serializedVersion: 2
-        x: 75
-        y: 103
-        width: 122
-        height: 97
+        x: 113
+        y: 105
+        width: 72
+        height: 89
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cbef44ca25450adc0800000000000000
-      internalID: -3629808585606365508
+      spriteID: e2225102456d133a0800000000000000
+      internalID: -6687328314864623058
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Potato(crop)_0: -3629808585606365508
+      Laughing_Carrot(special_crop)_0: -6687328314864623058
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
