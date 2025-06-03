@@ -122,12 +122,18 @@ public class Crop : MonoBehaviour
         }
 
         bool ok = player.GetComponent<Inventory>()
-                        .Add(cropInfo.harvestItem, 1);
+                .Add(cropInfo.harvestItem, 1);
 
-        if (!ok)
+        if (ok)
         {
+            Debug.Log($"已將 {cropInfo.cropName} 放入玩家背包。");
+        }
+        else
+        {
+            Debug.LogWarning($"玩家背包已滿，將 {cropInfo.cropName} 放入倉庫。");
             WarehouseManager.Instance.inventory.Add(cropInfo.harvestItem, 1);
         }
+
 
         Destroy(gameObject);
     }

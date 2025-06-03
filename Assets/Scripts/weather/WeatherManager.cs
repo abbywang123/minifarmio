@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 [System.Serializable]
 public class WeatherData
@@ -37,16 +39,24 @@ public class WeatherManager : MonoBehaviour
     public static WeatherManager Instance;
 
     [Header("API 設定")]
-    public string apiKey = "b98d36786a413e47dc38e0c53ca4e70c"; // 你的 OpenWeatherMap API 金鑰
+    public string apiKey = "b98d36786a413e47dc38e0c53ca4e70c";
     public string city = "Chiayi";
 
     [Header("目前天氣資料")]
-    public string currentWeather;           // API 傳回的天氣原始字串
-    public WeatherType currentWeatherType;  // 對應的 Enum
-    public float temperature;               // 溫度（攝氏）
+    public string currentWeather;
+    public WeatherType currentWeatherType;
+    public float temperature;
 
     [Header("UI 元件")]
-    public TextMeshProUGUI weatherText;     // 顯示天氣與溫度的 UI 元件
+    public TextMeshProUGUI weatherText;
+
+    [Header("視覺效果元件")]
+    public ParticleSystem rainSystem;
+    public Light sunLight;
+
+    [Header("後處理設定（可選）")]
+    public Volume postProcessingVolume;
+    private ColorAdjustments colorAdjustments;
 
     void Awake()
     {
@@ -64,6 +74,11 @@ public class WeatherManager : MonoBehaviour
     void Start()
     {
         StartCoroutine(GetWeatherRoutine());
+
+        if (postProcessingVolume != null)
+        {
+            postProcessingVolume.profile.TryGet(out colorAdjustments);
+        }
     }
 
     IEnumerator GetWeatherRoutine()
@@ -93,6 +108,7 @@ public class WeatherManager : MonoBehaviour
                 currentWeatherType = ConvertToEnum(currentWeather);
 
                 UpdateWeatherUI();
+                UpdateWeatherVisuals();
 
                 Debug.Log($"🌦️ 天氣：{currentWeatherType}，溫度：{temperature}°C");
             }
@@ -120,14 +136,66 @@ public class WeatherManager : MonoBehaviour
     {
         if (weatherText != null)
         {
-            // 請確保 TextMeshPro 使用的是支援全形字元的字型（例如：不要用 LiberationSans）
             weatherText.text = $"天氣: {currentWeatherType}\n溫度: {temperature:0.0}°C";
         }
     }
 
     string FixJson(string value)
     {
-        // 若你需要解析陣列開頭的 JSON，可以在這裡修補格式（這裡不需要）
         return value;
+    }
+
+    void UpdateWeatherVisuals()
+    {
+        switch (currentWeatherType)
+        {
+            case WeatherType.Sunny:
+                if (rainSystem.isPlaying) rainSystem.Stop();
+                sunLight.intensity = 1.2f;
+                sunLight.color = Color.white;
+                RenderSettings.ambientLight = Color.white;
+                break;
+
+            case WeatherType.Cloudy:
+                if (rainSystem.isPlaying) rainSystem.Stop();
+                sunLight.intensity = 0.6f;
+                sunLight.color = new Color(0.8f, 0.8f, 0.9f);
+                RenderSettings.ambientLight = new Color(0.6f, 0.6f, 0.7f);
+                break;
+
+            case WeatherType.Rain:
+                if (!rainSystem.isPlaying) rainSystem.Play();
+                sunLight.intensity = 0.3f;
+                sunLight.color = new Color(0.6f, 0.6f, 0.7f);
+                RenderSettings.ambientLight = new Color(0.4f, 0.4f, 0.5f);
+                break;
+
+            case WeatherType.Snow:
+                if (!rainSystem.isPlaying) rainSystem.Play(); // 可換為雪特效
+                sunLight.intensity = 0.7f;
+                sunLight.color = new Color(0.9f, 0.9f, 1.0f);
+                RenderSettings.ambientLight = new Color(0.8f, 0.8f, 1.0f);
+                break;
+
+            default:
+                if (rainSystem.isPlaying) rainSystem.Stop();
+                sunLight.intensity = 0.5f;
+                break;
+        }
+
+        // 夜晚降亮度（依系統時間）
+        if (System.DateTime.Now.Hour >= 18 || System.DateTime.Now.Hour < 6)
+        {
+            sunLight.intensity *= 0.3f;
+            RenderSettings.ambientLight *= 0.3f;
+
+            if (colorAdjustments != null)
+                colorAdjustments.postExposure.value = -0.5f;
+        }
+        else
+        {
+            if (colorAdjustments != null)
+                colorAdjustments.postExposure.value = 0f;
+        }
     }
 }

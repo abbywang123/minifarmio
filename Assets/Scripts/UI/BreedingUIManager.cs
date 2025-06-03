@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 [System.Serializable]
@@ -22,15 +23,15 @@ public class BreedingUIManager : MonoBehaviour
 {
     [Header("UI 元件")]
     public GameObject breedingPanel;
-    public Button breedingOpenButton;         // ✅ 開啟面板的按鈕
-    public Button closeButton;                // ✅ 關閉面板的按鈕
-    public Button breedButton;                // ✅ 交配按鈕
+    public Button breedingOpenButton;         // ✅（保留但不使用）
+    public Button closeButton;                // ✅ 改為跳場景
+    public Button breedButton;
 
-    public TMP_Dropdown hybridDropdown;       // ✅ 交配作物選擇
-    public TMP_Dropdown quantityDropdown;     // ✅ 數量選擇
+    public TMP_Dropdown hybridDropdown;
+    public TMP_Dropdown quantityDropdown;
 
-    public TextMeshProUGUI parentAText;       // ✅ 顯示 Parent A
-    public TextMeshProUGUI parentBText;       // ✅ 顯示 Parent B
+    public TextMeshProUGUI parentAText;
+    public TextMeshProUGUI parentBText;
 
     [Header("背包參考")]
     public Inventory playerInventory;
@@ -47,15 +48,22 @@ public class BreedingUIManager : MonoBehaviour
 
     private void Start()
     {
-        // 綁定按鈕事件
-        breedingOpenButton.onClick.AddListener(() => breedingPanel.SetActive(true));
-        closeButton.onClick.AddListener(() => breedingPanel.SetActive(false));
+        // 一開始就打開面板
+        breedingPanel.SetActive(true);
+
+        // 按下 Close 就跳到 Farm 場景
+        closeButton.onClick.AddListener(() =>
+        {
+            Debug.Log("🌾 返回 Farm 場景");
+            SceneManager.LoadScene("Farm");
+        });
+
+        // 其他 UI 初始化
         breedButton.onClick.AddListener(OnBreedButtonClicked);
         hybridDropdown.onValueChanged.AddListener(UpdateParentTexts);
 
         SetupDropdowns();
         UpdateParentTexts(0);
-        breedingPanel.SetActive(false); // 預設不顯示面板
     }
 
     private void SetupDropdowns()

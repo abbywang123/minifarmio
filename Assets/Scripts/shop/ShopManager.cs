@@ -1,27 +1,28 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class ShopManager : MonoBehaviour
 {
     [Header("UI 元件")]
     public GameObject shopPanel;                    // 整體商店面板
-    public Button openShopButton;                   // 開啟商店按鈕
+    public Button openShopButton;                   // 改為返回農場的按鈕
     public Button buyTabButton;                     // 買入分頁按鈕
     public Button sellTabButton;                    // 賣出分頁按鈕
 
     [Header("ScrollView 面板")]
-    public GameObject buyScrollView;                // Buy 的 ScrollView 整體物件
-    public GameObject sellScrollView;               // Sell 的 ScrollView 整體物件
-    public Transform buyContentParent;              // Buy ScrollView 中的 Content
-    public Transform sellContentParent;             // Sell ScrollView 中的 Content
+    public GameObject buyScrollView;
+    public GameObject sellScrollView;
+    public Transform buyContentParent;
+    public Transform sellContentParent;
 
     [Header("Prefab")]
-    public GameObject shopItemUIPrefab;             // 商品項目預製體
+    public GameObject shopItemUIPrefab;
 
     [Header("玩家系統")]
-    public PlayerWallet playerWallet;               // 玩家錢包
-    public Inventory playerInventory;               // 玩家背包
+    public PlayerWallet playerWallet;
+    public Inventory playerInventory;
 
     [Header("顯示金錢")]
     public TextMeshProUGUI playerMoneyText;
@@ -29,32 +30,37 @@ public class ShopManager : MonoBehaviour
     private ShopItemInfo[] shopItems;
 
     void Start()
+{
+    // 1. 啟用商店面板
+    shopPanel.SetActive(true);
+
+    // 2. 綁定按鈕事件
+    openShopButton.onClick.RemoveAllListeners();
+    openShopButton.onClick.AddListener(ReturnToFarmScene);
+    buyTabButton.onClick.AddListener(() => SwitchTab(true));
+    sellTabButton.onClick.AddListener(() => SwitchTab(false));
+
+    // 3. 加載商品
+    LoadShopItems();
+
+    // 4. 顯示買入頁籤
+    SwitchTab(true);
+
+    // 5. 更新金錢顯示
+    UpdateMoneyUI();
+}
+
+
+    void ReturnToFarmScene()
     {
-        shopPanel.SetActive(false);
-
-        openShopButton.onClick.AddListener(ToggleShopPanel);
-        buyTabButton.onClick.AddListener(() => SwitchTab(true));
-        sellTabButton.onClick.AddListener(() => SwitchTab(false));
-    }
-
-    void ToggleShopPanel()
-    {
-        bool isActive = !shopPanel.activeSelf;
-        shopPanel.SetActive(isActive);
-
-        if (isActive)
-        {
-            LoadShopItems();
-            SwitchTab(true); // 預設顯示買入
-            UpdateMoneyUI();
-        }
+        Debug.Log("🔙 返回農場場景");
+        SceneManager.LoadScene("Farm"); // 確保 Farm 已加入 Build Settings
     }
 
     void SwitchTab(bool showBuy)
     {
         buyScrollView.SetActive(showBuy);
         sellScrollView.SetActive(!showBuy);
-
         buyTabButton.interactable = !showBuy;
         sellTabButton.interactable = showBuy;
     }
