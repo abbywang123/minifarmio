@@ -1,19 +1,27 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CropClickHandler : MonoBehaviour
 {
     private Crop crop;
 
-    private void Awake()
+    void Awake()
     {
         crop = GetComponent<Crop>();
     }
 
-    private void OnMouseDown()
+    void OnMouseDown()
     {
-        if (crop != null && CropInfoPanelManager.Instance != null)
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
-            CropInfoPanelManager.Instance.ShowPanel(crop);
+            Debug.Log("❌ 點到 UI，不處理作物點擊");
+            return;
+        }
+
+        if (crop != null && CropInfoPanel.Instance != null)
+        {
+            Debug.Log("🪴 點擊作物，打開作物資訊面板");
+            CropInfoPanel.Instance.Show(crop);
         }
     }
 }

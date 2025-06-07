@@ -4,6 +4,8 @@ using TMPro;
 
 public class CropInfoPanel : MonoBehaviour
 {
+    public static CropInfoPanel Instance; // ✅ 單例
+
     [Header("UI 元素")]
     public TextMeshProUGUI nameText;
 
@@ -17,7 +19,7 @@ public class CropInfoPanel : MonoBehaviour
 
     public Button waterButton;
     public Button fertilizeButton;
-    public Button harvestButton; // ✅ 新增收成按鈕
+    public Button harvestButton;
 
     public TextMeshProUGUI waterLeftText;
     public Button backgroundButton;
@@ -27,11 +29,16 @@ public class CropInfoPanel : MonoBehaviour
     private int dailyWaterLimit = 15;
     private int waterLeft = 15;
 
+    void Awake()
+    {
+        Instance = this; // ✅ 初始化單例
+    }
+
     void Start()
     {
         waterButton.onClick.AddListener(WaterCrop);
         fertilizeButton.onClick.AddListener(FertilizeCrop);
-        harvestButton.onClick.AddListener(HarvestCrop); // ✅ 註冊收成事件
+        harvestButton.onClick.AddListener(HarvestCrop);
         backgroundButton?.onClick.AddListener(Hide);
 
         Hide();
@@ -77,7 +84,6 @@ public class CropInfoPanel : MonoBehaviour
         waterLeftText.text = $"剩餘澆水次數：{waterLeft}";
         waterButton.interactable = (waterLeft > 0);
 
-        // ✅ 根據成熟狀態決定是否能收成
         harvestButton.interactable = currentCrop.IsMature();
     }
 
@@ -100,7 +106,7 @@ public class CropInfoPanel : MonoBehaviour
         }
     }
 
-    void HarvestCrop() // ✅ 新增：處理收成邏輯
+    void HarvestCrop()
     {
         if (currentCrop != null && currentCrop.IsMature())
         {
