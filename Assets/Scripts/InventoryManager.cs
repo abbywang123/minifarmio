@@ -61,29 +61,31 @@ public class InventoryManager : MonoBehaviour
         await AuthHelper.EnsureSignedIn();
         Debug.Log("✅ 登入完成，開始載入 Cloud Save");
 
-        farmData = await CloudSaveAPI.LoadFarmData();
+       farmData = await CloudSaveAPI.LoadFarmData();
 
-        if (farmData == null)
+if (farmData == null || farmData.inventory == null || farmData.inventory.Count == 0)
+{
+    Debug.LogWarning("📬 Cloud Save 無資料或道具為空，自動建立新存檔");
+
+    farmData = new FarmData
+    {
+        playerName = "新玩家",
+        gold = 999,
+        maxInventorySize = 12,
+        inventory = new List<ItemSlot>
         {
-            Debug.LogWarning("📬 Cloud Save 無資料，自動建立新存檔");
+            new ItemSlot { itemId = "wheat", count = 3 },
+            new ItemSlot { itemId = "carrot", count = 5 },
+            new ItemSlot { itemId = "carrotseed", count = 10 }
+        },
+        farmland = new List<FarmlandTile>()
+    };
 
-            farmData = new FarmData
-            {
-                playerName = "新玩家",
-                gold = 999,
-                maxInventorySize = 12,
-                inventory = new List<ItemSlot>
-                {
-                    new ItemSlot { itemId = "wheat", count = 3 },
-                    new ItemSlot { itemId = "carrot", count = 5 },
-                    new ItemSlot { itemId = "carrotseed", count = 10 }
-                },
-                farmland = new List<FarmlandTile>()
-            };
+    await CloudSaveAPI.SaveFarmData(farmData); // ✅ 確保真的存到雲端
+    Debug.Log("✅ 初始存檔已建立並上傳");
+}
 
-            await CloudSaveAPI.SaveFarmData(farmData);
-            Debug.Log("✅ 初始存檔已建立");
-        }
+
 
         inventoryData = farmData.inventory;
         Debug.Log($"📦 載入道具數：{inventoryData?.Count ?? 0}");

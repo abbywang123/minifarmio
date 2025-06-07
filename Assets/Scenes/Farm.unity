@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 308750774}
   - component: {fileID: 308750776}
   - component: {fileID: 308750775}
+  - component: {fileID: 308750777}
   m_Layer: 0
   m_Name: Floor
   m_TagString: Untagged
@@ -456,6 +457,19 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &308750777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 308750773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ee7f2401293a91449ad7b736a3e375b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cropPrefab: {fileID: 5120909065776811829, guid: baf9de3ab4bfb1c419add788a653812a, type: 3}
 --- !u!1 &436685081
 GameObject:
   m_ObjectHideFlags: 0
@@ -6519,11 +6533,13 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1239479287}
   - {fileID: 2041420555}
   - {fileID: 1680521381}
   - {fileID: 477237568}
   - {fileID: 1518015703}
   - {fileID: 1759009310}
+  - {fileID: 1382263366}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6923,7 +6939,7 @@ GameObject:
   - component: {fileID: 1239479287}
   - component: {fileID: 1239479288}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: shopbutton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6937,12 +6953,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1239479285}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.56625, y: 2.62882, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -676.4338, y: -381.3712, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1014563792}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1239479288
 MonoBehaviour:
@@ -7035,7 +7051,7 @@ GameObject:
   - component: {fileID: 1382263366}
   - component: {fileID: 1382263367}
   m_Layer: 0
-  m_Name: GameObject (1)
+  m_Name: breedingopenbutton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7049,12 +7065,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1382263364}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -430.33267, y: 159.67279, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1113.3326, y: -224.32721, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1014563792}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1382263367
 MonoBehaviour:
@@ -8703,8 +8719,6 @@ SceneRoots:
   - {fileID: 1490917491}
   - {fileID: 436685082}
   - {fileID: 1441757052}
-  - {fileID: 1239479287}
-  - {fileID: 1382263366}
   - {fileID: 903783559}
   - {fileID: 929169355}
   - {fileID: 1664701009}
