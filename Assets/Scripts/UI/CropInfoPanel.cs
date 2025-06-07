@@ -17,8 +17,9 @@ public class CropInfoPanel : MonoBehaviour
 
     public Button waterButton;
     public Button fertilizeButton;
+    public Button harvestButton; // ✅ 新增收成按鈕
 
-    public TextMeshProUGUI waterLeftText;  // 剩餘澆水次數
+    public TextMeshProUGUI waterLeftText;
     public Button backgroundButton;
 
     private Crop currentCrop;
@@ -30,6 +31,7 @@ public class CropInfoPanel : MonoBehaviour
     {
         waterButton.onClick.AddListener(WaterCrop);
         fertilizeButton.onClick.AddListener(FertilizeCrop);
+        harvestButton.onClick.AddListener(HarvestCrop); // ✅ 註冊收成事件
         backgroundButton?.onClick.AddListener(Hide);
 
         Hide();
@@ -74,6 +76,9 @@ public class CropInfoPanel : MonoBehaviour
 
         waterLeftText.text = $"剩餘澆水次數：{waterLeft}";
         waterButton.interactable = (waterLeft > 0);
+
+        // ✅ 根據成熟狀態決定是否能收成
+        harvestButton.interactable = currentCrop.IsMature();
     }
 
     void WaterCrop()
@@ -92,6 +97,15 @@ public class CropInfoPanel : MonoBehaviour
         {
             currentCrop.FertilizeCrop();
             UpdateUI();
+        }
+    }
+
+    void HarvestCrop() // ✅ 新增：處理收成邏輯
+    {
+        if (currentCrop != null && currentCrop.IsMature())
+        {
+            currentCrop.Harvest();
+            Hide();
         }
     }
 

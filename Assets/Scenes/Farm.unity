@@ -6514,6 +6514,7 @@ GameObject:
   - component: {fileID: 1014563795}
   - component: {fileID: 1014563794}
   - component: {fileID: 1014563793}
+  - component: {fileID: 1014563796}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -6534,12 +6535,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1239479287}
+  - {fileID: 1382263366}
   - {fileID: 2041420555}
   - {fileID: 1680521381}
   - {fileID: 477237568}
   - {fileID: 1518015703}
   - {fileID: 1759009310}
-  - {fileID: 1382263366}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6610,6 +6611,19 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
+--- !u!114 &1014563796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014563791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e47833eeaff0e974487ad243a966fda7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelPrefab: {fileID: 9113697994961966960, guid: 2c6b0da4162e3d84b9bb9282b08b18b6, type: 3}
 --- !u!1 &1062913721
 GameObject:
   m_ObjectHideFlags: 0
@@ -6645,7 +6659,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0.01, y: 0.48999786}
-  m_SizeDelta: {x: 64, y: 64}
+  m_SizeDelta: {x: 0.5, y: 0.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1062913723
 MonoBehaviour:
@@ -6746,6 +6760,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1062913721}
   m_CullTransparentMesh: 1
+--- !u!1 &1101355064
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1101355066}
+  - component: {fileID: 1101355065}
+  m_Layer: 0
+  m_Name: DayNightSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1101355065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1101355064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79176625acddf094f8d91ea0b36f459a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sunLight: {fileID: 903783558}
+  dayIntensity: 1
+  nightIntensity: 0.2
+--- !u!4 &1101355066
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1101355064}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1150192644
 GameObject:
   m_ObjectHideFlags: 0
@@ -7056,7 +7117,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1382263366
 Transform:
   m_ObjectHideFlags: 0
@@ -7084,7 +7145,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa43a49f8a1032342b9a4f6256a5337b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hyiButton: {fileID: 2041420552}
   hyiSceneName: hyi
 --- !u!1 &1427576335
 GameObject:
@@ -7856,6 +7916,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Grid (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7345983596645491163, guid: 2abee65931629b640ad354fbc1edccc8, type: 3}
+      propertyPath: soilType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7351478710610861299, guid: 2abee65931629b640ad354fbc1edccc8, type: 3}
+      propertyPath: soilType
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8171,7 +8239,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 10, y: 3}
+  m_AnchoredPosition: {x: 5.269989, y: 1.8200073}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1759009311
@@ -8404,6 +8472,7 @@ GameObject:
   - component: {fileID: 2041420554}
   - component: {fileID: 2041420553}
   - component: {fileID: 2041420552}
+  - component: {fileID: 2041420556}
   m_Layer: 5
   m_Name: BreedingOpenButton
   m_TagString: Untagged
@@ -8434,9 +8503,9 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 1}
+    m_PressedColor: {r: 0.9, g: 0.9, b: 0.9, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.9, g: 0.9, b: 0.9, a: 1}
+    m_DisabledColor: {r: 0.7, g: 0.7, b: 0.7, a: 0.5529412}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -8455,9 +8524,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: SceneChanger, Assembly-CSharp
-        m_MethodName: LoadHyiScene
+      - m_Target: {fileID: 2041420556}
+        m_TargetAssemblyTypeName: GoToHyiScene, Assembly-CSharp
+        m_MethodName: GoToHyi
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8525,6 +8594,19 @@ RectTransform:
   m_AnchoredPosition: {x: 10.690002, y: 2.8200073}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2041420556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2041420550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa43a49f8a1032342b9a4f6256a5337b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hyiSceneName: hyi
 --- !u!1001 &1179636608062147039
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8706,6 +8788,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1691083646}
+  - {fileID: 1101355066}
   - {fileID: 748643601}
   - {fileID: 1179636608062147039}
   - {fileID: 1600419433}
