@@ -71,10 +71,17 @@ public class InventorySlotUI : MonoBehaviour
             InventoryManager.Instance.SetDraggingItem(itemId);
             DragItemData.draggingItemId = itemId;
 
-            // 顯示滑鼠跟隨圖示
+            // ✅ 安全顯示滑鼠跟隨圖示（避免 null）
             if (InventoryManager.Instance.IconMap.TryGetValue(itemId, out var sprite))
             {
-                DragItemIcon.Instance.Show(sprite);
+                if (DragItemIcon.Instance != null)
+                {
+                    DragItemIcon.Instance.Show(sprite);
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ DragItemIcon 尚未初始化，無法顯示圖示");
+                }
             }
 
             Debug.Log($"🟡 開始拖曳 {itemId}");
