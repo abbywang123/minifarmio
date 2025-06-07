@@ -10,6 +10,8 @@ public class Crop : MonoBehaviour
 
     private LandTile landTile;
 
+    private Player cachedPlayer;
+
     public float GetGrowthProgress() => growthProgress;
     public float GetHealth() => health;
     public float GetQuality() => quality;
@@ -29,62 +31,69 @@ public class Crop : MonoBehaviour
         quality = 100f;
     }
 
+    void Awake()
+    {
+        cachedPlayer = FindFirstObjectByType<Player>();
+    }
+
     public void UpdateGrowthAuto()
-{
-    var wm = WeatherManager.Instance;
-    if (wm == null) return;
-
-    float temperature = wm.temperature;
-    string weather = wm.currentWeather;
-    bool isNight = RealTimeDayNightSystem.Instance != null && RealTimeDayNightSystem.Instance.IsNight;
-
-    float soilMoisture = landTile != null ? landTile.GetCurrentMoisture() : 0.5f;
-
-    float optimalTemp = (cropInfo.suitableMinTemperature + cropInfo.suitableMaxTemperature) / 2f;
-    float tempTolerance = (cropInfo.suitableMaxTemperature - cropInfo.suitableMinTemperature) / 2f;
-
-    float optimalHumidity = (cropInfo.suitableMinHumidity + cropInfo.suitableMaxHumidity) / 2f;
-    float humidityTolerance = (cropInfo.suitableMaxHumidity - cropInfo.suitableMinHumidity) / 2f;
-
-    float tempFactor = Mathf.Clamp01(1 - Mathf.Abs(temperature - optimalTemp) / tempTolerance);
-    float humidityFactor = Mathf.Clamp01(1 - Mathf.Abs(soilMoisture - optimalHumidity) / humidityTolerance);
-    float weatherFactor = (weather == "Rain") ? 0.9f : 1f;
-
-    growthProgress += growthRate * tempFactor * humidityFactor * weatherFactor;
-
-    if (soilMoisture < cropInfo.suitableMinHumidity)
     {
-        health -= 5f;
-        Debug.Log($"{cropInfo.cropName} 因土壤乾燥受損！");
+        if (cachedPlayer == null) cachedPlayer = FindFirstObjectByType<Player>();
+        var wm = WeatherManager.Instance;
+        if (wm == null) return;
+
+        float temperature = wm.temperature;
+        string weather = wm.currentWeather;
+        bool isNight = RealTimeDayNightSystem.Instance != null && RealTimeDayNightSystem.Instance.IsNight;
+
+        float soilMoisture = landTile != null ? landTile.GetCurrentMoisture() : 0.5f;
+
+        float optimalTemp = (cropInfo.suitableMinTemperature + cropInfo.suitableMaxTemperature) / 2f;
+        float tempTolerance = (cropInfo.suitableMaxTemperature - cropInfo.suitableMinTemperature) / 2f;
+
+        float optimalHumidity = (cropInfo.suitableMinHumidity + cropInfo.suitableMaxHumidity) / 2f;
+        float humidityTolerance = (cropInfo.suitableMaxHumidity - cropInfo.suitableMinHumidity) / 2f;
+
+        float tempFactor = Mathf.Clamp01(1 - Mathf.Abs(temperature - optimalTemp) / tempTolerance);
+        float humidityFactor = Mathf.Clamp01(1 - Mathf.Abs(soilMoisture - optimalHumidity) / humidityTolerance);
+        float weatherFactor = (weather == "Rain") ? 0.9f : 1f;
+
+        growthProgress = Mathf.Clamp(growthProgress + growthRate * tempFactor * humidityFactor * weatherFactor, 0f, 100f);
+
+        if (soilMoisture < cropInfo.suitableMinHumidity)
+        {
+            health -= 5f;
+            Debug.Log($"{cropInfo.cropName} 因土壤乾燥受損！");
+        }
+
+        if (weather == "Rain" && landTile != null)
+        {
+            landTile.AddMoisture(0.1f);
+        }
+
+        if (weather == "Rain" && Random.value < 0.2f)
+            health -= 10f;
+
+        health = Mathf.Clamp(health, 0f, 100f);
+
+        ApplySpecialEffect(weather, isNight);
+
+        if (growthProgress >= 100f)
+            Harvest();
     }
-
-    if (weather == "Rain" && landTile != null)
-    {
-        landTile.AddMoisture(0.1f);
-    }
-
-    if (weather == "Rain" && Random.value < 0.2f)
-        health -= 10f;
-
-    ApplySpecialEffect(weather, isNight);
-
-    if (growthProgress >= 100f)
-        Harvest();
-}
 
     private void ApplySpecialEffect(string currentWeather, bool isNight)
     {
-        var player = FindFirstObjectByType<Player>();
-        if (player == null) return;
+        if (cachedPlayer == null) return;
 
-        var wallet = player.GetComponent<PlayerWallet>();
-        var inventory = player.GetComponent<Inventory>();
+        var wallet = cachedPlayer.GetComponent<PlayerWallet>();
+        var inventory = cachedPlayer.GetComponent<Inventory>();
 
         switch (cropInfo.specialEffect)
         {
             case SpecialEffectType.NightBoost:
                 if (isNight)
-                    growthProgress += growthRate * 0.5f;
+                    growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.5f, 0f, 100f);
                 break;
 
             case SpecialEffectType.ExtraGoldOnHarvest:
@@ -97,11 +106,11 @@ public class Crop : MonoBehaviour
 
             case SpecialEffectType.RainGrowthBoost:
                 if (currentWeather == "Rain")
-                    growthProgress += growthRate * 0.5f;
+                    growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.5f, 0f, 100f);
                 break;
 
             case SpecialEffectType.AntiRot:
-                health += 1f;
+                health = Mathf.Clamp(health + 1f, 0f, 100f);
                 break;
 
             case SpecialEffectType.ProduceAuraFertilizer:
@@ -123,7 +132,7 @@ public class Crop : MonoBehaviour
             case SpecialEffectType.DroughtResistant:
                 float avgHumidity = (cropInfo.suitableMinHumidity + cropInfo.suitableMaxHumidity) / 2f;
                 if (avgHumidity < 0.3f)
-                    growthProgress += growthRate * 0.4f;
+                    growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.4f, 0f, 100f);
                 break;
         }
     }
@@ -132,14 +141,13 @@ public class Crop : MonoBehaviour
     {
         Debug.Log($"{cropInfo.cropName} 成熟並收成！");
 
-        var player = FindFirstObjectByType<Player>();
-        if (player == null)
+        if (cachedPlayer == null)
         {
             Debug.LogWarning("[Crop] 找不到 Player，無法收成。");
             return;
         }
 
-        bool ok = player.GetComponent<Inventory>().Add(cropInfo.harvestItem, 1);
+        bool ok = cachedPlayer.GetComponent<Inventory>().Add(cropInfo.harvestItem, 1);
 
         if (ok)
         {
@@ -158,21 +166,21 @@ public class Crop : MonoBehaviour
 
     public void WaterCrop()
     {
+        growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.2f, 0f, 100f);
+        health = Mathf.Clamp(health + 5f, 0f, 100f);
         Debug.Log($"{cropInfo.cropName} 澆水！");
-        growthProgress += growthRate * 0.2f;
-        health = Mathf.Min(health + 5f, 100f);
     }
 
     public void FertilizeCrop()
     {
-        var inventory = FindFirstObjectByType<Player>()?.GetComponent<Inventory>();
+        var inventory = cachedPlayer?.GetComponent<Inventory>();
         var fertilizer = ItemDatabase.I.Get("Fertilizer");
 
         if (inventory != null && fertilizer != null && inventory.Remove(fertilizer, 1))
         {
+            quality = Mathf.Clamp(quality + 10f, 0f, 100f);
+            growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.1f, 0f, 100f);
             Debug.Log($"{cropInfo.cropName} 施肥成功！");
-            quality = Mathf.Min(quality + 10f, 100f);
-            growthProgress += growthRate * 0.1f;
         }
         else
         {
