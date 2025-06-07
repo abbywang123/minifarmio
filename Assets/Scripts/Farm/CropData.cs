@@ -10,7 +10,8 @@ public static class CropDatabase
         if (crops == null)
         {
             crops = new Dictionary<string, CropInfo>();
-            var all = Resources.LoadAll<CropInfo>("Crops"); // 放在 Resources/Crops/
+           var all = Resources.LoadAll<CropInfo>("Items");
+
             foreach (var crop in all)
             {
                 crops[crop.name] = crop;

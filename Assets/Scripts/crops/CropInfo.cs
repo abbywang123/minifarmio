@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public enum CropType
 {
     Normal,
@@ -22,6 +21,9 @@ public enum SpecialEffectType
 [CreateAssetMenu(fileName = "New Crop", menuName = "Crop/Create New Crop")]
 public class CropInfo : ScriptableObject
 {
+    [Header("識別 ID")]
+    public string seedId;  // 🔑 如：carrotseed
+
     [Header("基本資料")]
     public string cropName;
     [TextArea(2, 5)]
@@ -52,5 +54,5 @@ public class CropInfo : ScriptableObject
     public string specialEffectDescription;
 
     [Header("收成物品")]
-    public ItemData harvestItem;  // ✅ 成熟後收成的物品
+    public ItemData harvestItem;
 }

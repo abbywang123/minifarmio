@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed9bd2995a9434c43aa0ef41ccc9b8af, type: 3}
   m_Name: "\u6CE1\u6CE1\u8611\u83C7"
   m_EditorClassIdentifier: 
-  id: "\u6CE1\u6CE1\u8611\u83C7"
+  id: bobblemushroom
   itemName: "\u6CE1\u6CE1\u8611\u83C7"
   icon: {fileID: 21300000, guid: 6ce8b2a672e204e4da0c89d83342b40b, type: 3}
   itemType: 2
