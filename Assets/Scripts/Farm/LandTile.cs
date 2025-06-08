@@ -70,7 +70,7 @@ public class LandTile : MonoBehaviour
 
     void OnMouseDown()
     {
-        FindFirstObjectByType<FarmUIManager>().OpenSeedPopup(this);
+        //FindFirstObjectByType<FarmUIManager>().OpenSeedPopup(this);
     }
 
     public void Harvest()
