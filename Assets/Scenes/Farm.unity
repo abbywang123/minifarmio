@@ -716,7 +716,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e90a3105aff67340add650870f13949, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilemap: {fileID: 1195358736}
+  tilemaps:
+  - {fileID: 1664701012}
+  - {fileID: 1664701011}
+  - {fileID: 1664701010}
   cropPrefab: {fileID: 5120909065776811829, guid: baf9de3ab4bfb1c419add788a653812a, type: 3}
 --- !u!4 &708030140
 Transform:
@@ -7637,7 +7640,6 @@ GameObject:
   - component: {fileID: 1489753043}
   - component: {fileID: 1489753042}
   - component: {fileID: 1489753044}
-  - component: {fileID: 1489753045}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -7687,19 +7689,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nightOverlay: {fileID: 1720323807}
---- !u!114 &1489753045
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1489753041}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e47833eeaff0e974487ad243a966fda7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelPrefab: {fileID: 9113697994961966960, guid: 2c6b0da4162e3d84b9bb9282b08b18b6, type: 3}
 --- !u!1 &1490917489
 GameObject:
   m_ObjectHideFlags: 0
@@ -8060,6 +8049,21 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1195358734}
   m_SourcePrefab: {fileID: 100100000, guid: 2abee65931629b640ad354fbc1edccc8, type: 3}
+--- !u!1839735485 &1664701010 stripped
+Tilemap:
+  m_CorrespondingSourceObject: {fileID: 2939052738515747708, guid: 2abee65931629b640ad354fbc1edccc8, type: 3}
+  m_PrefabInstance: {fileID: 1664701009}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1839735485 &1664701011 stripped
+Tilemap:
+  m_CorrespondingSourceObject: {fileID: 5010624556647217404, guid: 2abee65931629b640ad354fbc1edccc8, type: 3}
+  m_PrefabInstance: {fileID: 1664701009}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1839735485 &1664701012 stripped
+Tilemap:
+  m_CorrespondingSourceObject: {fileID: 6209689783785738665, guid: 2abee65931629b640ad354fbc1edccc8, type: 3}
+  m_PrefabInstance: {fileID: 1664701009}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1680521380
 GameObject:
   m_ObjectHideFlags: 0
@@ -8384,7 +8388,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.43137255}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8589,13 +8593,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-<<<<<<< Updated upstream
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-=======
-  m_fontAsset: {fileID: 11400000, guid: 5ab05c85224ed2b428d3506bc3e027cf, type: 2}
-  m_sharedMaterial: {fileID: 7831913521326132113, guid: 5ab05c85224ed2b428d3506bc3e027cf, type: 2}
->>>>>>> Stashed changes
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
