@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed9bd2995a9434c43aa0ef41ccc9b8af, type: 3}
   m_Name: "\u7B11\u7B11\u863F\u8514"
   m_EditorClassIdentifier: 
-  id: "\u7B11\u7B11\u863F\u8514"
+  id: laughingcarrot
   itemName: "\u7B11\u7B11\u863F\u8514"
   icon: {fileID: 21300000, guid: 344451a4d9e58fd4c995ee07a130006a, type: 3}
   itemType: 2

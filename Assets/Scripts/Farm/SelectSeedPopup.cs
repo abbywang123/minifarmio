@@ -10,7 +10,7 @@ public class SelectSeedPopup : MonoBehaviour
 
     void Awake() => manager = FindFirstObjectByType<FarmUIManager>();
 
-    public void Show(FarmTile tile)
+    public void Show(LandTile tile)
     {
         gameObject.SetActive(true);
 

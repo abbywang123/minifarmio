@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: wheatseed
   itemName: "\u5C0F\u9EA5\u7A2E\u5B50"
-  icon: {fileID: 21300000, guid: e16992f51cc95e840b0a15c008de1956, type: 3}
+  icon: {fileID: 21300000, guid: af94a97451abca441bb5c6539e0ed430, type: 3}
   itemType: 0
   maxStack: 99
   description: "\u53EF\u7528\u4F86\u7A2E\u690D \u5C0F\u9EA5\u3002"
