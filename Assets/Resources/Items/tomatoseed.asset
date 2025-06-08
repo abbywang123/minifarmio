@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed9bd2995a9434c43aa0ef41ccc9b8af, type: 3}
-  m_Name: "\u5E7B\u5F71\u4ED9\u4EBA\u638C"
+  m_Name: tomatoseed
   m_EditorClassIdentifier: 
-  id: phantomcactus
-  itemName: "\u5E7B\u5F71\u4ED9\u4EBA\u638C"
-  icon: {fileID: 21300000, guid: 533b5fa7ef856c8418078603ab93b352, type: 3}
-  itemType: 2
+  id: tomatoseed
+  itemName: "\u756A\u8304\u7A2E\u5B50"
+  icon: {fileID: 21300000, guid: d14e9923bfdc79246b2c73b8b52cf35d, type: 3}
+  itemType: 0
   maxStack: 99
-  description: "\u6210\u719F\u7684 \u5E7B\u5F71\u4ED9\u4EBA\u638C\uFF0C\u53EF\u4EE5\u8CA9\u552E\u3002"
+  description: "\u53EF\u7528\u4F86\u7A2E\u690D \u756A\u8304\u3002"

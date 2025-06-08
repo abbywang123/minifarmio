@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed9bd2995a9434c43aa0ef41ccc9b8af, type: 3}
-  m_Name: "\u863F\u8514\u7A2E\u5B50"
+  m_Name: potato
   m_EditorClassIdentifier: 
-  id: carrotseed
-  itemName: "\u863F\u8514\u7A2E\u5B50"
-  icon: {fileID: 21300000, guid: e16992f51cc95e840b0a15c008de1956, type: 3}
-  itemType: 0
+  id: potato
+  itemName: "\u99AC\u9234\u85AF"
+  icon: {fileID: 21300000, guid: 38f468f23bfd8b242a401bddb967a170, type: 3}
+  itemType: 2
   maxStack: 99
-  description: "\u53EF\u7528\u4F86\u7A2E\u690D \u863F\u8514\u3002"
+  description: "\u6210\u719F\u7684 \u99AC\u9234\u85AF\uFF0C\u53EF\u4EE5\u8CA9\u552E\u3002"

@@ -14,7 +14,7 @@ public class FarmController : MonoBehaviour
         var data = new FarmData
         {
             playerName = PlayerPrefs.GetString("PlayerName", "未命名"),
-            gold = Random.Range(100, 999)
+            gold = Random.Range(100, 100000000)
         };
 
         // ✅ 加上輸出確認

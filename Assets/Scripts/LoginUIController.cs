@@ -95,7 +95,7 @@ public class LoginUIManager : MonoBehaviour
         FarmData data = new()
         {
             playerName = nickname,
-            gold = 999,
+            gold = 1000,
             inventory = new List<ItemSlot>
             {
                 new ItemSlot { itemId = "wheat", count = 3 },

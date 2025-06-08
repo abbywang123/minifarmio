@@ -27,13 +27,7 @@ public class InventoryManager : MonoBehaviour
     public Transform gridParent;
 
     [Header("拖曳所需 Canvas（務必從 Inspector 指定）")]
-    public Canvas mainCanvas; // ✅ 你要從 Inspector 拖入 Canvas_Backpack
-
-    [Header("Icon Resources")]
-    public Sprite defaultIcon;
-    public Sprite wheatIcon;
-    public Sprite carrotIcon;
-    public Sprite carrotSeedIcon;
+    public Canvas mainCanvas;
 
     [Header("Item Info Popup")]
     public GameObject itemInfoPopup;
@@ -46,9 +40,6 @@ public class InventoryManager : MonoBehaviour
     public GameObject popupMessage;
     public TMP_Text messageText;
 
-    public Dictionary<string, Sprite> IconMap => iconMap;
-
-    private Dictionary<string, Sprite> iconMap;
     private List<ItemSlot> inventoryData;
     private FarmData farmData;
     private string currentItemId;
@@ -56,46 +47,36 @@ public class InventoryManager : MonoBehaviour
     async void Start()
     {
         Debug.Log("🟡 InventoryManager 啟動");
-         
 
         await AuthHelper.EnsureSignedIn();
         Debug.Log("✅ 登入完成，開始載入 Cloud Save");
 
-       farmData = await CloudSaveAPI.LoadFarmData();
+        farmData = await CloudSaveAPI.LoadFarmData();
 
-if (farmData == null || farmData.inventory == null || farmData.inventory.Count == 0)
-{
-    Debug.LogWarning("📬 Cloud Save 無資料或道具為空，自動建立新存檔");
-
-    farmData = new FarmData
-    {
-        playerName = "新玩家",
-        gold = 999,
-        maxInventorySize = 12,
-        inventory = new List<ItemSlot>
+        if (farmData == null || farmData.inventory == null || farmData.inventory.Count == 0)
         {
-            new ItemSlot { itemId = "wheat", count = 3 },
-            new ItemSlot { itemId = "carrot", count = 5 },
-            new ItemSlot { itemId = "carrotseed", count = 10 }
-        },
-        farmland = new List<FarmlandTile>()
-    };
+            Debug.LogWarning("📬 Cloud Save 無資料或道具為空，自動建立新存檔");
 
-    await CloudSaveAPI.SaveFarmData(farmData); // ✅ 確保真的存到雲端
-    Debug.Log("✅ 初始存檔已建立並上傳");
-}
+            farmData = new FarmData
+            {
+                playerName = "新玩家",
+                gold = 1000,
+                maxInventorySize = 12,
+                inventory = new List<ItemSlot>
+                {
+                    new ItemSlot { itemId = "wheat", count = 3 },
+                    new ItemSlot { itemId = "carrot", count = 5 },
+                    new ItemSlot { itemId = "carrotseed", count = 10 }
+                },
+                farmland = new List<FarmlandTile>()
+            };
 
-
+            await CloudSaveAPI.SaveFarmData(farmData);
+            Debug.Log("✅ 初始存檔已建立並上傳");
+        }
 
         inventoryData = farmData.inventory;
         Debug.Log($"📦 載入道具數：{inventoryData?.Count ?? 0}");
-
-        iconMap = new Dictionary<string, Sprite>
-        {
-            { "wheat", wheatIcon },
-            { "carrot", carrotIcon },
-            { "carrotseed", carrotSeedIcon }
-        };
 
         RefreshInventoryUI();
     }
@@ -110,22 +91,23 @@ if (farmData == null || farmData.inventory == null || farmData.inventory.Count =
             GameObject go = Instantiate(slotDraggablePrefab, gridParent);
             var ui = go.GetComponent<InventorySlotUI>();
 
-            // ✅ 使用主 Canvas（防止 null）
             if (mainCanvas == null)
             {
-                Debug.LogError("❌ InventoryManager.mainCanvas 尚未指定！拖曳將無法運作！");
+                Debug.LogError("❌ InventoryManager.mainCanvas 尚未指定！");
             }
             ui.canvas = mainCanvas;
 
             if (i < inventoryData.Count)
             {
                 var slot = inventoryData[i];
-                ui.Setup(iconMap.ContainsKey(slot.itemId) ? iconMap[slot.itemId] : defaultIcon, slot.itemId, slot.count);
+                ItemData data = ItemDatabase.Instance.GetItemData(slot.itemId);
+                Sprite icon = data != null ? data.icon : null;
+                ui.Setup(icon, slot.itemId, slot.count);
                 ui.EnableDragging();
             }
             else
             {
-                ui.Setup(defaultIcon, "", 0);
+                ui.Setup(null, "", 0);
             }
         }
 
@@ -144,10 +126,14 @@ if (farmData == null || farmData.inventory == null || farmData.inventory.Count =
     public void OnClickBackToFarm()
     {
         string seedId = GetDraggingItem();
-        if (!string.IsNullOrEmpty(seedId) && iconMap.ContainsKey(seedId))
+        if (!string.IsNullOrEmpty(seedId))
         {
-            DragItemData.draggingItemId = seedId;
-            DragItemIcon.Instance.Show(iconMap[seedId]);
+            Sprite icon = ItemDatabase.Instance.GetIcon(seedId);
+            if (icon != null)
+            {
+                DragItemData.draggingItemId = seedId;
+                DragItemIcon.Instance.Show(icon);
+            }
         }
         SceneManager.LoadScene("FarmScene");
     }
@@ -157,15 +143,11 @@ if (farmData == null || farmData.inventory == null || farmData.inventory.Count =
         currentItemId = itemId;
         itemInfoPopup.SetActive(true);
 
-        itemNameText.text = itemId switch
-        {
-            "wheat" => "小麥",
-            "carrot" => "紅蘿蔔",
-            "carrotseed" => "紅蘿蔔種子",
-            _ => "未知物品"
-        };
-
-        itemDescText.text = $"你擁有 {count} 個";
+        ItemData data = ItemDatabase.Instance.GetItemData(itemId);
+        itemNameText.text = data != null ? data.itemName : "未知物品";
+        itemDescText.text = data != null ?
+            $"你擁有 {count} 個\n\n{data.description}" :
+            $"你擁有 {count} 個";
 
         useButton.onClick.RemoveAllListeners();
         useButton.onClick.AddListener(() => UseItem(itemId));
@@ -179,7 +161,6 @@ if (farmData == null || farmData.inventory == null || farmData.inventory.Count =
         Debug.Log($"🧪 使用物品：{itemId}");
 
         var item = inventoryData.Find(slot => slot.itemId == itemId);
-
         if (item != null)
         {
             item.count--;
@@ -195,7 +176,6 @@ if (farmData == null || farmData.inventory == null || farmData.inventory.Count =
         Debug.Log($"🗑️ 丟棄物品：{itemId}");
 
         var item = inventoryData.Find(slot => slot.itemId == itemId);
-
         if (item != null)
         {
             item.count--;
@@ -238,7 +218,7 @@ if (farmData == null || farmData.inventory == null || farmData.inventory.Count =
         farmData.gold -= cost;
         farmData.maxInventorySize += 1;
 
-        Debug.Log($"👛 擴充成功，目前 {farmData.maxInventorySize} 格，剩餘金幣：{farmData.gold}");
+        Debug.Log($"💻 擴充成功，目前 {farmData.maxInventorySize} 格，剩餘金幣：{farmData.gold}");
         ShowPopup($"✅ 擴充成功！剩餘金幣：{farmData.gold}");
 
         _ = SaveInventoryThenRefresh();

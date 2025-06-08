@@ -80,7 +80,7 @@ public class MultiplayerFarmSaver : NetworkBehaviour
 
         FarmData data = await CloudSaveAPI.LoadFarmData();
         data.inventory = itemList;
-        data.gold = PlayerPrefs.GetInt("gold", 999); // 也可以再次更新金幣
+        data.gold = PlayerPrefs.GetInt("gold", 1000); // 也可以再次更新金幣
 
         await CloudSaveAPI.SaveFarmData(data);
         Debug.Log("✅ 背包資料與金幣已儲存！");

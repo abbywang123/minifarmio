@@ -123,7 +123,7 @@ public class ShopManager : MonoBehaviour
             return false;
         }
 
-        ItemData realData = ItemDatabase.I.Get(item.itemData.id);
+        ItemData realData = ItemDatabase.Instance.GetItemData(item.itemData.id);
         if (realData == null)
         {
             Debug.LogError($"ItemDatabase找不到ID={item.itemData.id}");
@@ -148,7 +148,7 @@ public class ShopManager : MonoBehaviour
             return false;
         }
 
-        ItemData realData = ItemDatabase.I.Get(item.itemData.id);
+        ItemData realData = ItemDatabase.Instance.GetItemData(item.itemData.id);
         if (realData == null)
         {
             Debug.LogError($"ItemDatabase找不到ID={item.itemData.id}");

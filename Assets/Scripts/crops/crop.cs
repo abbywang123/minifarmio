@@ -17,7 +17,7 @@ public class Crop : MonoBehaviour
 
     private float growthRate => cropInfo.growthRate;
 
-    public CropInfo Info => cropInfo;  // 公開屬性，外部透過這讀取 cropInfo
+    public CropInfo Info => cropInfo;
 
     public float GetGrowthProgress() => growthProgress;
     public float GetHealth() => health;
@@ -109,7 +109,7 @@ public class Crop : MonoBehaviour
     private void UpdateVisual()
     {
         if (growthStages == null || growthStages.Length == 0) return;
-        
+
         int stage = Mathf.FloorToInt(GetGrowthProgressNormalized() * (growthStages.Length - 1));
         if (stage != currentStage)
         {
@@ -141,7 +141,7 @@ public class Crop : MonoBehaviour
 
     private void HandleNewDay()
     {
-        UpdateGrowthAuto(); // 使用實際天氣系統與土地濕度
+        UpdateGrowthAuto();
     }
 
     public void UpdateGrowth(float temperature, float humidity, string weather, bool isNight)
@@ -198,7 +198,7 @@ public class Crop : MonoBehaviour
 
             case SpecialEffectType.ExtraGoldOnHarvest:
                 if (wallet != null)
-                    wallet.Earn(10);  // 使用 Earn 代替不存在的 AddMoney
+                    wallet.Earn(10);
                 break;
 
             case SpecialEffectType.RainGrowthBoost:
@@ -213,7 +213,7 @@ public class Crop : MonoBehaviour
             case SpecialEffectType.ProduceAuraFertilizer:
                 if (inventory != null)
                 {
-                    var fertilizer = ItemDatabase.I.Get("Fertilizer");
+                    var fertilizer = ItemDatabase.Instance.GetItemData("fertilizer");
                     if (fertilizer != null)
                         inventory.Add(fertilizer, 1);
                 }
@@ -256,7 +256,7 @@ public class Crop : MonoBehaviour
     public void FertilizeCrop()
     {
         var inventory = cachedPlayer?.GetComponent<Inventory>();
-        var fertilizer = ItemDatabase.I.Get("Fertilizer");
+        var fertilizer = ItemDatabase.Instance.GetItemData("fertilizer");
 
         if (inventory != null && fertilizer != null && inventory.Remove(fertilizer, 1))
         {

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed9bd2995a9434c43aa0ef41ccc9b8af, type: 3}
-  m_Name: "\u8349\u8393\u7A2E\u5B50"
+  m_Name: mushroom
   m_EditorClassIdentifier: 
-  id: strawberryseed
-  itemName: "\u8349\u8393\u7A2E\u5B50"
-  icon: {fileID: 21300000, guid: ea8356d9a46311f4a8130bf4a52c8218, type: 3}
-  itemType: 0
+  id: mushroom
+  itemName: "\u9999\u83C7"
+  icon: {fileID: 21300000, guid: f8363affe21ffde43b7bfb63d035e57a, type: 3}
+  itemType: 2
   maxStack: 99
-  description: "\u53EF\u7528\u4F86\u7A2E\u690D \u8349\u8393\u3002"
+  description: "\u6210\u719F\u7684 \u9999\u83C7\uFF0C\u53EF\u4EE5\u8CA9\u552E\u3002"

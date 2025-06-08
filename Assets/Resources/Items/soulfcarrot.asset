@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed9bd2995a9434c43aa0ef41ccc9b8af, type: 3}
-  m_Name: "\u7389\u7C73"
+  m_Name: soulfcarrot
   m_EditorClassIdentifier: 
-  id: corn
-  itemName: "\u7389\u7C73"
-  icon: {fileID: 21300000, guid: 06398e5ebafa921459c62ad971e334a8, type: 3}
+  id: soulfcarrot
+  itemName: "\u9B42\u4E4B\u863F\u8514"
+  icon: {fileID: 21300000, guid: de84b443c8a06504e8846d7ddd8e0b69, type: 3}
   itemType: 2
   maxStack: 99
-  description: "\u6210\u719F\u7684 \u7389\u7C73\uFF0C\u53EF\u4EE5\u8CA9\u552E\u3002"
+  description: "\u6210\u719F\u7684 \u9B42\u4E4B\u863F\u8514\uFF0C\u53EF\u4EE5\u8CA9\u552E\u3002"

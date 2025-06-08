@@ -21,16 +21,13 @@ public class InventorySlotUI : MonoBehaviour
     {
         rectTransform = iconImage.GetComponent<RectTransform>();
 
-        // ⛑️ 加 CanvasGroup 確保可調透明與阻擋 Raycast
         canvasGroup = iconImage.GetComponent<CanvasGroup>();
         if (!canvasGroup)
             canvasGroup = iconImage.gameObject.AddComponent<CanvasGroup>();
 
-        // ✅ 自動取得 canvas
         if (canvas == null)
             canvas = GetComponentInParent<Canvas>();
 
-        // ✅ 自動尋找 DragLayer
         var dl = GameObject.Find("DragLayer");
         if (dl != null)
         {
@@ -43,7 +40,6 @@ public class InventorySlotUI : MonoBehaviour
         }
     }
 
-    // 設定圖示與數量
     public void Setup(Sprite icon, string id, int count)
     {
         iconImage.sprite = icon;
@@ -51,7 +47,6 @@ public class InventorySlotUI : MonoBehaviour
         itemId = id;
     }
 
-    // 啟用拖曳邏輯
     public void EnableDragging()
     {
         EventTrigger trigger = iconImage.gameObject.AddComponent<EventTrigger>();
@@ -62,26 +57,21 @@ public class InventorySlotUI : MonoBehaviour
             originalParent = rectTransform.parent;
             originalPosition = rectTransform.position;
 
-            // 將格子提到畫面最上層顯示
             rectTransform.SetParent(dragLayer, true);
             canvasGroup.alpha = 0.6f;
             canvasGroup.blocksRaycasts = false;
 
-            // 記錄拖曳資料
             InventoryManager.Instance.SetDraggingItem(itemId);
             DragItemData.draggingItemId = itemId;
 
-            // ✅ 安全顯示滑鼠跟隨圖示（避免 null）
-            if (InventoryManager.Instance.IconMap.TryGetValue(itemId, out var sprite))
+            var icon = ItemDatabase.Instance.GetIcon(itemId);
+            if (icon != null && DragItemIcon.Instance != null)
             {
-                if (DragItemIcon.Instance != null)
-                {
-                    DragItemIcon.Instance.Show(sprite);
-                }
-                else
-                {
-                    Debug.LogWarning("⚠️ DragItemIcon 尚未初始化，無法顯示圖示");
-                }
+                DragItemIcon.Instance.Show(icon);
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ 無法顯示拖曳圖示");
             }
 
             Debug.Log($"🟡 開始拖曳 {itemId}");
@@ -104,16 +94,10 @@ public class InventorySlotUI : MonoBehaviour
 
         Add(trigger, EventTriggerType.EndDrag, (data) =>
         {
-            // 恢復原本位置與層級
             rectTransform.SetParent(originalParent, true);
             rectTransform.position = originalPosition;
             canvasGroup.alpha = 1f;
             canvasGroup.blocksRaycasts = true;
-
-            // ⚠️ 若不跨場景可清除狀態，跨場景請保留拖曳資料
-            // InventoryManager.Instance.ClearDraggingItem();
-            // DragItemData.draggingItemId = null;
-            // DragItemIcon.Instance.Hide();
 
             Debug.Log($"🟢 結束拖曳 {itemId}");
         });
@@ -126,3 +110,4 @@ public class InventorySlotUI : MonoBehaviour
         trigger.triggers.Add(entry);
     }
 }
+

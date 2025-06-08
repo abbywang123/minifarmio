@@ -23,7 +23,6 @@ public class Inventory : MonoBehaviour
             Slots.Add(new Slot());
     }
 
-    // ✅ [新增] 設定容量 + 初始化 Slots
     public void SetCapacity(int newCap)
     {
         capacity = newCap;
@@ -32,7 +31,6 @@ public class Inventory : MonoBehaviour
             Slots.Add(new Slot());
     }
 
-    // ✅ [新增] 從 DTO 資料恢復背包內容
     public void FromDTO(InventoryDTO dto)
     {
         Slots = new List<Slot>(capacity);
@@ -43,7 +41,7 @@ public class Inventory : MonoBehaviour
 
             if (i < dto.slots.Count)
             {
-                var itemData = ItemDatabase.I.Get(dto.slots[i].itemId);
+                var itemData = ItemDatabase.Instance.GetItemData(dto.slots[i].itemId);
                 slot.item = itemData;
                 slot.count = dto.slots[i].count;
             }
@@ -52,17 +50,14 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    // ✅ [選配] 取得指定欄位（避免 UI index 越界）
     public Slot GetSlot(int index)
     {
         if (index < 0 || index >= Slots.Count) return new Slot();
         return Slots[index];
     }
 
-    // ✅ 原本：加入物品
     public bool Add(ItemData data, int amount = 1)
     {
-        // 1. 先疊加到已存在且未滿的欄位
         for (int i = 0; i < Slots.Count; i++)
         {
             if (Slots[i].item == data && !Slots[i].IsFull)
@@ -77,7 +72,6 @@ public class Inventory : MonoBehaviour
             }
         }
 
-        // 2. 再找空欄位塞入
         for (int i = 0; i < Slots.Count; i++)
         {
             if (Slots[i].IsEmpty)
@@ -89,10 +83,9 @@ public class Inventory : MonoBehaviour
             }
         }
 
-        return false; // 無法完全放入（背包滿）
+        return false;
     }
 
-    // ✅ 原本：移除物品
     public bool Remove(ItemData data, int amount = 1)
     {
         int total = 0;
@@ -128,7 +121,7 @@ public class Inventory : MonoBehaviour
         return true;
     }
 
-        public int CountOf(ItemData data)
+    public int CountOf(ItemData data)
     {
         int total = 0;
         foreach (var slot in Slots)
@@ -138,5 +131,4 @@ public class Inventory : MonoBehaviour
         }
         return total;
     }
-
 }
