@@ -108,6 +108,8 @@ public class Crop : MonoBehaviour
 
     private void UpdateVisual()
     {
+        if (growthStages == null || growthStages.Length == 0) return;
+        
         int stage = Mathf.FloorToInt(GetGrowthProgressNormalized() * (growthStages.Length - 1));
         if (stage != currentStage)
         {
@@ -139,9 +141,7 @@ public class Crop : MonoBehaviour
 
     private void HandleNewDay()
     {
-        float defaultTemp = (cropInfo.suitableMinTemperature + cropInfo.suitableMaxTemperature) / 2f;
-        float defaultHumidity = (cropInfo.suitableMinHumidity + cropInfo.suitableMaxHumidity) / 2f;
-        UpdateGrowth(defaultTemp, defaultHumidity, "Sunny", false);
+        UpdateGrowthAuto(); // 使用實際天氣系統與土地濕度
     }
 
     public void UpdateGrowth(float temperature, float humidity, string weather, bool isNight)
