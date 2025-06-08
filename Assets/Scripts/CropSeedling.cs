@@ -7,8 +7,12 @@ public class CropSeedling : MonoBehaviour
 
     private string currentSeedId; // ✅ 需要記錄播種的種子 ID
 
-    public void SetCrop(string itemId)
+    private LandTile parentTile;
+
+
+    public void SetCrop(string itemId, LandTile tile)
     {
+        parentTile = tile;
         currentSeedId = itemId; // ✅ 記住給哪個種子
 
         if (spriteRenderer == null)
@@ -32,11 +36,11 @@ public class CropSeedling : MonoBehaviour
     {
         yield return new WaitForSeconds(1f); // 播種動畫過場
 
-        CropInfo info = CropDatabase.I.GetCropBySeedId(currentSeedId);
+        CropInfo info = CropDatabase.GetCropBySeedId(currentSeedId);
         if (info != null)
         {
             var crop = gameObject.AddComponent<Crop>();
-            crop.Init(info);
+            crop.Init(info, parentTile); // ✅ 傳入正確 tile
             Destroy(this); // ✅ 移除 Seedling 階段腳本
         }
         else

@@ -75,6 +75,17 @@ public class TileClickManager : MonoBehaviour
             Debug.Log($"🌱 準備播種種子 ID：{seedId}");
 
             Vector3 cellCenter = targetTilemap.GetCellCenterWorld(cellPos);
+            // 🧩 嘗試從 cellCenter 取得 LandTile（注意需有 Collider2D）
+            Collider2D hit = Physics2D.OverlapPoint(cellCenter);
+            LandTile tile = hit?.GetComponent<LandTile>();
+
+            if (tile == null)
+            {
+                Debug.LogWarning("❌ 找不到 LandTile，無法完成播種！");
+                return;
+            }
+
+            // 🌱 實例化 Crop（預期是 SeedlingPrefab）
             GameObject crop = Instantiate(cropPrefab, cellCenter, Quaternion.identity);
 
             var seedling = crop.GetComponent<CropSeedling>();
@@ -84,7 +95,7 @@ public class TileClickManager : MonoBehaviour
             }
             else
             {
-                seedling.SetCrop(seedId);
+                seedling.SetCrop(seedId, tile); // ✅ 傳入 seedId 與該地 tile
                 Debug.Log("✅ 已設置 CropSeedling 圖示");
             }
 
