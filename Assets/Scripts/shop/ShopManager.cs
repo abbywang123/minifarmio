@@ -6,10 +6,10 @@ using UnityEngine.SceneManagement;
 public class ShopManager : MonoBehaviour
 {
     [Header("UI 元件")]
-    public GameObject shopPanel;                    // 整體商店面板
-    public Button openShopButton;                   // 改為返回農場的按鈕
-    public Button buyTabButton;                     // 買入分頁按鈕
-    public Button sellTabButton;                    // 賣出分頁按鈕
+    public GameObject shopPanel;
+    public Button openShopButton;
+    public Button buyTabButton;
+    public Button sellTabButton;
 
     [Header("ScrollView 面板")]
     public GameObject buyScrollView;
@@ -30,31 +30,22 @@ public class ShopManager : MonoBehaviour
     private ShopItemInfo[] shopItems;
 
     void Start()
-{
-    // 1. 啟用商店面板
-    shopPanel.SetActive(true);
+    {
+        shopPanel.SetActive(true);
 
-    // 2. 綁定按鈕事件
-    openShopButton.onClick.RemoveAllListeners();
-    openShopButton.onClick.AddListener(ReturnToFarmScene);
-    buyTabButton.onClick.AddListener(() => SwitchTab(true));
-    sellTabButton.onClick.AddListener(() => SwitchTab(false));
+        openShopButton.onClick.RemoveAllListeners();
+        openShopButton.onClick.AddListener(ReturnToFarmScene);
+        buyTabButton.onClick.AddListener(() => SwitchTab(true));
+        sellTabButton.onClick.AddListener(() => SwitchTab(false));
 
-    // 3. 加載商品
-    LoadShopItems();
-
-    // 4. 顯示買入頁籤
-    SwitchTab(true);
-
-    // 5. 更新金錢顯示
-    UpdateMoneyUI();
-}
-
+        LoadShopItems();
+        SwitchTab(true);
+        UpdateMoneyUI();
+    }
 
     void ReturnToFarmScene()
     {
-        Debug.Log("🔙 返回農場場景");
-        SceneManager.LoadScene("Farm"); // 確保 Farm 已加入 Build Settings
+        SceneManager.LoadScene("Farm");
     }
 
     void SwitchTab(bool showBuy)
@@ -96,18 +87,54 @@ public class ShopManager : MonoBehaviour
             isBuy,
             !isBuy,
             () => {
-                if (TryBuyItem(item)) UpdateMoneyUI();
+                Debug.Log($"嘗試購買 {item.itemName}");
+                if (TryBuyItem(item))
+                {
+                    UpdateMoneyUI();
+                    Debug.Log("購買成功");
+                }
+                else
+                    Debug.Log("購買失敗");
             },
             () => {
-                if (TrySellItem(item)) UpdateMoneyUI();
+                Debug.Log($"嘗試賣出 {item.itemName}");
+                if (TrySellItem(item))
+                {
+                    UpdateMoneyUI();
+                    Debug.Log("賣出成功");
+                }
+                else
+                    Debug.Log("賣出失敗");
             }
         );
     }
 
     bool TryBuyItem(ShopItemInfo item)
     {
-        if (!playerWallet.CanAfford(item.buyPrice)) return false;
-        if (!playerInventory.Add(item.itemData, 1)) return false;
+        if (item == null || item.itemData == null)
+        {
+            Debug.LogError("物品資料不完整，無法購買");
+            return false;
+        }
+
+        if (!playerWallet.CanAfford(item.buyPrice))
+        {
+            Debug.Log("金錢不足");
+            return false;
+        }
+
+        ItemData realData = ItemDatabase.I.Get(item.itemData.id);
+        if (realData == null)
+        {
+            Debug.LogError($"ItemDatabase找不到ID={item.itemData.id}");
+            return false;
+        }
+
+        if (!playerInventory.Add(realData, 1))
+        {
+            Debug.Log("背包無法加入物品");
+            return false;
+        }
 
         playerWallet.Spend(item.buyPrice);
         return true;
@@ -115,7 +142,24 @@ public class ShopManager : MonoBehaviour
 
     bool TrySellItem(ShopItemInfo item)
     {
-        if (!playerInventory.Remove(item.itemData, 1)) return false;
+        if (item == null || item.itemData == null)
+        {
+            Debug.LogError("物品資料不完整，無法賣出");
+            return false;
+        }
+
+        ItemData realData = ItemDatabase.I.Get(item.itemData.id);
+        if (realData == null)
+        {
+            Debug.LogError($"ItemDatabase找不到ID={item.itemData.id}");
+            return false;
+        }
+
+        if (!playerInventory.Remove(realData, 1))
+        {
+            Debug.Log("背包沒有足夠物品可賣出");
+            return false;
+        }
 
         playerWallet.Earn(item.sellPrice);
         return true;
