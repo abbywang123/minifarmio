@@ -131,7 +131,7 @@ public class LoginUIManager : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene("map");
+        SceneManager.LoadScene("Farm");
     }
 
     private void OnEnterFarmMultiplayer()
