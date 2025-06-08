@@ -9,6 +9,7 @@ public enum SoilType
 
 public class LandTile : MonoBehaviour
 {
+    public int x, y;
     public bool isTilled;
     public Crop plantedCrop;
 
@@ -65,6 +66,11 @@ public class LandTile : MonoBehaviour
         var go = Instantiate(cropPrefab, cropRoot.position, Quaternion.identity, cropRoot);
         plantedCrop = go.GetComponent<Crop>();
         plantedCrop.Init(info, this);
+    }
+
+    void OnMouseDown()
+    {
+        FindFirstObjectByType<FarmUIManager>().OpenSeedPopup(this);
     }
 
     public void Harvest()

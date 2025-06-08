@@ -4,9 +4,9 @@ public class FarmUIManager : MonoBehaviour
 {
     public SelectSeedPopup popup;
 
-    FarmTile currentTile;
+    LandTile currentTile; // ✅ 用 LandTile 取代 FarmTile
 
-    public void OpenSeedPopup(FarmTile tile)
+    public void OpenSeedPopup(LandTile tile)
     {
         currentTile = tile;
         popup.Show(tile);
@@ -14,17 +14,7 @@ public class FarmUIManager : MonoBehaviour
 
     public void PlantSelected(string itemId)
     {
-        currentTile.Plant(itemId);
+        currentTile.Plant(CropDatabase.GetCropBySeedId(itemId), Resources.Load<GameObject>("Prefabs/SeedlingPrefab"));
         popup.gameObject.SetActive(false);
-    }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
