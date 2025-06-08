@@ -4,7 +4,7 @@ using TMPro;
 
 public class CropInfoPanel : MonoBehaviour
 {
-    public static CropInfoPanel Instance; // ✅ 單例
+    public static CropInfoPanel Instance; // 單例
 
     [Header("UI 元素")]
     public TextMeshProUGUI nameText;
@@ -31,7 +31,7 @@ public class CropInfoPanel : MonoBehaviour
 
     void Awake()
     {
-        Instance = this; // ✅ 初始化單例
+        Instance = this; // 初始化單例
     }
 
     void Start()
@@ -67,7 +67,8 @@ public class CropInfoPanel : MonoBehaviour
     {
         if (currentCrop == null) return;
 
-        nameText.text = currentCrop.cropInfo.cropName;
+        // 使用 Crop 類別中公開的 Info 屬性取代直接存取私有字段
+        nameText.text = currentCrop.Info.cropName;
 
         float g = currentCrop.GetGrowthProgressNormalized();
         float h = currentCrop.GetHealthNormalized();
