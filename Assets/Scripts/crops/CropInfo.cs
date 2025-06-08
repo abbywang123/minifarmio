@@ -33,6 +33,8 @@ public class CropInfo : ScriptableObject
 
     [Header("成長設定")]
     public float growthRate = 1f;
+    [Header("成長階段圖像")]
+    public Sprite[] growthStages;
 
     [Header("環境需求")]
     public float suitableMinTemperature;
