@@ -241,7 +241,7 @@ public class Crop : MonoBehaviour
             case SpecialEffectType.ProduceAuraFertilizer:
                 if (inventory != null)
                 {
-                    var fertilizer = ItemDatabase.Get("Fertilizer");
+                    var fertilizer = ItemDatabase.I.Get("Fertilizer");
                     if (fertilizer != null)
                         inventory.Add(fertilizer, 1);
                 }
