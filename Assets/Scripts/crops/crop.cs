@@ -270,4 +270,10 @@ public class Crop : MonoBehaviour
 
         UpdateVisual();
     }
+
+    void OnMouseDown()
+    {
+        CropInfoPanelManager.Instance?.ShowPanel(this);
+    }
+
 }
