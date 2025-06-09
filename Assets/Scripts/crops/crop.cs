@@ -241,7 +241,7 @@ public class Crop : MonoBehaviour
             case SpecialEffectType.ProduceAuraFertilizer:
                 if (inventory != null)
                 {
-                    var fertilizer = ItemDatabase.I.Get("Fertilizer");
+                    var fertilizer = ItemDatabase.Instance.GetItemData("Fertilizer");
                     if (fertilizer != null)
                         inventory.Add(fertilizer, 1);
                 }
@@ -284,9 +284,8 @@ public class Crop : MonoBehaviour
     public void FertilizeCrop()
     {
         var inventory = cachedPlayer?.GetComponent<Inventory>();
-        var fertilizer = ItemDatabase.I.Get("Fertilizer");
-
-        if (inventory != null && fertilizer != null && inventory.Remove(fertilizer, 1))
+        var fertilizer = ItemDatabase.Instance.GetItemData("Fertilizer");
+        if (fertilizer != null && inventory.Remove(fertilizer, 1))
         {
             quality = Mathf.Min(quality + 10f, 100f);
             growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.1f, 0f, 100f);
