@@ -5,12 +5,13 @@ public class PlayerWallet : MonoBehaviour
 {
     public static PlayerWallet Instance { get; private set; }
 
+    private const string MoneyKey = "PlayerMoney"; // 用來儲存金錢的鍵值
+
     [SerializeField]
     private int currentMoney = 1000;
 
     public int CurrentMoney => currentMoney;
 
-    // 當金錢變動時觸發的事件（UI 可訂閱）
     public event Action<int> OnMoneyChanged;
 
     private void Awake()
@@ -23,7 +24,9 @@ public class PlayerWallet : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject); // 若希望場景切換時仍保留
+        DontDestroyOnLoad(gameObject);
+
+        LoadMoney(); // 在遊戲啟動時讀取金錢
     }
 
     public bool CanAfford(int amount)
@@ -36,8 +39,9 @@ public class PlayerWallet : MonoBehaviour
         if (CanAfford(amount))
         {
             currentMoney -= amount;
+            SaveMoney(); // 花錢後儲存
             Debug.Log($"💸 扣款 {amount}，剩餘:{currentMoney}");
-            OnMoneyChanged?.Invoke(currentMoney); // 觸發事件
+            OnMoneyChanged?.Invoke(currentMoney);
             return true;
         }
 
@@ -48,7 +52,27 @@ public class PlayerWallet : MonoBehaviour
     public void Earn(int amount)
     {
         currentMoney += amount;
+        SaveMoney(); // 收錢後儲存
         Debug.Log($"💰 收到 {amount}，現在擁有:{currentMoney}");
-        OnMoneyChanged?.Invoke(currentMoney); // 觸發事件
+        OnMoneyChanged?.Invoke(currentMoney);
+    }
+
+    private void SaveMoney()
+    {
+        PlayerPrefs.SetInt(MoneyKey, currentMoney);
+        PlayerPrefs.Save();
+    }
+
+    private void LoadMoney()
+    {
+        currentMoney = PlayerPrefs.GetInt(MoneyKey, 1000); // 若尚未儲存過則用 1000
+    }
+
+    public void ResetMoney()
+    {
+        PlayerPrefs.DeleteKey(MoneyKey);
+        currentMoney = 1000;
+        SaveMoney();
+        OnMoneyChanged?.Invoke(currentMoney);
     }
 }

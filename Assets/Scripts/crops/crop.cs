@@ -184,11 +184,6 @@ public class Crop : MonoBehaviour
 
     private void ApplySpecialEffect(string currentWeather, bool isNight)
     {
-        if (cachedPlayer == null) return;
-
-        var wallet = cachedPlayer.GetComponent<PlayerWallet>();
-        var inventory = cachedPlayer.GetComponent<Inventory>();
-
         switch (cropInfo.specialEffect)
         {
             case SpecialEffectType.NightBoost:
@@ -197,6 +192,7 @@ public class Crop : MonoBehaviour
                 break;
 
             case SpecialEffectType.ExtraGoldOnHarvest:
+                var wallet = cachedPlayer?.GetComponent<PlayerWallet>();
                 if (wallet != null)
                     wallet.Earn(10);
                 break;
@@ -211,12 +207,9 @@ public class Crop : MonoBehaviour
                 break;
 
             case SpecialEffectType.ProduceAuraFertilizer:
-                if (inventory != null)
-                {
-                    var fertilizer = ItemDatabase.Instance.GetItemData("fertilizer");
-                    if (fertilizer != null)
-                        inventory.Add(fertilizer, 1);
-                }
+                var fertilizer = ItemDatabase.Instance.GetItemData("fertilizer");
+                if (fertilizer != null)
+                    InventoryManager.Instance.AddItemToInventory(fertilizer.id, 1);
                 break;
 
             case SpecialEffectType.DroughtResistant:
@@ -229,19 +222,15 @@ public class Crop : MonoBehaviour
 
     public void Harvest()
     {
-        if (cachedPlayer == null)
+        var inventory = InventoryManager.Instance;
+        if (inventory == null || cropInfo.harvestItem == null)
         {
-            Debug.LogWarning("[Crop] 找不到 Player，無法收成。");
+            Debug.LogWarning("❌ 無法收成，背包或作物資料異常！");
             return;
         }
 
-        var inventory = cachedPlayer.GetComponent<Inventory>();
-        bool ok = inventory.Add(cropInfo.harvestItem, 1);
-
-        if (ok)
-        {
-            WarehouseManager.Instance.inventory.Add(cropInfo.harvestItem, 1);
-        }
+        inventory.AddItemToInventory(cropInfo.harvestItem.id, 1);
+        WarehouseManager.Instance.inventory.Add(cropInfo.harvestItem, 1);
 
         Destroy(gameObject);
     }
@@ -255,10 +244,8 @@ public class Crop : MonoBehaviour
 
     public void FertilizeCrop()
     {
-        var inventory = cachedPlayer?.GetComponent<Inventory>();
         var fertilizer = ItemDatabase.Instance.GetItemData("fertilizer");
-
-        if (inventory != null && fertilizer != null && inventory.Remove(fertilizer, 1))
+        if (fertilizer != null && InventoryManager.Instance.RemoveItem(fertilizer.id, 1))
         {
             quality = Mathf.Min(quality + 10f, 100f);
             growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.1f, 0f, 100f);
@@ -275,5 +262,4 @@ public class Crop : MonoBehaviour
     {
         CropInfoPanelManager.Instance?.ShowPanel(this);
     }
-
 }

@@ -330,6 +330,21 @@ public class InventoryManager : MonoBehaviour
         inventoryData = farmData?.inventory;
         RefreshInventoryUI();
     }
+
+    public bool RemoveItem(string itemId, int count = 1)
+    {
+        var item = inventoryData.Find(slot => slot.itemId == itemId);
+        if (item == null || item.count < count)
+            return false;
+
+        item.count -= count;
+        if (item.count <= 0)
+            inventoryData.Remove(item);
+
+        _ = SaveInventoryThenRefresh();
+        return true;
+    }
+
 }
 
 

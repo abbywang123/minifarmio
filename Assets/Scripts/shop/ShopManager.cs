@@ -22,7 +22,6 @@ public class ShopManager : MonoBehaviour
 
     [Header("玩家系統")]
     public PlayerWallet playerWallet;
-    public Inventory playerInventory;
 
     [Header("顯示金錢")]
     public TextMeshProUGUI playerMoneyText;
@@ -38,14 +37,25 @@ public class ShopManager : MonoBehaviour
         buyTabButton.onClick.AddListener(() => SwitchTab(true));
         sellTabButton.onClick.AddListener(() => SwitchTab(false));
 
+        PlayerWallet.Instance.OnMoneyChanged += UpdateMoneyUI;
+        UpdateMoneyUI(PlayerWallet.Instance.CurrentMoney);
         LoadShopItems();
         SwitchTab(true);
-        UpdateMoneyUI();
     }
 
     void ReturnToFarmScene()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded; // 🔧 加入回場景時的刷新
         SceneManager.LoadScene("Farm");
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "Farm")
+        {
+            InventoryManager.Instance?.RefreshInventoryUI();  // ✅ 回場景時強制刷新背包
+            SceneManager.sceneLoaded -= OnSceneLoaded;        // ✅ 解除事件避免重複
+        }
     }
 
     void SwitchTab(bool showBuy)
@@ -86,21 +96,23 @@ public class ShopManager : MonoBehaviour
             priceText,
             isBuy,
             !isBuy,
-            () => {
+            () =>
+            {
                 Debug.Log($"嘗試購買 {item.itemName}");
                 if (TryBuyItem(item))
                 {
-                    UpdateMoneyUI();
+                    UpdateMoneyUI(PlayerWallet.Instance.CurrentMoney);
                     Debug.Log("購買成功");
                 }
                 else
                     Debug.Log("購買失敗");
             },
-            () => {
+            () =>
+            {
                 Debug.Log($"嘗試賣出 {item.itemName}");
                 if (TrySellItem(item))
                 {
-                    UpdateMoneyUI();
+                    UpdateMoneyUI(PlayerWallet.Instance.CurrentMoney);
                     Debug.Log("賣出成功");
                 }
                 else
@@ -123,19 +135,7 @@ public class ShopManager : MonoBehaviour
             return false;
         }
 
-        ItemData realData = ItemDatabase.Instance.GetItemData(item.itemData.id);
-        if (realData == null)
-        {
-            Debug.LogError($"ItemDatabase找不到ID={item.itemData.id}");
-            return false;
-        }
-
-        if (!playerInventory.Add(realData, 1))
-        {
-            Debug.Log("背包無法加入物品");
-            return false;
-        }
-
+        InventoryManager.Instance.AddItemToInventory(item.itemData.id, 1);
         playerWallet.Spend(item.buyPrice);
         return true;
     }
@@ -148,14 +148,7 @@ public class ShopManager : MonoBehaviour
             return false;
         }
 
-        ItemData realData = ItemDatabase.Instance.GetItemData(item.itemData.id);
-        if (realData == null)
-        {
-            Debug.LogError($"ItemDatabase找不到ID={item.itemData.id}");
-            return false;
-        }
-
-        if (!playerInventory.Remove(realData, 1))
+        if (!InventoryManager.Instance.RemoveItem(item.itemData.id, 1))
         {
             Debug.Log("背包沒有足夠物品可賣出");
             return false;
@@ -165,9 +158,9 @@ public class ShopManager : MonoBehaviour
         return true;
     }
 
-    void UpdateMoneyUI()
+    void UpdateMoneyUI(int newMoney)
     {
-        playerMoneyText.text = $"金錢：{playerWallet.CurrentMoney}";
+        playerMoneyText.text = $"金錢：{newMoney}";
     }
 
     void ClearChildren(Transform parent)

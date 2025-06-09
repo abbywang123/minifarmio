@@ -23,8 +23,8 @@ public class BreedingUIManager : MonoBehaviour
 {
     [Header("UI 元件")]
     public GameObject breedingPanel;
-    public Button breedingOpenButton;         // ✅（保留但不使用）
-    public Button closeButton;                // ✅ 改為跳場景
+    public Button breedingOpenButton;
+    public Button closeButton;
     public Button breedButton;
 
     public TMP_Dropdown hybridDropdown;
@@ -32,9 +32,6 @@ public class BreedingUIManager : MonoBehaviour
 
     public TextMeshProUGUI parentAText;
     public TextMeshProUGUI parentBText;
-
-    [Header("背包參考")]
-    public Inventory playerInventory;
 
     private List<HybridInfo> hybridList = new List<HybridInfo>
     {
@@ -48,17 +45,14 @@ public class BreedingUIManager : MonoBehaviour
 
     private void Start()
     {
-        // 一開始就打開面板
         breedingPanel.SetActive(true);
 
-        // 按下 Close 就跳到 Farm 場景
         closeButton.onClick.AddListener(() =>
         {
             Debug.Log("🌾 返回 Farm 場景");
             SceneManager.LoadScene("Farm");
         });
 
-        // 其他 UI 初始化
         breedButton.onClick.AddListener(OnBreedButtonClicked);
         hybridDropdown.onValueChanged.AddListener(UpdateParentTexts);
 
@@ -89,11 +83,18 @@ public class BreedingUIManager : MonoBehaviour
 
     private void OnBreedButtonClicked()
     {
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogError("❌ 無法取得 InventoryManager 實例");
+            return;
+        }
+
         int index = hybridDropdown.value;
         int quantity = quantityDropdown.value + 1;
 
         var hybrid = hybridList[index];
 
+        // 載入 ItemData（需要有正確命名的 ScriptableObject 資源）
         ItemData parentA = Resources.Load<ItemData>("Items/" + hybrid.parentA);
         ItemData parentB = Resources.Load<ItemData>("Items/" + hybrid.parentB);
         ItemData seed = Resources.Load<ItemData>("Items/" + hybrid.hybridName + "種子");
@@ -104,8 +105,9 @@ public class BreedingUIManager : MonoBehaviour
             return;
         }
 
-        int haveA = playerInventory.CountOf(parentA);
-        int haveB = playerInventory.CountOf(parentB);
+        // 從 InventoryManager 中取得數量
+        int haveA = CountOf(parentA.id);
+        int haveB = CountOf(parentB.id);
 
         if (haveA < quantity || haveB < quantity)
         {
@@ -113,10 +115,19 @@ public class BreedingUIManager : MonoBehaviour
             return;
         }
 
-        playerInventory.Remove(parentA, quantity);
-        playerInventory.Remove(parentB, quantity);
-        playerInventory.Add(seed, quantity);
+        // 消耗素材並加入種子
+        InventoryManager.Instance.RemoveItem(parentA.id, quantity);
+        InventoryManager.Instance.RemoveItem(parentB.id, quantity);
+        InventoryManager.Instance.AddItemToInventory(seed.id, quantity);
 
         Debug.Log($"✅ 成功交配！獲得 {hybrid.hybridName}種子 x{quantity}");
+    }
+
+    // 本地方法來計算某 itemId 的數量（從 InventoryManager 的資料）
+    private int CountOf(string itemId)
+    {
+        var list = InventoryManager.Instance.GetInventoryData();
+        var slot = list.Find(s => s.itemId == itemId);
+        return slot?.count ?? 0;
     }
 }
