@@ -794,7 +794,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86f15209487c4e54eb675dfef8a06e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  capacity: 24
+  capacity: 12
 --- !u!4 &289417109
 Transform:
   m_ObjectHideFlags: 0
