@@ -70,9 +70,11 @@ public class LandTile : MonoBehaviour
 
     void OnMouseDown()
     {
-        //FindFirstObjectByType<FarmUIManager>().OpenSeedPopup(this);
+        if (plantedCrop != null)
+        {
+            CropInfoPanel.Instance.Show(plantedCrop);
+        }
     }
-
     public void Harvest()
     {
         Destroy(plantedCrop.gameObject);
