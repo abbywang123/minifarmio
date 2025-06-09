@@ -10,17 +10,6 @@ public class InventoryManager : MonoBehaviour
     public static InventoryManager Instance { get; private set; }
     public string currentlyDraggingItemId = null;
 
-    void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-
     [Header("UI References")]
     public GameObject slotDraggablePrefab;
     public GameObject addSlotButtonPrefab;
@@ -44,6 +33,17 @@ public class InventoryManager : MonoBehaviour
     private FarmData farmData;
     private string currentItemId;
 
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     async void Start()
     {
         InitUIReferences();
@@ -51,13 +51,11 @@ public class InventoryManager : MonoBehaviour
 
         await AuthHelper.EnsureSignedIn();
         Debug.Log("✅ 登入完成，開始載入 Cloud Save");
-
         farmData = await CloudSaveAPI.LoadFarmData();
-        farmData?.CleanInvalidSlots();
 
-        if (farmData == null || farmData.inventory == null || farmData.inventory.Count == 0)
+        if (farmData == null || farmData.inventory == null)
         {
-            Debug.LogWarning("📬 Cloud Save 無資料或道具為空，自動建立新存檔");
+            Debug.LogWarning("📬 Cloud Save 無資料，自動建立新存檔");
 
             farmData = new FarmData
             {
@@ -65,33 +63,39 @@ public class InventoryManager : MonoBehaviour
                 gold = 1000,
                 maxInventorySize = 12,
                 inventory = new List<ItemSlot>
-                {
-                    new ItemSlot { itemId = "wheat", count = 3 },
-                    new ItemSlot { itemId = "carrot", count = 5 },
-                    new ItemSlot { itemId = "carrotseed", count = 10 }
-                },
+        {
+            new ItemSlot { itemId = "wheat", count = 3 },
+            new ItemSlot { itemId = "carrot", count = 5 },
+            new ItemSlot { itemId = "carrotseed", count = 10 }
+        },
                 farmland = new List<FarmlandTile>()
             };
 
             await CloudSaveAPI.SaveFarmData(farmData);
             Debug.Log("✅ 初始存檔已建立並上傳");
         }
+        else
+        {
+            farmData.CleanInvalidSlots();
+        }
+
 
         inventoryData = farmData.inventory;
         Debug.Log($"📦 載入道具數：{inventoryData?.Count ?? 0}");
 
         RefreshInventoryUI();
+        foreach (var slot in inventoryData)
+{
+    Debug.Log($"🧾 背包有 {slot.itemId} x{slot.count}");
+}
+
     }
 
     void OnEnable()
     {
         InitUIReferences();
-
         if (inventoryData != null && farmData != null)
-        {
-            Debug.Log("🔁 OnEnable 自動刷新背包 UI");
             RefreshInventoryUI();
-        }
     }
 
     private void InitUIReferences()
@@ -106,7 +110,7 @@ public class InventoryManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("⚠️ 找不到 GridParent（請確認命名）");
+                Debug.LogError("❌ 無法找到 gridParent！");
             }
         }
 
@@ -116,7 +120,16 @@ public class InventoryManager : MonoBehaviour
             Debug.Log("🟢 自動繫定 MainCanvas 成功");
         }
 
-        itemInfoPopup ??= GameObject.Find("ItemInfoPopup");
+        if (itemInfoPopup == null)
+        {
+            var popupObj = GameObject.Find("ItemInfoPopup");
+            if (popupObj != null)
+            {
+                itemInfoPopup = popupObj;
+                Debug.Log("🟢 自動繫定 itemInfoPopup 成功");
+            }
+        }
+
         itemNameText ??= GameObject.Find("ItemNameText")?.GetComponent<TMP_Text>();
         itemDescText ??= GameObject.Find("ItemDescText")?.GetComponent<TMP_Text>();
         useButton ??= GameObject.Find("UseButton")?.GetComponent<Button>();
@@ -126,15 +139,11 @@ public class InventoryManager : MonoBehaviour
 
         if (addSlotButtonPrefab == null)
         {
-            GameObject prefab = Resources.Load<GameObject>("AddSlotButton");
+            var prefab = Resources.Load<GameObject>("AddSlotButton");
             if (prefab != null)
             {
                 addSlotButtonPrefab = prefab;
                 Debug.Log("🟢 自動繫定 AddSlotButtonPrefab 成功");
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ Resources 資料夾中找不到 AddSlotButton.prefab");
             }
         }
     }
@@ -145,7 +154,7 @@ public class InventoryManager : MonoBehaviour
 
         if (gridParent == null)
         {
-            Debug.LogError("❌ gridParent 未設定！");
+            Debug.LogError("❌ 無法找到 gridParent！");
             return;
         }
 
@@ -156,10 +165,6 @@ public class InventoryManager : MonoBehaviour
         {
             GameObject go = Instantiate(slotDraggablePrefab, gridParent);
             var ui = go.GetComponent<InventorySlotUI>();
-
-            if (mainCanvas == null)
-                Debug.LogError("❌ InventoryManager.mainCanvas 未設定！");
-
             ui.canvas = mainCanvas;
 
             if (i < inventoryData.Count)
@@ -167,7 +172,6 @@ public class InventoryManager : MonoBehaviour
                 var slot = inventoryData[i];
                 ui.Setup(slot);
                 ui.EnableDragging();
-                Debug.Log($"✅ 顯示道具：{slot.itemId} ×{slot.count}");
             }
             else
             {
@@ -179,110 +183,123 @@ public class InventoryManager : MonoBehaviour
         {
             GameObject addBtn = Instantiate(addSlotButtonPrefab, gridParent);
             addBtn.name = "AddSlotButton";
-            addBtn.GetComponent<Button>().onClick.AddListener(OnClickAddSlot);
+            var btn = addBtn.GetComponent<Button>();
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.AddListener(() => _ = OnClickAddSlot());
         }
-        else
-        {
-            Debug.LogWarning("❌ addSlotButtonPrefab 未設定");
-        }
-    }
-
-    public void OnClickBackToFarm()
-    {
-        string seedId = GetDraggingItem();
-        if (!string.IsNullOrEmpty(seedId))
-        {
-            Sprite icon = ItemDatabase.Instance.GetIcon(seedId);
-            if (icon != null)
-            {
-                DragItemData.draggingItemId = seedId;
-                DragItemIcon.Instance.Show(icon);
-            }
-        }
-        SceneManager.LoadScene("FarmScene");
     }
 
     public void ShowItemInfo(string itemId, int count)
     {
+        InitUIReferences();
+
+        if (itemInfoPopup == null)
+        {
+            Debug.LogError("❌ 無法顯示 itemInfoPopup");
+            return;
+        }
+
+        if (itemInfoPopup.activeSelf && itemId == currentItemId)
+        {
+            itemInfoPopup.SetActive(false);
+            currentItemId = null;
+            return;
+        }
+
         currentItemId = itemId;
         itemInfoPopup.SetActive(true);
 
         itemNameText.text = $"itemId: {itemId}";
         itemDescText.text = $"count: {count}";
+        useButton?.gameObject.SetActive(false);
 
-        useButton.onClick.RemoveAllListeners();
-        useButton.onClick.AddListener(() => UseItem(itemId));
-
-        discardButton.onClick.RemoveAllListeners();
-        discardButton.onClick.AddListener(() => DiscardItem(itemId));
-    }
-
-    void UseItem(string itemId)
-    {
-        Debug.Log($"🧪 使用物品：{itemId}");
-
-        var item = inventoryData.Find(slot => slot.itemId == itemId);
-        if (item != null)
-        {
-            item.count--;
-            if (item.count <= 0)
-                inventoryData.Remove(item);
-
-            _ = SaveInventoryThenRefresh();
-        }
+        discardButton?.onClick.RemoveAllListeners();
+        discardButton?.onClick.AddListener(() => DiscardItem(itemId));
     }
 
     void DiscardItem(string itemId)
     {
-        Debug.Log($"🗑️ 丟棄物品：{itemId}");
-
         var item = inventoryData.Find(slot => slot.itemId == itemId);
         if (item != null)
         {
             item.count--;
-            if (item.count <= 0)
-                inventoryData.Remove(item);
-
+            if (item.count <= 0) inventoryData.Remove(item);
             _ = SaveInventoryThenRefresh();
         }
     }
+    public void AddItemToInventory(string itemId, int count)
+{
+    if (farmData == null || inventoryData == null)
+    {
+        Debug.LogWarning("❌ farmData 或 inventoryData 為 null，無法加入道具");
+        return;
+    }
+
+    var slot = inventoryData.Find(s => s.itemId == itemId);
+
+    if (slot != null)
+    {
+        slot.count += count;
+    }
+    else
+    {
+        inventoryData.Add(new ItemSlot { itemId = itemId, count = count });
+    }
+
+    Debug.Log($"✅ 新增道具 {itemId} × {count} 到背包");
+
+    _ = SaveInventoryThenRefresh();  // 非同步儲存並刷新 UI
+}
+
 
     async Task SaveInventoryThenRefresh()
     {
+        itemInfoPopup?.SetActive(false);
         FarmData latest = await CloudSaveAPI.LoadFarmData();
         latest.inventory = inventoryData;
         latest.maxInventorySize = farmData.maxInventorySize;
         latest.gold = farmData.gold;
-        await CloudSaveAPI.SaveFarmData(latest);
 
-        itemInfoPopup.SetActive(false);
+        await CloudSaveAPI.SaveFarmData(latest);
         RefreshInventoryUI();
     }
 
-    void OnClickAddSlot()
+    async Task OnClickAddSlot()
     {
         const int cost = 100;
         const int maxSlots = 40;
 
+        var latest = await CloudSaveAPI.LoadFarmData();
+        latest?.CleanInvalidSlots();
+
+        if (latest == null)
+        {
+            ShowPopup("❌ 無法從雲端取得存檔");
+            return;
+        }
+
+        farmData = latest;
+        inventoryData = farmData.inventory;
+
         if (farmData.maxInventorySize >= maxSlots)
         {
-            ShowPopup($"❌ 已達最大上限 {maxSlots} 格，無法再擴充！");
+            ShowPopup($"❌ 已達上限 {maxSlots} 格");
             return;
         }
 
         if (farmData.gold < cost)
         {
-            ShowPopup($"💰 金幣不足！需要 {cost} 金幣才能擴充");
+            ShowPopup($"💰 金幣不足（需 {cost}）");
             return;
         }
 
         farmData.gold -= cost;
-        farmData.maxInventorySize += 1;
+        farmData.maxInventorySize++;
 
-        Debug.Log($"💻 擴充成功，目前 {farmData.maxInventorySize} 格，剩餘金幣：{farmData.gold}");
         ShowPopup($"✅ 擴充成功！剩餘金幣：{farmData.gold}");
 
-        _ = SaveInventoryThenRefresh();
+        await CloudSaveAPI.SaveFarmData(farmData);
+        RefreshInventoryUI();
     }
 
     void ShowPopup(string msg, float duration = 2f)
@@ -297,14 +314,26 @@ public class InventoryManager : MonoBehaviour
 
     void HidePopup()
     {
-        popupMessage.SetActive(false);
+        popupMessage?.SetActive(false);
     }
 
     public List<ItemSlot> GetInventoryData() => inventoryData;
     public string GetDraggingItem() => currentlyDraggingItemId;
     public void SetDraggingItem(string itemId) => currentlyDraggingItemId = itemId;
     public void ClearDraggingItem() => currentlyDraggingItemId = null;
+
+    public async Task ReloadFarmDataFromCloud()
+    {
+        Debug.Log("🔄 正在重新從雲端載入 farmData");
+        farmData = await CloudSaveAPI.LoadFarmData();
+        farmData?.CleanInvalidSlots();
+        inventoryData = farmData?.inventory;
+        RefreshInventoryUI();
+    }
 }
+
+
+
 
 
 
