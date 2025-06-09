@@ -46,6 +46,7 @@ public class InventoryManager : MonoBehaviour
 
     async void Start()
     {
+        InitUIReferences();
         Debug.Log("🟡 InventoryManager 啟動");
 
         await AuthHelper.EnsureSignedIn();
@@ -81,8 +82,85 @@ public class InventoryManager : MonoBehaviour
         RefreshInventoryUI();
     }
 
-    void RefreshInventoryUI()
+    void OnEnable()
     {
+        InitUIReferences();
+
+        if (inventoryData != null && farmData != null)
+        {
+            Debug.Log("🔁 OnEnable 自動刷新背包 UI");
+            RefreshInventoryUI();
+        }
+    }
+
+    private void InitUIReferences()
+    {
+        if (gridParent == null)
+        {
+            GameObject gridObj = GameObject.Find("GridParent");
+            if (gridObj != null)
+            {
+                gridParent = gridObj.transform;
+                Debug.Log("🟢 自動綁定 GridParent 成功");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ 找不到 GridParent（請確認命名）");
+            }
+        }
+
+        if (mainCanvas == null)
+        {
+            mainCanvas = FindObjectOfType<Canvas>();
+            Debug.Log("🟢 自動綁定 MainCanvas 成功");
+        }
+
+        if (itemInfoPopup == null)
+            itemInfoPopup = GameObject.Find("ItemInfoPopup");
+
+        if (itemNameText == null)
+            itemNameText = GameObject.Find("ItemNameText")?.GetComponent<TMP_Text>();
+
+        if (itemDescText == null)
+            itemDescText = GameObject.Find("ItemDescText")?.GetComponent<TMP_Text>();
+
+        if (useButton == null)
+            useButton = GameObject.Find("UseButton")?.GetComponent<Button>();
+
+        if (discardButton == null)
+            discardButton = GameObject.Find("DiscardButton")?.GetComponent<Button>();
+
+        if (popupMessage == null)
+            popupMessage = GameObject.Find("PopupMessage");
+
+        if (messageText == null)
+            messageText = GameObject.Find("MessageText")?.GetComponent<TMP_Text>();
+
+        if (addSlotButtonPrefab == null)
+        {
+            GameObject prefab = Resources.Load<GameObject>("AddSlotButton");
+            if (prefab != null)
+            {
+                addSlotButtonPrefab = prefab;
+                Debug.Log("🟢 自動綁定 AddSlotButtonPrefab 成功");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ Resources 資料夾中找不到 AddSlotButton.prefab");
+            }
+        }
+    }
+
+    public void RefreshInventoryUI()
+    {
+        InitUIReferences();
+
+        if (gridParent == null)
+        {
+            Debug.LogError("❌ gridParent 未設定！");
+            return;
+        }
+
         foreach (Transform child in gridParent)
             Destroy(child.gameObject);
 
@@ -92,18 +170,17 @@ public class InventoryManager : MonoBehaviour
             var ui = go.GetComponent<InventorySlotUI>();
 
             if (mainCanvas == null)
-            {
-                Debug.LogError("❌ InventoryManager.mainCanvas 尚未指定！");
-            }
+                Debug.LogError("❌ InventoryManager.mainCanvas 未設定！");
+
             ui.canvas = mainCanvas;
 
             if (i < inventoryData.Count)
             {
                 var slot = inventoryData[i];
-                ItemData data = ItemDatabase.Instance.GetItemData(slot.itemId);
-                Sprite icon = data != null ? data.icon : null;
+                Sprite icon = ItemDatabase.Instance.GetItemData(slot.itemId)?.icon;
                 ui.Setup(icon, slot.itemId, slot.count);
                 ui.EnableDragging();
+                Debug.Log($"✅ 顯示道具：{slot.itemId} ×{slot.count}");
             }
             else
             {
@@ -138,16 +215,13 @@ public class InventoryManager : MonoBehaviour
         SceneManager.LoadScene("FarmScene");
     }
 
-    void ShowItemInfo(string itemId, int count)
+    public void ShowItemInfo(string itemId, int count)
     {
         currentItemId = itemId;
         itemInfoPopup.SetActive(true);
 
-        ItemData data = ItemDatabase.Instance.GetItemData(itemId);
-        itemNameText.text = data != null ? data.itemName : "未知物品";
-        itemDescText.text = data != null ?
-            $"你擁有 {count} 個\n\n{data.description}" :
-            $"你擁有 {count} 個";
+        itemNameText.text = $"itemId: {itemId}";
+        itemDescText.text = $"count: {count}";
 
         useButton.onClick.RemoveAllListeners();
         useButton.onClick.AddListener(() => UseItem(itemId));
@@ -244,3 +318,4 @@ public class InventoryManager : MonoBehaviour
     public void SetDraggingItem(string itemId) => currentlyDraggingItemId = itemId;
     public void ClearDraggingItem() => currentlyDraggingItemId = null;
 }
+
