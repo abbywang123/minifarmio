@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using System.Threading.Tasks;
 
 public class InventorySceneManager : MonoBehaviour
 {
@@ -11,13 +10,13 @@ public class InventorySceneManager : MonoBehaviour
 
     IEnumerator DelayRefresh()
     {
-        yield return new WaitForSeconds(0.3f); // ✅ 等 UI 都載入好
+        yield return new WaitForSeconds(0.3f); // ✅ 等待 UI 載入
 
         if (InventoryManager.Instance != null)
         {
-            Debug.Log("🔁 嘗試重新從雲端載入背包資料");
-            Task task = InventoryManager.Instance.ReloadFarmDataFromCloud();
-            yield return new WaitUntil(() => task.IsCompleted);
+            Debug.Log("🔁 從雲端載入背包資料...");
+            // 改用協程
+            yield return StartCoroutine(InventoryManager.Instance.ReloadFarmDataFromCloudCoroutine());
         }
         else
         {
@@ -25,6 +24,3 @@ public class InventorySceneManager : MonoBehaviour
         }
     }
 }
-
-
-

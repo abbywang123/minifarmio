@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
 
 public class ShopManager : MonoBehaviour
 {
@@ -45,16 +46,20 @@ public class ShopManager : MonoBehaviour
 
     void ReturnToFarmScene()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded; // 🔧 加入回場景時的刷新
+        SceneManager.sceneLoaded += OnSceneLoaded_ReturnedFromShop;
         SceneManager.LoadScene("Farm");
     }
 
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    void OnSceneLoaded_ReturnedFromShop(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == "Farm")
         {
-            InventoryManager.Instance?.RefreshInventoryUI();  // ✅ 回場景時強制刷新背包
-            SceneManager.sceneLoaded -= OnSceneLoaded;        // ✅ 解除事件避免重複
+            Debug.Log("🟢 從商店回到 Farm，不主動刷新背包 UI（由 InventorySceneManager 控制）");
+
+            // 如果需要刷新雲端背包資料，可以取消註解下面這行
+            // _ = InventoryManager.Instance?.ReloadFarmDataFromCloud();
+
+            SceneManager.sceneLoaded -= OnSceneLoaded_ReturnedFromShop;
         }
     }
 
@@ -105,18 +110,23 @@ public class ShopManager : MonoBehaviour
                     Debug.Log("購買成功");
                 }
                 else
+                {
                     Debug.Log("購買失敗");
+                }
             },
-            () =>
+            async () =>
             {
                 Debug.Log($"嘗試賣出 {item.itemName}");
-                if (TrySellItem(item))
+                bool success = await TrySellItemAsync(item);
+                if (success)
                 {
                     UpdateMoneyUI(PlayerWallet.Instance.CurrentMoney);
                     Debug.Log("賣出成功");
                 }
                 else
+                {
                     Debug.Log("賣出失敗");
+                }
             }
         );
     }
@@ -125,13 +135,13 @@ public class ShopManager : MonoBehaviour
     {
         if (item == null || item.itemData == null)
         {
-            Debug.LogError("物品資料不完整，無法購買");
+            Debug.LogError("❌ 物品資料不完整，無法購買");
             return false;
         }
 
         if (!playerWallet.CanAfford(item.buyPrice))
         {
-            Debug.Log("金錢不足");
+            Debug.Log("❌ 金錢不足");
             return false;
         }
 
@@ -140,17 +150,18 @@ public class ShopManager : MonoBehaviour
         return true;
     }
 
-    bool TrySellItem(ShopItemInfo item)
+    async Task<bool> TrySellItemAsync(ShopItemInfo item)
     {
         if (item == null || item.itemData == null)
         {
-            Debug.LogError("物品資料不完整，無法賣出");
+            Debug.LogError("❌ 物品資料不完整，無法賣出");
             return false;
         }
 
-        if (!InventoryManager.Instance.RemoveItem(item.itemData.id, 1))
+        bool removed = await InventoryManager.Instance.RemoveItemAsync(item.itemData.id, 1);
+        if (!removed)
         {
-            Debug.Log("背包沒有足夠物品可賣出");
+            Debug.Log("❌ 背包沒有足夠物品可賣出");
             return false;
         }
 

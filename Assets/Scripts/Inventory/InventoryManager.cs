@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
@@ -248,8 +249,20 @@ public class InventoryManager : MonoBehaviour
 
     Debug.Log($"✅ 新增道具 {itemId} × {count} 到背包");
 
+    // 🔍 加入圖示偵錯 log
+    var icon = ItemDatabase.Instance.GetIcon(itemId);
+    if (icon != null)
+    {
+        Debug.Log($"📷 icon is ✅ found for {itemId}");
+    }
+    else
+    {
+        Debug.LogWarning($"❌ icon is MISSING for {itemId}");
+    }
+
     _ = SaveInventoryThenRefresh();  // 非同步儲存並刷新 UI
 }
+
 
 
     async Task SaveInventoryThenRefresh()
@@ -331,7 +344,7 @@ public class InventoryManager : MonoBehaviour
         RefreshInventoryUI();
     }
 
-    public bool RemoveItem(string itemId, int count = 1)
+    public async Task<bool> RemoveItemAsync(string itemId, int count = 1)
     {
         var item = inventoryData.Find(slot => slot.itemId == itemId);
         if (item == null || item.count < count)
@@ -341,9 +354,31 @@ public class InventoryManager : MonoBehaviour
         if (item.count <= 0)
             inventoryData.Remove(item);
 
-        _ = SaveInventoryThenRefresh();
+        await SaveInventoryThenRefresh();
         return true;
     }
+
+
+    public IEnumerator ReloadFarmDataFromCloudCoroutine()
+    {
+        Task reloadTask = ReloadFarmDataFromCloud();
+        while (!reloadTask.IsCompleted)
+        {
+            yield return null;
+        }
+
+        if (reloadTask.IsFaulted)
+        {
+            Debug.LogError("❌ 雲端資料載入失敗：" + reloadTask.Exception);
+        }
+        else
+        {
+            Debug.Log("✅ 雲端資料載入完成，刷新 UI");
+            RefreshInventoryUI();
+        }
+    }
+
+
 
 }
 

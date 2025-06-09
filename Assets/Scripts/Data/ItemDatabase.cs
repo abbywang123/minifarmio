@@ -22,7 +22,7 @@ public class ItemDatabase : MonoBehaviour
         LoadAllItems();
     }
 
-    // ✅ 從 Resources/Items 自動載入所有 ItemData
+    // ✅ 從 Resources/Items 自動載入所有 ItemData，並加上除錯
     void LoadAllItems()
     {
         ItemData[] allItems = Resources.LoadAll<ItemData>("Items");
@@ -50,6 +50,10 @@ public class ItemDatabase : MonoBehaviour
             }
 
             itemMap[item.id] = item;
+
+            // ✅ 除錯列印：顯示是否有圖示
+            string iconStatus = item.icon != null ? "✅ 有圖示" : "❌ 無圖示";
+            Debug.Log($"📦 載入 ItemData：{item.id}（{item.name}） → {iconStatus}");
         }
 
         Debug.Log($"✅ ItemDatabase 載入完成，共載入 {itemMap.Count} 筆 ItemData");

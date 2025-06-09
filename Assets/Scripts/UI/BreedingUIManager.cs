@@ -81,7 +81,7 @@ public class BreedingUIManager : MonoBehaviour
         parentBText.text = $"親代 B：{hybrid.parentB}";
     }
 
-    private void OnBreedButtonClicked()
+    private async void OnBreedButtonClicked()
     {
         if (InventoryManager.Instance == null)
         {
@@ -115,9 +115,17 @@ public class BreedingUIManager : MonoBehaviour
             return;
         }
 
-        // 消耗素材並加入種子
-        InventoryManager.Instance.RemoveItem(parentA.id, quantity);
-        InventoryManager.Instance.RemoveItem(parentB.id, quantity);
+        // 非同步移除素材
+        bool removedA = await InventoryManager.Instance.RemoveItemAsync(parentA.id, quantity);
+        bool removedB = await InventoryManager.Instance.RemoveItemAsync(parentB.id, quantity);
+
+        if (!removedA || !removedB)
+        {
+            Debug.LogError("❌ 移除素材失敗，請稍後再試");
+            return;
+        }
+
+        // 新增種子
         InventoryManager.Instance.AddItemToInventory(seed.id, quantity);
 
         Debug.Log($"✅ 成功交配！獲得 {hybrid.hybridName}種子 x{quantity}");
