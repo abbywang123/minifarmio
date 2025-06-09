@@ -3,38 +3,62 @@ using Unity.Services.CloudSave;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Cloud Save 資料讀寫輔助類別，使用 callback 傳回結果。
+/// </summary>
 public static class CloudSaveHelper
 {
-    // ✅ 儲存資料（用 JsonUtility 將 FarmData 轉成 JSON 字串）
+    private const string InventoryKey = "inventory";
+
+    /// <summary>
+    /// ✅ 儲存 FarmData 到雲端（轉為 JSON 格式）
+    /// </summary>
     public static async Task SaveFarmData(FarmData data)
     {
         string json = JsonUtility.ToJson(data);
 
-        await CloudSaveService.Instance.Data.Player.SaveAsync(new Dictionary<string, object>
+        var dict = new Dictionary<string, object>
         {
-            { "inventory", json }
-        });
+            { InventoryKey, json }
+        };
 
-        Debug.Log("✅ [SDK] 儲存成功：inventory");
+        try
+        {
+            await CloudSaveService.Instance.Data.Player.SaveAsync(dict);
+            Debug.Log("✅ [SDK] 儲存成功：inventory");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"❌ 儲存失敗：{ex.Message}");
+        }
     }
 
-    // ✅ 讀取資料並回傳給 callback
+    /// <summary>
+    /// ✅ 從雲端讀取 FarmData，讀取完成後透過 callback 傳回
+    /// </summary>
     public static async Task LoadFarmData(System.Action<FarmData> onLoaded)
     {
-        var result = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string> { "inventory" });
+        try
+        {
+            var result = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string> { InventoryKey });
 
-        if (result.TryGetValue("inventory", out var item))
-{
-    string json = item.Value.GetAsString();  // ✅ 從 Item.Value 拿出 JSON 字串
-    FarmData data = JsonUtility.FromJson<FarmData>(json);
-    Debug.Log("✅ [SDK] 讀取成功！");
-    onLoaded?.Invoke(data);
-}
-else
-{
-    Debug.LogWarning("⚠️ [SDK] 找不到 key: inventory");
-    onLoaded?.Invoke(null);
-}
-
+            if (result.TryGetValue(InventoryKey, out var item))
+            {
+                string json = item.Value.GetAsString();
+                FarmData data = JsonUtility.FromJson<FarmData>(json);
+                Debug.Log("✅ [SDK] 讀取成功！");
+                onLoaded?.Invoke(data);
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [SDK] 找不到 key: inventory");
+                onLoaded?.Invoke(null);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"❌ 讀取失敗：{ex.Message}");
+            onLoaded?.Invoke(null);
+        }
     }
 }

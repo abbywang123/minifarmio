@@ -26,7 +26,7 @@ public class InventoryManager : MonoBehaviour
     public GameObject addSlotButtonPrefab;
     public Transform gridParent;
 
-    [Header("拖曳所需 Canvas（務必從 Inspector 指定）")]
+    [Header("拖拽所需 Canvas（務必從 Inspector 指定）")]
     public Canvas mainCanvas;
 
     [Header("Item Info Popup")]
@@ -53,6 +53,7 @@ public class InventoryManager : MonoBehaviour
         Debug.Log("✅ 登入完成，開始載入 Cloud Save");
 
         farmData = await CloudSaveAPI.LoadFarmData();
+        farmData?.CleanInvalidSlots();
 
         if (farmData == null || farmData.inventory == null || farmData.inventory.Count == 0)
         {
@@ -101,7 +102,7 @@ public class InventoryManager : MonoBehaviour
             if (gridObj != null)
             {
                 gridParent = gridObj.transform;
-                Debug.Log("🟢 自動綁定 GridParent 成功");
+                Debug.Log("🟢 自動繫定 GridParent 成功");
             }
             else
             {
@@ -112,29 +113,16 @@ public class InventoryManager : MonoBehaviour
         if (mainCanvas == null)
         {
             mainCanvas = FindObjectOfType<Canvas>();
-            Debug.Log("🟢 自動綁定 MainCanvas 成功");
+            Debug.Log("🟢 自動繫定 MainCanvas 成功");
         }
 
-        if (itemInfoPopup == null)
-            itemInfoPopup = GameObject.Find("ItemInfoPopup");
-
-        if (itemNameText == null)
-            itemNameText = GameObject.Find("ItemNameText")?.GetComponent<TMP_Text>();
-
-        if (itemDescText == null)
-            itemDescText = GameObject.Find("ItemDescText")?.GetComponent<TMP_Text>();
-
-        if (useButton == null)
-            useButton = GameObject.Find("UseButton")?.GetComponent<Button>();
-
-        if (discardButton == null)
-            discardButton = GameObject.Find("DiscardButton")?.GetComponent<Button>();
-
-        if (popupMessage == null)
-            popupMessage = GameObject.Find("PopupMessage");
-
-        if (messageText == null)
-            messageText = GameObject.Find("MessageText")?.GetComponent<TMP_Text>();
+        itemInfoPopup ??= GameObject.Find("ItemInfoPopup");
+        itemNameText ??= GameObject.Find("ItemNameText")?.GetComponent<TMP_Text>();
+        itemDescText ??= GameObject.Find("ItemDescText")?.GetComponent<TMP_Text>();
+        useButton ??= GameObject.Find("UseButton")?.GetComponent<Button>();
+        discardButton ??= GameObject.Find("DiscardButton")?.GetComponent<Button>();
+        popupMessage ??= GameObject.Find("PopupMessage");
+        messageText ??= GameObject.Find("MessageText")?.GetComponent<TMP_Text>();
 
         if (addSlotButtonPrefab == null)
         {
@@ -142,7 +130,7 @@ public class InventoryManager : MonoBehaviour
             if (prefab != null)
             {
                 addSlotButtonPrefab = prefab;
-                Debug.Log("🟢 自動綁定 AddSlotButtonPrefab 成功");
+                Debug.Log("🟢 自動繫定 AddSlotButtonPrefab 成功");
             }
             else
             {
@@ -177,14 +165,13 @@ public class InventoryManager : MonoBehaviour
             if (i < inventoryData.Count)
             {
                 var slot = inventoryData[i];
-                Sprite icon = ItemDatabase.Instance.GetItemData(slot.itemId)?.icon;
-                ui.Setup(icon, slot.itemId, slot.count);
+                ui.Setup(slot);
                 ui.EnableDragging();
                 Debug.Log($"✅ 顯示道具：{slot.itemId} ×{slot.count}");
             }
             else
             {
-                ui.Setup(null, "", 0);
+                ui.Setup("", 0);
             }
         }
 
@@ -318,4 +305,6 @@ public class InventoryManager : MonoBehaviour
     public void SetDraggingItem(string itemId) => currentlyDraggingItemId = itemId;
     public void ClearDraggingItem() => currentlyDraggingItemId = null;
 }
+
+
 

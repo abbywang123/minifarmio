@@ -31,7 +31,8 @@ public class Inventory : MonoBehaviour
             Slots.Add(new Slot());
     }
 
-    public void FromDTO(InventoryDTO dto)
+    // ✅ 農場用 FromDTO：支援 Cloud Save 的 ItemSlot 結構
+    public void FromDTO(List<ItemSlot> dtoSlots)
     {
         Slots = new List<Slot>(capacity);
 
@@ -39,11 +40,31 @@ public class Inventory : MonoBehaviour
         {
             var slot = new Slot();
 
-            if (i < dto.slots.Count)
+            if (i < dtoSlots.Count)
             {
-                var itemData = ItemDatabase.Instance.GetItemData(dto.slots[i].itemId);
+                var itemData = ItemDatabase.Instance.GetItemData(dtoSlots[i].itemId);
                 slot.item = itemData;
-                slot.count = dto.slots[i].count;
+                slot.count = dtoSlots[i].count;
+            }
+
+            Slots.Add(slot);
+        }
+    }
+
+    // ✅ 倉庫用 FromDTO：支援 JSON 存檔的 SlotDTO 結構
+    public void FromDTO(List<SlotDTO> dtoList)
+    {
+        Slots = new List<Slot>(capacity);
+
+        for (int i = 0; i < capacity; i++)
+        {
+            var slot = new Slot();
+
+            if (i < dtoList.Count)
+            {
+                var itemData = ItemDatabase.Instance.GetItemData(dtoList[i].itemId);
+                slot.item = itemData;
+                slot.count = dtoList[i].count;
             }
 
             Slots.Add(slot);
@@ -132,3 +153,5 @@ public class Inventory : MonoBehaviour
         return total;
     }
 }
+
+

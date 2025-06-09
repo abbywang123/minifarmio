@@ -26,12 +26,13 @@ public class WarehouseManager : MonoBehaviour
         File.WriteAllText(Path.Combine(Application.persistentDataPath, "warehouse.json"), dto);
     }
 
-    void Load()
-    {
-        var path = Path.Combine(Application.persistentDataPath, "warehouse.json");
-        if (!File.Exists(path)) return;
+   void Load()
+{
+    var path = Path.Combine(Application.persistentDataPath, "warehouse.json");
+    if (!File.Exists(path)) return;
 
-        var dto = JsonUtility.FromJson<InventoryDTO>(File.ReadAllText(path));
-        inventory.FromDTO(dto);
-    }
+    var dto = JsonUtility.FromJson<InventoryDTO>(File.ReadAllText(path));
+    inventory.FromDTO(dto.slots);  // ✅ 改成傳入 dto.slots
+}
+
 }

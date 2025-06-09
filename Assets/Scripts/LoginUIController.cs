@@ -28,6 +28,7 @@ public class LoginUIManager : MonoBehaviour
 
         await TryLoginSafely();
         await WaitForFinalLoginState();
+
         Debug.Log("✅ NetworkManager Singleton 是否存在？" + (NetworkManager.Singleton != null));
 
         if (AuthenticationService.Instance.IsSignedIn)
@@ -64,14 +65,20 @@ public class LoginUIManager : MonoBehaviour
         }
         else
         {
-            outputText.text = "❌ 登入失敗，請重新啟動";
+            outputText.text = "❌ 登入失敗，請重新啟動遊戲";
         }
     }
 
     async Task TryLoginSafely()
     {
-        try { await AuthHelper.EnsureSignedIn(); }
-        catch (System.Exception ex) { Debug.LogWarning("⚠️ 登入例外：" + ex.Message); }
+        try
+        {
+            await AuthHelper.EnsureSignedIn();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("⚠️ 登入例外：" + ex.Message);
+        }
     }
 
     async Task WaitForFinalLoginState()
@@ -92,7 +99,7 @@ public class LoginUIManager : MonoBehaviour
         string nickname = nameInput.text.Trim();
         Debug.Log("👤 曉名輸入：" + nickname);
 
-        FarmData data = new()
+        var data = new FarmData
         {
             playerName = nickname,
             gold = 1000,
@@ -100,7 +107,7 @@ public class LoginUIManager : MonoBehaviour
             {
                 new ItemSlot { itemId = "wheat", count = 3 },
                 new ItemSlot { itemId = "carrot", count = 5 },
-                new ItemSlot { itemId = "carrotseed", count = 10 } // 新增種子
+                new ItemSlot { itemId = "carrotseed", count = 10 }
             },
             farmland = new List<FarmlandTile>
             {
@@ -112,8 +119,7 @@ public class LoginUIManager : MonoBehaviour
         await CloudSaveAPI.SaveFarmData(data);
 
         PlayerPrefs.SetString("playerName", nickname);
-        var wrapper = new InventoryWrapper { inventory = data.inventory };
-        PlayerPrefs.SetString("inventoryData", JsonUtility.ToJson(wrapper));
+        PlayerPrefs.SetString("inventoryData", JsonUtility.ToJson(new InventoryWrapper { inventory = data.inventory }));
 
         outputText.text = $"✅ 資料建立完成\n曉名：{data.playerName}\n💰 金幣：{data.gold}G\n" +
                           string.Join("\n", data.inventory.Select(i => $"🔹 {i.itemId} x{i.count}"));

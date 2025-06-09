@@ -5,24 +5,35 @@ public enum ItemType
     Seed,
     Fertilizer,
     Crop,
-    Misc  // 雜項（可擴充）
+    Misc // 雜項（可擴充）
 }
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
 public class ItemData : ScriptableObject
 {
-    [Header("基本資料")]
-    public string id;               // ✅ 唯一ID，全小寫：如 "carrotseed"
-    public string itemName;        // ✅ 中文名稱：如 "紅蘿蔔種子"
+    [Header("🔑 基本資料")]
+    [Tooltip("唯一 ID，全小寫，例如：carrotseed")]
+    public string id;
+
+    [Tooltip("物品名稱，例如：紅蘿蔔種子")]
+    public string itemName;
+
+    [Tooltip("物品說明文字")]
     [TextArea(2, 4)]
-    public string description;     // ✅ 說明文字
+    public string description;
 
-    [Header("外觀")]
-    public Sprite icon;            // ✅ 對應 UI 顯示圖
+    [Header("🎨 外觀")]
+    [Tooltip("顯示於 UI 的圖示")]
+    public Sprite icon;
 
-    [Header("屬性")]
-    public ItemType itemType;      // ✅ 類別：種子/作物/肥料
-    public int maxStack = 99;      // ✅ 可疊加數量
+    [Header("⚙️ 屬性")]
+    [Tooltip("物品類型")]
+    public ItemType itemType;
 
-    public bool stackable => maxStack > 1;  // ✅ 自動判斷是否可堆疊
+    [Tooltip("最大堆疊數量")]
+    public int maxStack = 99;
+
+    // ✅ 自動判斷是否可堆疊（不需序列化）
+    public bool stackable => maxStack > 1;
 }
+

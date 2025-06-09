@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class InventorySlotUI : MonoBehaviour
 {
@@ -21,13 +22,16 @@ public class InventorySlotUI : MonoBehaviour
     {
         rectTransform = iconImage.GetComponent<RectTransform>();
 
+        // 🔧 確保 CanvasGroup 存在
         canvasGroup = iconImage.GetComponent<CanvasGroup>();
         if (!canvasGroup)
             canvasGroup = iconImage.gameObject.AddComponent<CanvasGroup>();
 
+        // 🧭 尋找 Canvas（可為 World 或 Screen Space）
         if (canvas == null)
             canvas = GetComponentInParent<Canvas>();
 
+        // 🧩 尋找 DragLayer 來放置拖曳物件
         var dl = GameObject.Find("DragLayer");
         if (dl != null)
         {
@@ -40,18 +44,33 @@ public class InventorySlotUI : MonoBehaviour
         }
     }
 
-    public void Setup(Sprite icon, string id, int count)
+    /// <summary>
+    /// 設定道具圖示與數量
+    /// </summary>
+    public void Setup(string id, int count)
     {
-        iconImage.sprite = icon;
-        countText.text = count > 0 ? $"x{count}" : "";
         itemId = id;
+        iconImage.sprite = ItemDatabase.Instance.GetIcon(itemId);
+        countText.text = count > 0 ? $"x{count}" : "";
     }
 
+    /// <summary>
+    /// 支援直接傳入 ItemSlot 結構
+    /// </summary>
+    public void Setup(ItemSlot slot)
+    {
+        Setup(slot.itemId, slot.count);
+    }
+
+    /// <summary>
+    /// 啟用拖曳事件
+    /// </summary>
     public void EnableDragging()
     {
-        EventTrigger trigger = iconImage.gameObject.AddComponent<EventTrigger>();
-        trigger.triggers = new System.Collections.Generic.List<EventTrigger.Entry>();
+        var trigger = iconImage.gameObject.AddComponent<EventTrigger>();
+        trigger.triggers = new List<EventTrigger.Entry>();
 
+        // 🔹 Begin Drag
         Add(trigger, EventTriggerType.BeginDrag, (data) =>
         {
             originalParent = rectTransform.parent;
@@ -77,21 +96,23 @@ public class InventorySlotUI : MonoBehaviour
             Debug.Log($"🟡 開始拖曳 {itemId}");
         });
 
+        // 🔸 Drag 中
         Add(trigger, EventTriggerType.Drag, (data) =>
         {
             PointerEventData eventData = (PointerEventData)data;
+            if (canvas == null) return;
 
-            Vector3 worldPos;
             if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
                 canvas.GetComponent<RectTransform>(),
                 eventData.position,
                 canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera,
-                out worldPos))
+                out Vector3 worldPos))
             {
                 rectTransform.position = worldPos;
             }
         });
 
+        // 🔹 End Drag
         Add(trigger, EventTriggerType.EndDrag, (data) =>
         {
             rectTransform.SetParent(originalParent, true);
@@ -103,6 +124,9 @@ public class InventorySlotUI : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// 快速註冊事件
+    /// </summary>
     private void Add(EventTrigger trigger, EventTriggerType type, UnityEngine.Events.UnityAction<BaseEventData> callback)
     {
         var entry = new EventTrigger.Entry { eventID = type };
@@ -110,4 +134,5 @@ public class InventorySlotUI : MonoBehaviour
         trigger.triggers.Add(entry);
     }
 }
+
 

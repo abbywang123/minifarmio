@@ -11,7 +11,10 @@ public class InventorySceneManager : MonoBehaviour
     IEnumerator DelayRefresh()
     {
         // 嘗試最多 5 次，每次間隔 0.1 秒，確保 InventoryManager 準備好
-        for (int i = 0; i < 5; i++)
+        const int maxAttempts = 5;
+        const float interval = 0.1f;
+
+        for (int i = 0; i < maxAttempts; i++)
         {
             if (InventoryManager.Instance != null)
             {
@@ -21,10 +24,11 @@ public class InventorySceneManager : MonoBehaviour
             }
 
             Debug.Log($"🔄 第 {i + 1} 次等待 InventoryManager 載入中...");
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(interval);
         }
 
         Debug.LogWarning("❌ 嘗試多次後仍找不到 InventoryManager 實例");
     }
 }
+
 

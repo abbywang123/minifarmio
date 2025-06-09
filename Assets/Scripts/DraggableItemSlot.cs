@@ -17,8 +17,6 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
     void Awake()
     {
-        Debug.Log("🛠️ Awake: 初始化");
-
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         image = GetComponent<Image>();
@@ -54,7 +52,6 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
             Debug.Log("📤 已移動到 DragLayer");
         }
 
-        // 🟡 視覺效果
         if (canvasGroup != null)
         {
             canvasGroup.alpha = 0.5f;
@@ -63,14 +60,23 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
         if (image != null)
         {
-            image.raycastTarget = false; // 讓目標可以接收 drop
+            image.raycastTarget = false;
+        }
+
+        // ✅ 記錄拖曳資料（跨場景傳遞）
+        DragItemData.draggingItemId = itemId;
+        DragItemData.draggingIcon = image?.sprite;
+
+        // ✅ 顯示拖曳圖示
+        if (DragItemIcon.Instance != null && DragItemData.draggingIcon != null)
+        {
+            DragItemIcon.Instance.Show(DragItemData.draggingIcon);
         }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         rectTransform.position += (Vector3)(eventData.delta / canvas.scaleFactor);
-        Debug.Log($"➡️ 拖曳中... 當前位置：{rectTransform.position}");
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -90,6 +96,11 @@ public class DraggableItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler,
         {
             image.raycastTarget = true;
         }
+
+        // ✅ 結束後可選擇不馬上清除 DragItemData，等播種或使用時再清
+        // DragItemData.Clear(); // 選擇性
+
+        DragItemIcon.Instance?.Hide();
     }
 }
 
