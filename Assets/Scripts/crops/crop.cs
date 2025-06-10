@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Threading.Tasks;
 
 public class Crop : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class Crop : MonoBehaviour
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         if (spriteRenderer == null)
             Debug.LogError("❌ 沒有找到 SpriteRenderer，請檢查子物件是否掛載 SpriteRenderer！");
-        
+
         cachedPlayer = FindFirstObjectByType<Player>();
     }
 
@@ -59,13 +60,11 @@ public class Crop : MonoBehaviour
         if (spriteRenderer == null)
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
-        // 顯示種子圖示
         Sprite icon = CropIconDatabase.GetSpriteById(info.seedId);
         if (icon != null)
         {
             spriteRenderer.sprite = icon;
             Debug.Log($"🌱 顯示作物圖示：{info.seedId}");
-            Debug.Log($"🌱 初始圖為：{spriteRenderer.sprite?.name}, enabled: {spriteRenderer.enabled}, pos: {spriteRenderer.transform.position}");
         }
         else
         {
@@ -159,11 +158,11 @@ public class Crop : MonoBehaviour
         UpdateVisual();
     }
 
-    private void ApplySpecialEffect(string weather, bool isNight)
+    private async void ApplySpecialEffect(string weather, bool isNight)
     {
         if (cachedPlayer == null) return;
 
-        var inventory = cachedPlayer.GetComponent<Inventory>();
+        var inventoryManager = InventoryManager.Instance;
 
         switch (cropInfo.specialEffect)
         {
@@ -182,10 +181,12 @@ public class Crop : MonoBehaviour
                 break;
 
             case SpecialEffectType.ProduceAuraFertilizer:
-                var fertilizer = ItemDatabase.Instance.GetItemData("Fertilizer");
-                if (fertilizer != null)
-                    inventory?.Add(fertilizer, 1);
-                break;
+            if (inventoryManager != null)
+            {
+                await inventoryManager.AddItemAsync("muck", 1);
+                Debug.Log("🎉 特殊效果：獲得 1 個 muck");
+            }
+            break;
 
             case SpecialEffectType.DroughtResistant:
                 float avgHumidity = (cropInfo.suitableMinHumidity + cropInfo.suitableMaxHumidity) / 2f;
@@ -247,7 +248,7 @@ public class Crop : MonoBehaviour
         spriteRenderer.transform.localScale = targetScale;
     }
 
-    public void Harvest()
+    public async Task Harvest()
     {
         if (cachedPlayer == null)
         {
@@ -255,22 +256,21 @@ public class Crop : MonoBehaviour
             return;
         }
 
-        var inventory = cachedPlayer.GetComponent<Inventory>();
+        var inventoryManager = InventoryManager.Instance;
         var wallet = cachedPlayer.GetComponent<PlayerWallet>();
 
-        bool added = inventory.Add(cropInfo.harvestItem, 1);
-        if (added)
+        if (inventoryManager != null)
         {
-            if (WarehouseManager.Instance != null)
-                WarehouseManager.Instance.inventory.Add(cropInfo.harvestItem, 1);
+            // 用 InventoryManager 的 AddItemAsync
+            await inventoryManager.AddItemAsync(cropInfo.harvestItem.id, 1);
 
             if (cropInfo.specialEffect == SpecialEffectType.ExtraGoldOnHarvest && wallet != null)
                 wallet.Earn(10);
         }
 
-        // ✅ 呼叫 tile 來負責銷毀與重設
         landTile?.Harvest();
     }
+
 
 
     public void WaterCrop()
@@ -280,21 +280,22 @@ public class Crop : MonoBehaviour
         UpdateVisual();
     }
 
-    public void FertilizeCrop()
+    public async void FertilizeCrop()
     {
-        var inventory = cachedPlayer?.GetComponent<Inventory>();
-        var fertilizer = ItemDatabase.Instance.GetItemData("Fertilizer");
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager == null) return;
 
-        if (fertilizer != null && inventory?.Remove(fertilizer, 1) == true)
+        bool removed = await inventoryManager.RemoveItemAsync("muck", 1);
+        if (removed)
         {
-            quality = Mathf.Min(quality + 10f, 100f);
-            growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.1f, 0f, 100f);
+            quality = Mathf.Min(quality + 10f,100f);
+            growthProgress = Mathf.Min(growthProgress + 5f, 100f);
+            Debug.Log("🌿 已施肥，品質 +10，成長 +5");
         }
         else
         {
-            Debug.Log("❌ 沒有肥料！");
+            Debug.LogWarning("❌ 背包中無 muck，施肥失敗");
         }
-
-        UpdateVisual();
     }
-}
+
+} 

@@ -96,3 +96,18 @@ public class LandTile : MonoBehaviour
     }
 
 }
+
+[System.Serializable]
+public class PlantedCropData
+{
+    public string cropId;
+    public float plantedTime;
+    public int growthStage;
+
+    public PlantedCropData(string id, float time, int stage)
+    {
+        cropId = id;
+        plantedTime = time;
+        growthStage = stage;
+    }
+}

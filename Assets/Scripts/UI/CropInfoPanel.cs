@@ -20,9 +20,9 @@ public class CropInfoPanel : MonoBehaviour
     public Button harvestButton;
 
     public TextMeshProUGUI waterLeftText;
-    public TextMeshProUGUI fertilizerText; // ✅ 新增：肥料顯示文字
+    public TextMeshProUGUI fertilizerText; // muck 顯示用
 
-    public Button closeButton; // ✅ 新增：關閉按鈕
+    public Button closeButton;
 
     private Crop currentCrop;
     private int dailyWaterLimit = 15;
@@ -33,6 +33,7 @@ public class CropInfoPanel : MonoBehaviour
         waterButton.onClick.AddListener(WaterCrop);
         fertilizeButton.onClick.AddListener(FertilizeCrop);
         harvestButton.onClick.AddListener(HarvestCrop);
+
         if (closeButton != null)
             closeButton.onClick.AddListener(Hide);
 
@@ -59,7 +60,7 @@ public class CropInfoPanel : MonoBehaviour
         UpdateUI();
     }
 
-    void UpdateUI()
+    async void UpdateUI()
     {
         if (currentCrop == null) return;
 
@@ -81,13 +82,12 @@ public class CropInfoPanel : MonoBehaviour
         waterButton.interactable = (waterLeft > 0);
         harvestButton.interactable = currentCrop.IsMature();
 
-        // ✅ 更新肥料數量文字
-        int fertilizerCount = GetFertilizerCount();
+        // ✅ muck 數量顯示
+        int muckCount = await GetMuckCountAsync();
         if (fertilizerText != null)
-            fertilizerText.text = $"肥料數量：{fertilizerCount}";
+            fertilizerText.text = $"肥料數量：{muckCount}";
 
-        // ✅ 沒肥料就停用施肥按鈕
-        fertilizeButton.interactable = (fertilizerCount > 0);
+        fertilizeButton.interactable = (muckCount > 0);
     }
 
     void WaterCrop()
@@ -102,22 +102,31 @@ public class CropInfoPanel : MonoBehaviour
 
     async void FertilizeCrop()
     {
-        if (currentCrop != null && GetFertilizerCount() > 0)
+        if (currentCrop == null) return;
+
+        var inventory = InventoryManager.Instance;
+        if (inventory == null)
         {
-            bool removed = await InventoryManager.Instance.RemoveItemAsync("fertilizer", 1);
-            if (removed)
-            {
-                currentCrop.FertilizeCrop();
-                UpdateUI();
-            }
-            else
-            {
-                Debug.Log("❌ 無法扣除肥料");
-            }
+            Debug.LogWarning("❌ InventoryManager 尚未初始化");
+            return;
+        }
+
+        int count = await GetMuckCountAsync();
+        if (count <= 0)
+        {
+            Debug.Log("❌ 沒有 muck 可使用");
+            return;
+        }
+
+        bool removed = await inventory.RemoveItemAsync("muck", 1);
+        if (removed)
+        {
+            currentCrop.FertilizeCrop();
+            UpdateUI();
         }
         else
         {
-            Debug.Log("❌ 沒有肥料");
+            Debug.Log("❌ 無法扣除 muck");
         }
     }
 
@@ -130,12 +139,13 @@ public class CropInfoPanel : MonoBehaviour
         }
     }
 
-    int GetFertilizerCount()
+    async System.Threading.Tasks.Task<int> GetMuckCountAsync()
     {
-        if (InventoryManager.Instance == null) return 0;
+        var inventory = InventoryManager.Instance;
+        if (inventory == null) return 0;
 
-        var inventory = InventoryManager.Instance.GetInventoryData();
-        var slot = inventory.Find(s => s.itemId == "fertilizer");
+        var list = inventory.GetInventoryData();
+        var slot = list.Find(s => s.itemId == "muck");
         return slot != null ? slot.count : 0;
     }
 

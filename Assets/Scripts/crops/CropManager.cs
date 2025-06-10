@@ -20,11 +20,18 @@ public class CropManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        if (updateIntervalMinutes <= 0f)
+        {
+            Debug.LogError("❌ updateIntervalMinutes 不能小於或等於 0，已強制設為 1 分鐘");
+            updateIntervalMinutes = 1f;
+        }
+
         updateInterval = TimeSpan.FromMinutes(updateIntervalMinutes);
 
         LoadLastUpdateTime();
         TryUpdateOnStart();
     }
+
 
     private void Update()
     {

@@ -402,6 +402,13 @@ else
         }
     }
 
+    public async Task AddItemAsync(string itemId, int count)
+    {
+        AddItemToInventory(itemId, count);
+        await SaveInventoryThenRefresh();
+    }
+
+
 
 
 }
