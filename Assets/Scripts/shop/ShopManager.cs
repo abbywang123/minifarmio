@@ -55,10 +55,6 @@ public class ShopManager : MonoBehaviour
         if (scene.name == "Farm")
         {
             Debug.Log("🟢 從商店回到 Farm，不主動刷新背包 UI（由 InventorySceneManager 控制）");
-
-            // 如果需要刷新雲端背包資料，可以取消註解下面這行
-            // _ = InventoryManager.Instance?.ReloadFarmDataFromCloud();
-
             SceneManager.sceneLoaded -= OnSceneLoaded_ReturnedFromShop;
         }
     }
@@ -101,37 +97,41 @@ public class ShopManager : MonoBehaviour
             priceText,
             isBuy,
             !isBuy,
-            () =>
+            async () =>
             {
-                Debug.Log($"嘗試購買 {item.itemName}");
-                if (TryBuyItem(item))
+                Debug.Log($"🛒 嘗試購買 {item.itemName}");
+                bool success = await TryBuyItemAsync(item);
+                if (success)
                 {
                     UpdateMoneyUI(PlayerWallet.Instance.CurrentMoney);
-                    Debug.Log("購買成功");
+                    Debug.Log("✅ 購買成功");
+
+                    await Task.Delay(1000); // ⏳ 延遲 1 秒避免儲存未完成就切場景
+                    ReturnToFarmScene();
                 }
                 else
                 {
-                    Debug.Log("購買失敗");
+                    Debug.Log("❌ 購買失敗");
                 }
             },
             async () =>
             {
-                Debug.Log($"嘗試賣出 {item.itemName}");
+                Debug.Log($"📤 嘗試賣出 {item.itemName}");
                 bool success = await TrySellItemAsync(item);
                 if (success)
                 {
                     UpdateMoneyUI(PlayerWallet.Instance.CurrentMoney);
-                    Debug.Log("賣出成功");
+                    Debug.Log("✅ 賣出成功");
                 }
                 else
                 {
-                    Debug.Log("賣出失敗");
+                    Debug.Log("❌ 賣出失敗");
                 }
             }
         );
     }
 
-    bool TryBuyItem(ShopItemInfo item)
+    async Task<bool> TryBuyItemAsync(ShopItemInfo item)
     {
         if (item == null || item.itemData == null)
         {
@@ -147,6 +147,21 @@ public class ShopManager : MonoBehaviour
 
         InventoryManager.Instance.AddItemToInventory(item.itemData.id, 1);
         playerWallet.Spend(item.buyPrice);
+
+        try
+        {
+            Debug.Log("📡 儲存購買結果到雲端...");
+            var currentData = InventoryManager.Instance.GetCurrentFarmData();
+            currentData.gold = playerWallet.CurrentMoney;
+            await CloudSaveAPI.SaveFarmData(currentData);
+            Debug.Log("✅ 雲端儲存成功");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ 雲端儲存失敗: {e.Message}");
+            return false;
+        }
+
         return true;
     }
 
@@ -166,6 +181,21 @@ public class ShopManager : MonoBehaviour
         }
 
         playerWallet.Earn(item.sellPrice);
+
+        try
+        {
+            Debug.Log("📡 儲存賣出結果到雲端...");
+            var currentData = InventoryManager.Instance.GetCurrentFarmData();
+            currentData.gold = playerWallet.CurrentMoney;
+            await CloudSaveAPI.SaveFarmData(currentData);
+            Debug.Log("✅ 雲端儲存成功");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ 雲端儲存失敗: {e.Message}");
+            return false;
+        }
+
         return true;
     }
 
@@ -182,3 +212,4 @@ public class ShopManager : MonoBehaviour
         }
     }
 }
+

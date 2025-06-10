@@ -33,6 +33,11 @@ public class InventoryManager : MonoBehaviour
     private List<ItemSlot> inventoryData;
     private FarmData farmData;
     private string currentItemId;
+    public FarmData GetCurrentFarmData()
+    {
+        return farmData;
+    }
+
 
     void Awake()
     {
@@ -264,18 +269,37 @@ public class InventoryManager : MonoBehaviour
 }
 
 
-
-    async Task SaveInventoryThenRefresh()
+async Task SaveInventoryThenRefresh()
+{
+    if (itemInfoPopup != null && itemInfoPopup.gameObject != null)
+{
+    itemInfoPopup.SetActive(false);
+}
+else
+{
+    Debug.LogWarning("⚠️ itemInfoPopup 已不存在，不執行關閉");
+}
+    if (farmData == null)
     {
-        itemInfoPopup?.SetActive(false);
-        FarmData latest = await CloudSaveAPI.LoadFarmData();
-        latest.inventory = inventoryData;
-        latest.maxInventorySize = farmData.maxInventorySize;
-        latest.gold = farmData.gold;
-
-        await CloudSaveAPI.SaveFarmData(latest);
-        RefreshInventoryUI();
+        Debug.LogError("❌ 無法儲存：farmData 為 null");
+        return;
     }
+
+    if (farmData.inventory == null || farmData.inventory.Count == 0)
+    {
+        Debug.LogWarning("⚠️ 儲存時發現背包為空，可能是未初始化");
+    }
+    else
+    {
+        Debug.Log($"📦 儲存道具數：{farmData.inventory.Count}");
+    }
+
+    // ✅ 直接儲存目前的 farmData（不再重新 Load 雲端資料）
+    await CloudSaveAPI.SaveFarmData(farmData);
+
+    RefreshInventoryUI();
+}
+
 
     async Task OnClickAddSlot()
     {
