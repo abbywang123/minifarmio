@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System.Threading.Tasks;
 
 [System.Serializable]
 public class HybridInfo
@@ -32,6 +33,10 @@ public class BreedingUIManager : MonoBehaviour
 
     public TextMeshProUGUI parentAText;
     public TextMeshProUGUI parentBText;
+    public TextMeshProUGUI playerMoneyText;
+
+    [Header("設定")]
+    public int breedingCostPerUnit = 50; // 每單位交配的金額成本
 
     private List<HybridInfo> hybridList = new List<HybridInfo>
     {
@@ -55,6 +60,9 @@ public class BreedingUIManager : MonoBehaviour
 
         breedButton.onClick.AddListener(OnBreedButtonClicked);
         hybridDropdown.onValueChanged.AddListener(UpdateParentTexts);
+
+        PlayerWallet.Instance.OnMoneyChanged += UpdateMoneyUI;
+        UpdateMoneyUI(PlayerWallet.Instance.CurrentMoney);
 
         SetupDropdowns();
         UpdateParentTexts(0);
@@ -83,18 +91,24 @@ public class BreedingUIManager : MonoBehaviour
 
     private async void OnBreedButtonClicked()
     {
-        if (InventoryManager.Instance == null)
+        if (InventoryManager.Instance == null || PlayerWallet.Instance == null)
         {
-            Debug.LogError("❌ 無法取得 InventoryManager 實例");
+            Debug.LogError("❌ 缺少必要的系統組件");
             return;
         }
 
         int index = hybridDropdown.value;
         int quantity = quantityDropdown.value + 1;
-
         var hybrid = hybridList[index];
 
-        // 載入 ItemData（需要有正確命名的 ScriptableObject 資源）
+        int totalCost = breedingCostPerUnit * quantity;
+
+        if (!PlayerWallet.Instance.CanAfford(totalCost))
+        {
+            Debug.Log("❌ 金錢不足，無法交配");
+            return;
+        }
+
         ItemData parentA = Resources.Load<ItemData>("Items/" + hybrid.parentA);
         ItemData parentB = Resources.Load<ItemData>("Items/" + hybrid.parentB);
         ItemData seed = Resources.Load<ItemData>("Items/" + hybrid.hybridName + "種子");
@@ -105,7 +119,6 @@ public class BreedingUIManager : MonoBehaviour
             return;
         }
 
-        // 從 InventoryManager 中取得數量
         int haveA = CountOf(parentA.id);
         int haveB = CountOf(parentB.id);
 
@@ -115,9 +128,9 @@ public class BreedingUIManager : MonoBehaviour
             return;
         }
 
-        // 非同步移除素材
         bool removedA = await InventoryManager.Instance.RemoveItemAsync(parentA.id, quantity);
         bool removedB = await InventoryManager.Instance.RemoveItemAsync(parentB.id, quantity);
+        PlayerWallet.Instance.Spend(totalCost);
 
         if (!removedA || !removedB)
         {
@@ -125,17 +138,31 @@ public class BreedingUIManager : MonoBehaviour
             return;
         }
 
-        // 新增種子
         InventoryManager.Instance.AddItemToInventory(seed.id, quantity);
-
         Debug.Log($"✅ 成功交配！獲得 {hybrid.hybridName}種子 x{quantity}");
+
+        try
+        {
+            var currentData = InventoryManager.Instance.GetCurrentFarmData();
+            currentData.gold = PlayerWallet.Instance.CurrentMoney;
+            await CloudSaveAPI.SaveFarmData(currentData);
+            Debug.Log("✅ 雲端儲存成功");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ 雲端儲存失敗: {e.Message}");
+        }
     }
 
-    // 本地方法來計算某 itemId 的數量（從 InventoryManager 的資料）
     private int CountOf(string itemId)
     {
         var list = InventoryManager.Instance.GetInventoryData();
         var slot = list.Find(s => s.itemId == itemId);
         return slot?.count ?? 0;
+    }
+
+    private void UpdateMoneyUI(int newMoney)
+    {
+        playerMoneyText.text = $"金錢：{newMoney}";
     }
 }
