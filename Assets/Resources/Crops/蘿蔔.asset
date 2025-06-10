@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18983c253862f9b46a3dba1d7cf3b7d4, type: 3}
+  m_Name: "\u863F\u8514"
+  m_EditorClassIdentifier: 
+  seedId: carrotseed
+  cropName: carrot
+  description: "\u6839\u83DC\u985E"
+  cropType: 0
+  icon: {fileID: 21300000, guid: 5c88eeb2c72c7864ca5a098c20f4d7e0, type: 3}
+  growthRate: 1
+  growthStages: []
+  suitableMinTemperature: 16.5
+  suitableMaxTemperature: 33.5
+  suitableMinHumidity: 0.575
+  suitableMaxHumidity: 0.72499996
+  isHybrid: 0
+  parent1: {fileID: 0}
+  parent2: {fileID: 0}
+  recommendedBreeds: []
+  specialEffect: 0
+  specialEffectDescription: "\u7121\u7279\u6B8A\u6548\u679C"
+  harvestItem: {fileID: 11400000, guid: e98db4f753344af4b900cbb8df66beb2, type: 2}

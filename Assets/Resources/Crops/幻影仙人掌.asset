@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18983c253862f9b46a3dba1d7cf3b7d4, type: 3}
+  m_Name: "\u5E7B\u5F71\u4ED9\u4EBA\u638C"
+  m_EditorClassIdentifier: 
+  seedId: phantomcactusseed
+  cropName: "\u5E7B\u5F71\u4ED9\u4EBA\u638C"
+  description: "\u5916\u89C0\u5E7B\u8B8A\uFF0C\u7522\u503C\u7A69\u5B9A"
+  cropType: 2
+  icon: {fileID: 21300000, guid: 533b5fa7ef856c8418078603ab93b352, type: 3}
+  growthRate: 0.9
+  growthStages: []
+  suitableMinTemperature: 10
+  suitableMaxTemperature: 60
+  suitableMinHumidity: 0.15
+  suitableMaxHumidity: 0.25
+  isHybrid: 1
+  parent1: {fileID: 11400000, guid: 48dcecda1727d3048aff06293f607567, type: 2}
+  parent2: {fileID: 11400000, guid: e600b93d9dff53a42ad01908d507daaa, type: 2}
+  recommendedBreeds: []
+  specialEffect: 6
+  specialEffectDescription: "\u5916\u89C0\u5E7B\u8B8A\uFF0C\u7522\u503C\u7A69\u5B9A"
+  harvestItem: {fileID: 11400000, guid: 87e1e0fbd4bf7b14a8a04d5020206f6b, type: 2}
