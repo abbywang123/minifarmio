@@ -20,10 +20,11 @@ public class CropInfoPanel : MonoBehaviour
     public Button harvestButton;
 
     public TextMeshProUGUI waterLeftText;
-    public Button backgroundButton;
+    public TextMeshProUGUI fertilizerText; // ✅ 新增：肥料顯示文字
+
+    public Button closeButton; // ✅ 新增：關閉按鈕
 
     private Crop currentCrop;
-
     private int dailyWaterLimit = 15;
     private int waterLeft = 15;
 
@@ -32,14 +33,15 @@ public class CropInfoPanel : MonoBehaviour
         waterButton.onClick.AddListener(WaterCrop);
         fertilizeButton.onClick.AddListener(FertilizeCrop);
         harvestButton.onClick.AddListener(HarvestCrop);
-        if (backgroundButton != null)
-            backgroundButton.onClick.AddListener(Hide);
+        if (closeButton != null)
+            closeButton.onClick.AddListener(Hide);
 
         Hide();
     }
 
     public void Show(Crop crop)
     {
+        Debug.Log("CropInfoPanel Show() called for crop: " + crop.Info.cropName);
         currentCrop = crop;
         gameObject.SetActive(true);
         UpdateUI();
@@ -78,6 +80,14 @@ public class CropInfoPanel : MonoBehaviour
         waterLeftText.text = $"剩餘澆水次數：{waterLeft}";
         waterButton.interactable = (waterLeft > 0);
         harvestButton.interactable = currentCrop.IsMature();
+
+        // ✅ 更新肥料數量文字
+        int fertilizerCount = GetFertilizerCount();
+        if (fertilizerText != null)
+            fertilizerText.text = $"肥料數量：{fertilizerCount}";
+
+        // ✅ 沒肥料就停用施肥按鈕
+        fertilizeButton.interactable = (fertilizerCount > 0);
     }
 
     void WaterCrop()
@@ -90,12 +100,24 @@ public class CropInfoPanel : MonoBehaviour
         }
     }
 
-    void FertilizeCrop()
+    async void FertilizeCrop()
     {
-        if (currentCrop != null)
+        if (currentCrop != null && GetFertilizerCount() > 0)
         {
-            currentCrop.FertilizeCrop();
-            UpdateUI();
+            bool removed = await InventoryManager.Instance.RemoveItemAsync("fertilizer", 1);
+            if (removed)
+            {
+                currentCrop.FertilizeCrop();
+                UpdateUI();
+            }
+            else
+            {
+                Debug.Log("❌ 無法扣除肥料");
+            }
+        }
+        else
+        {
+            Debug.Log("❌ 沒有肥料");
         }
     }
 
@@ -106,6 +128,15 @@ public class CropInfoPanel : MonoBehaviour
             currentCrop.Harvest();
             Hide();
         }
+    }
+
+    int GetFertilizerCount()
+    {
+        if (InventoryManager.Instance == null) return 0;
+
+        var inventory = InventoryManager.Instance.GetInventoryData();
+        var slot = inventory.Find(s => s.itemId == "fertilizer");
+        return slot != null ? slot.count : 0;
     }
 
     void OnEnable()

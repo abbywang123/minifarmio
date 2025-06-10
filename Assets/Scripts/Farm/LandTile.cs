@@ -31,13 +31,13 @@ public class LandTile : MonoBehaviour
         switch (soilType)
         {
             case SoilType.Normal:
-                moisture = 0.5f;
+                moisture = 0.6f;
                 break;
             case SoilType.Desert:
-                moisture = 0.1f;
+                moisture = 0.2f;
                 break;
             case SoilType.Wetland:
-                moisture = 0.9f;
+                moisture = 0.75f;
                 break;
         }
     }
@@ -89,4 +89,10 @@ public class LandTile : MonoBehaviour
 
         }
     }
+
+    public void SetPlantedCrop(Crop crop)
+    {
+        plantedCrop = crop;
+    }
+
 }

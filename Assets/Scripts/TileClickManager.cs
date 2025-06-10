@@ -75,6 +75,7 @@ public class TileClickManager : MonoBehaviour
                 Debug.LogWarning("❌ tile.plantedCrop 是 null");
                 return;
             }
+            CropInfoPanelManager.Instance.HidePanel(); // 強制先關閉面板
             CropInfoPanelManager.Instance.ShowPanel(tile.plantedCrop);
             return;
         }

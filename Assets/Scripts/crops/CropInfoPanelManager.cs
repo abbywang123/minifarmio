@@ -1,10 +1,12 @@
 using UnityEngine;
 
+
+
 public class CropInfoPanelManager : MonoBehaviour
 {
     public static CropInfoPanelManager Instance;
 
-    [SerializeField] private CropInfoPanel panelPrefab; // 你的 CropInfoPanel prefab
+    [SerializeField] private CropInfoPanel panelInScene; // 👈 指定場景中的 CropInfoPanel（非 prefab）
     private CropInfoPanel activePanel;
 
     private void Awake()
@@ -15,26 +17,33 @@ public class CropInfoPanelManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // ✅ 使用場景中的面板
+        activePanel = panelInScene;
+
+        if (activePanel != null)
+        {
+            activePanel.gameObject.SetActive(false); // 起始隱藏
+        }
+        else
+        {
+            Debug.LogError("❌ panelInScene 尚未在 Inspector 指定！");
+        }
     }
 
-    /// <summary>
-    /// 顯示作物資訊面板，若面板不存在則建立
-    /// </summary>
-    /// <param name="crop">要顯示的作物</param>
     public void ShowPanel(Crop crop)
     {
         if (activePanel == null)
         {
-            activePanel = Instantiate(panelPrefab, transform);
+            Debug.LogError("❌ 沒有可用的 CropInfoPanel，請檢查是否有設好引用");
+            return;
         }
 
         activePanel.Show(crop);
         activePanel.gameObject.SetActive(true);
+        Debug.Log("✅ 顯示作物資訊面板");
     }
 
-    /// <summary>
-    /// 隱藏作物資訊面板
-    /// </summary>
     public void HidePanel()
     {
         if (activePanel != null)

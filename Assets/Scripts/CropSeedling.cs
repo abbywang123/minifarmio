@@ -40,7 +40,10 @@ public class CropSeedling : MonoBehaviour
         if (info != null)
         {
             var crop = gameObject.AddComponent<Crop>();
-            crop.Init(info, parentTile); // ✅ 傳入正確 tile
+            crop.Init(info, parentTile);
+
+            parentTile.SetPlantedCrop(crop); // ✅ 在這裡呼叫！
+
             Destroy(this); // ✅ 移除 Seedling 階段腳本
         }
         else
@@ -48,4 +51,6 @@ public class CropSeedling : MonoBehaviour
             Debug.LogError($"❌ 找不到 CropInfo for 種子ID：{currentSeedId}");
         }
     }
+
+
 }
