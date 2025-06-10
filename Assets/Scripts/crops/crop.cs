@@ -17,7 +17,7 @@ public class Crop : MonoBehaviour
 
     private float growthRate => cropInfo.growthRate;
 
-    public CropInfo Info => cropInfo;  // 公開屬性，外部透過這讀取 cropInfo
+    public CropInfo Info => cropInfo;
 
     public float GetGrowthProgress() => growthProgress;
     public float GetHealth() => health;
@@ -31,29 +31,11 @@ public class Crop : MonoBehaviour
 
     private void Awake()
     {
-        spriteRenderer = transform.Find("SpriteObject")?.GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         if (spriteRenderer == null)
-            Debug.LogError("❌ 沒有找到 SpriteRenderer，請檢查 SpriteObject 是否存在且掛載正確！");
-
+            Debug.LogError("❌ 沒有找到 SpriteRenderer，請檢查子物件是否掛載 SpriteRenderer！");
+        
         cachedPlayer = FindFirstObjectByType<Player>();
-    }
-
-    private void Start()
-    {
-        Debug.Log("Crop Start() Called");
-        if (cropInfo != null)
-        {
-            Debug.Log($"✅ Crop Start 初始化：{cropInfo.cropName}");
-
-            if (cropInfo.growthStages.Length > 0)
-            {
-                spriteRenderer.sprite = cropInfo.growthStages[0];
-            }
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ CropInfo 尚未初始化，請檢查是否有呼叫 Init()");
-        }
     }
 
     private void OnEnable()
@@ -68,20 +50,22 @@ public class Crop : MonoBehaviour
 
     public void Init(CropInfo info, LandTile tile)
     {
-        Debug.Log("Crop Init Called");
         cropInfo = info;
         landTile = tile;
         growthProgress = 0f;
         health = 100f;
         quality = 100f;
 
-        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
+        // 顯示種子圖示
         Sprite icon = CropIconDatabase.GetSpriteById(info.seedId);
         if (icon != null)
         {
             spriteRenderer.sprite = icon;
             Debug.Log($"🌱 顯示作物圖示：{info.seedId}");
+            Debug.Log($"🌱 初始圖為：{spriteRenderer.sprite?.name}, enabled: {spriteRenderer.enabled}, pos: {spriteRenderer.transform.position}");
         }
         else
         {
@@ -91,7 +75,7 @@ public class Crop : MonoBehaviour
         LoadGrowthSprites();
         currentStage = -1;
         UpdateVisual();
-        Debug.Log($"✅ Init 完成：{info.cropName}，初始值 {growthProgress}%");
+        Debug.Log($"✅ Init 完成：{info.cropName}");
     }
 
     private void LoadGrowthSprites()
@@ -103,15 +87,18 @@ public class Crop : MonoBehaviour
         {
             string path = $"CropAnimator/{cropInfo.cropName}_{i}";
             growthStages[i] = Resources.Load<Sprite>(path);
+
             if (growthStages[i] == null)
-            {
                 Debug.LogWarning($"❌ 找不到成長圖：{path}");
-            }
             else
-            {
                 Debug.Log($"✅ 成功載入：{path}");
-            }
         }
+    }
+
+    private void HandleNewDay()
+    {
+        Debug.Log("🗓 作物收到新的一天事件！");
+        UpdateGrowthAuto();
     }
 
     public void UpdateGrowthAuto()
@@ -127,49 +114,6 @@ public class Crop : MonoBehaviour
         bool isNight = RealTimeDayNightSystem.Instance != null && RealTimeDayNightSystem.Instance.IsNight;
 
         UpdateGrowth(temperature, soilMoisture, weather, isNight);
-    }
-
-    private void UpdateVisual()
-    {
-        if (growthStages == null || growthStages.Length == 0) return;
-        
-        int stage = Mathf.FloorToInt(GetGrowthProgressNormalized() * (growthStages.Length - 1));
-
-        Debug.Log($"growthProgress: {growthProgress}, stage: {stage}, currentStage: {currentStage}");
-        
-        if (stage != currentStage)
-        {
-            currentStage = stage;
-            spriteRenderer.sprite = growthStages[stage];
-            StartCoroutine(AnimateGrow());
-        }
-    }
-
-    private IEnumerator AnimateGrow()
-    {
-        Debug.Log($"🌿 播放生長動畫階段 {currentStage}！");
-        Vector3 startScale = Vector3.one * 0.8f;
-        Vector3 targetScale = Vector3.one;
-        float duration = 0.3f;
-        float elapsed = 0f;
-
-        spriteRenderer.transform.localScale = startScale;
-
-        while (elapsed < duration)
-        {
-            float t = elapsed / duration;
-            spriteRenderer.transform.localScale = Vector3.Lerp(startScale, targetScale, t);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        spriteRenderer.transform.localScale = targetScale;
-    }
-
-    private void HandleNewDay()
-    {
-        Debug.Log("🗓 作物收到新的一天事件！");
-        UpdateGrowthAuto(); // 使用實際天氣系統與土地濕度
     }
 
     public void UpdateGrowth(float temperature, float humidity, string weather, bool isNight)
@@ -198,23 +142,27 @@ public class Crop : MonoBehaviour
         }
 
         if (weather == "Rain" && Random.value < 0.2f)
+        {
             health -= 10f;
+            Debug.Log("⚡️ 暴雨導致作物受損！");
+        }
 
         health = Mathf.Clamp(health, 0f, 100f);
 
         ApplySpecialEffect(weather, isNight);
 
         if (growthProgress >= 100f)
+        {
             Harvest();
+        }
 
         UpdateVisual();
     }
 
-    private void ApplySpecialEffect(string currentWeather, bool isNight)
+    private void ApplySpecialEffect(string weather, bool isNight)
     {
         if (cachedPlayer == null) return;
 
-        var wallet = cachedPlayer.GetComponent<PlayerWallet>();
         var inventory = cachedPlayer.GetComponent<Inventory>();
 
         switch (cropInfo.specialEffect)
@@ -224,13 +172,8 @@ public class Crop : MonoBehaviour
                     growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.5f, 0f, 100f);
                 break;
 
-            case SpecialEffectType.ExtraGoldOnHarvest:
-                if (wallet != null)
-                    wallet.Earn(10);  // 使用 Earn 代替不存在的 AddMoney
-                break;
-
             case SpecialEffectType.RainGrowthBoost:
-                if (currentWeather == "Rain")
+                if (weather == "Rain")
                     growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.5f, 0f, 100f);
                 break;
 
@@ -239,12 +182,9 @@ public class Crop : MonoBehaviour
                 break;
 
             case SpecialEffectType.ProduceAuraFertilizer:
-                if (inventory != null)
-                {
-                    var fertilizer = ItemDatabase.Instance.GetItemData("Fertilizer");
-                    if (fertilizer != null)
-                        inventory.Add(fertilizer, 1);
-                }
+                var fertilizer = ItemDatabase.Instance.GetItemData("Fertilizer");
+                if (fertilizer != null)
+                    inventory?.Add(fertilizer, 1);
                 break;
 
             case SpecialEffectType.DroughtResistant:
@@ -253,6 +193,58 @@ public class Crop : MonoBehaviour
                     growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.4f, 0f, 100f);
                 break;
         }
+    }
+
+    private void UpdateVisual()
+    {
+        if (growthStages == null || growthStages.Length == 0)
+        {
+            Debug.LogWarning("⚠️ growthStages 為空，無法更新圖！");
+            return;
+        }
+
+        int stage = Mathf.FloorToInt(GetGrowthProgressNormalized() * (growthStages.Length - 1));
+        Debug.Log($"UpdateVisual() - progress: {growthProgress}, stage: {stage}, currentStage: {currentStage}");
+
+        if (growthStages[stage] == null)
+            Debug.LogWarning($"⚠️ growthStages[{stage}] 是 null");
+        else
+            Debug.Log($"🎨 設定 sprite：{growthStages[stage].name}");
+
+        if (spriteRenderer.sprite == null)
+            Debug.LogWarning("🚨 spriteRenderer.sprite 是 null！");
+
+        if (stage != currentStage)
+        {
+            currentStage = stage;
+            spriteRenderer.sprite = growthStages[stage];
+            Debug.Log($"✅ 圖已更新為階段 {stage}，圖名稱：{spriteRenderer.sprite?.name}");
+            StartCoroutine(AnimateGrow());
+        }
+        else
+        {
+            Debug.Log("🔁 階段未改變，不換圖。");
+        }
+    }
+
+    private IEnumerator AnimateGrow()
+    {
+        Vector3 startScale = Vector3.one * 0.8f;
+        Vector3 targetScale = Vector3.one;
+        float duration = 0.3f;
+        float elapsed = 0f;
+
+        spriteRenderer.transform.localScale = startScale;
+
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            spriteRenderer.transform.localScale = Vector3.Lerp(startScale, targetScale, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        spriteRenderer.transform.localScale = targetScale;
     }
 
     public void Harvest()
@@ -264,11 +256,16 @@ public class Crop : MonoBehaviour
         }
 
         var inventory = cachedPlayer.GetComponent<Inventory>();
-        bool ok = inventory.Add(cropInfo.harvestItem, 1);
+        var wallet = cachedPlayer.GetComponent<PlayerWallet>();
 
-        if (ok)
+        bool added = inventory.Add(cropInfo.harvestItem, 1);
+        if (added)
         {
-            WarehouseManager.Instance.inventory.Add(cropInfo.harvestItem, 1);
+            if (WarehouseManager.Instance != null)
+                WarehouseManager.Instance.inventory.Add(cropInfo.harvestItem, 1);
+
+            if (cropInfo.specialEffect == SpecialEffectType.ExtraGoldOnHarvest && wallet != null)
+                wallet.Earn(10);
         }
 
         Destroy(gameObject);
@@ -285,7 +282,8 @@ public class Crop : MonoBehaviour
     {
         var inventory = cachedPlayer?.GetComponent<Inventory>();
         var fertilizer = ItemDatabase.Instance.GetItemData("Fertilizer");
-        if (fertilizer != null && inventory.Remove(fertilizer, 1))
+
+        if (fertilizer != null && inventory?.Remove(fertilizer, 1) == true)
         {
             quality = Mathf.Min(quality + 10f, 100f);
             growthProgress = Mathf.Clamp(growthProgress + growthRate * 0.1f, 0f, 100f);
