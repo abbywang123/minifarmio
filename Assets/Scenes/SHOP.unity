@@ -1287,7 +1287,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 390, y: 103}
+  m_AnchoredPosition: {x: -300, y: -50}
   m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &461730099
@@ -2265,8 +2265,8 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 461730098}
   - {fileID: 1072034180}
+  - {fileID: 461730098}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3727,7 +3727,6 @@ MonoBehaviour:
   sellContentParent: {fileID: 694381722}
   shopItemUIPrefab: {fileID: 1074312324}
   playerWallet: {fileID: 2076774566}
-  playerInventory: {fileID: 289417108}
   playerMoneyText: {fileID: 325720117}
 --- !u!114 &1072034182
 MonoBehaviour:
@@ -4847,7 +4846,6 @@ MonoBehaviour:
   sellContentParent: {fileID: 869707900}
   shopItemUIPrefab: {fileID: 254979561}
   playerWallet: {fileID: 0}
-  playerInventory: {fileID: 0}
   playerMoneyText: {fileID: 1430058232}
 --- !u!114 &1297826510
 MonoBehaviour:
@@ -6468,6 +6466,10 @@ PrefabInstance:
     - target: {fileID: 2682295663722162745, guid: 5e4021de20f91e04c8ea5bb6fb86ee58, type: 3}
       propertyPath: m_Name
       value: Canvas (1) Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 2682295663722162745, guid: 5e4021de20f91e04c8ea5bb6fb86ee58, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2862217872793598008, guid: 5e4021de20f91e04c8ea5bb6fb86ee58, type: 3}
       propertyPath: m_Pivot.x

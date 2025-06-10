@@ -6,114 +6,123 @@ using UnityEngine.Tilemaps;
 public class TileClickManager : MonoBehaviour
 {
     [Header("Tilemaps")]
-    public Tilemap[] tilemaps; // 拖入 FarmLandTile、PondLandTile、SandLandTile 等
+    public Tilemap[] tilemaps;
 
     [Header("作物設定")]
-    public GameObject cropPrefab; // 拖入 SeedlingPrefab
-
-    void Start()
-    {
-        foreach (var tilemap in tilemaps)
-        {
-            Debug.Log($"📋 掃描 tilemap: {tilemap.name}");
-
-            BoundsInt bounds = tilemap.cellBounds;
-            foreach (var pos in bounds.allPositionsWithin)
-            {
-                if (tilemap.HasTile(pos))
-                {
-                    Debug.Log($"📌 {tilemap.name} 上有 tile at cell: {pos}");
-                }
-            }
-        }
-    }
+    public GameObject seedlingPrefab; // 播種時生成的作物預設物件
 
     void Update()
     {
-        if (Mouse.current.leftButton.wasReleasedThisFrame)
+        if (!Mouse.current.leftButton.wasReleasedThisFrame)
+            return;
+
+        Debug.Log("🖱 滑鼠左鍵釋放");
+
+        // 點到 UI 則不處理
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
-            Debug.Log("🖱 滑鼠左鍵釋放");
+            Debug.Log("❌ 點到 UI，不處理播種");
+            return;
+        }
 
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        // 把滑鼠位置轉為世界位置，再轉成 Tilemap Cell
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3Int cellPos = tilemaps[0].WorldToCell(mouseWorldPos);
+        cellPos.z = 0;
+
+        Debug.Log($"🧭 點擊座標：{mouseWorldPos} 對應 cell: {cellPos}");
+
+        // 尋找有該格子的 Tilemap
+        Tilemap targetTilemap = null;
+        foreach (var tilemap in tilemaps)
+        {
+            if (tilemap.HasTile(cellPos))
             {
-                Debug.Log("❌ 點到 UI，不處理播種");
-                return;
-            }
-
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            Vector3Int cellPos = tilemaps[0].WorldToCell(mouseWorldPos);
-            cellPos.z = 0;
-
-            Debug.Log($"🧭 點擊座標：{mouseWorldPos} 對應 cell: {cellPos}");
-
-            // 🔍 嘗試從多層 tilemap 找出有 tile 的那一層
-            Tilemap targetTilemap = null;
-            foreach (var tilemap in tilemaps)
-            {
-                if (tilemap.HasTile(cellPos))
-                {
-                    targetTilemap = tilemap;
-                    Debug.Log($"✅ 播種目標 tilemap 為：{tilemap.name}");
-                    break;
-                }
-            }
-
-            if (targetTilemap == null)
-            {
-                Debug.Log("❌ 所有 tilemap 都沒有該格子，不播種");
-                return;
-            }
-
-            // 🌱 準備播種
-            string seedId = DragItemData.draggingItemId;
-            if (string.IsNullOrEmpty(seedId))
-            {
-                Debug.Log("⚠️ 沒有拖曳中的種子");
-                return;
-            }
-
-            Debug.Log($"🌱 準備播種種子 ID：{seedId}");
-
-            Vector3 cellCenter = targetTilemap.GetCellCenterWorld(cellPos);
-            // 🧩 嘗試從 cellCenter 取得 LandTile（注意需有 Collider2D）
-            Collider2D hit = Physics2D.OverlapPoint(cellCenter);
-            LandTile tile = hit?.GetComponent<LandTile>();
-
-            if (tile == null)
-            {
-                Debug.LogWarning("❌ 找不到 LandTile，無法完成播種！");
-                return;
-            }
-
-            // 🌱 實例化 Crop（預期是 SeedlingPrefab）
-            GameObject crop = Instantiate(cropPrefab, cellCenter, Quaternion.identity);
-
-            var seedling = crop.GetComponent<CropSeedling>();
-            if (seedling == null)
-            {
-                Debug.LogError("❌ cropPrefab 上沒有 CropSeedling 腳本，請確認掛載正確");
-            }
-            else
-            {
-                seedling.SetCrop(seedId, tile); // ✅ 傳入 seedId 與該地 tile
-                Debug.Log("✅ 已設置 CropSeedling 圖示");
-            }
-
-            // 清除拖曳圖示與狀態
-            DragItemData.draggingItemId = null;
-            if (DragItemIcon.Instance != null)
-            {
-                DragItemIcon.Instance.Hide();
-                Debug.Log("🧼 已隱藏拖曳圖示");
-            }
-
-            if (InventoryManager.Instance != null)
-            {
-                InventoryManager.Instance.ClearDraggingItem();
-                Debug.Log("🧹 已清除 Inventory 拖曳狀態");
+                targetTilemap = tilemap;
+                Debug.Log($"✅ 播種目標 tilemap 為：{tilemap.name}");
+                break;
             }
         }
+
+        if (targetTilemap == null)
+        {
+            Debug.Log("❌ 所有 tilemap 都沒有該格子，不播種");
+            return;
+        }
+
+        // 取得地格中心，然後找地上是否有 LandTile 物件
+        Vector3 cellCenter = targetTilemap.GetCellCenterWorld(cellPos);
+        Collider2D hit = Physics2D.OverlapPoint(cellCenter);
+        LandTile tile = hit?.GetComponent<LandTile>();
+
+        if (tile == null)
+        {
+            Debug.LogWarning("❌ 找不到 LandTile，無法完成操作！");
+            return;
+        }
+
+        // 若該地已有作物 → 顯示資訊
+        if (tile.HasCrop())
+        {
+            Debug.Log("🌾 該地已有作物，顯示作物資訊");
+            if (CropInfoPanelManager.Instance == null)
+            {
+                Debug.LogError("❌ CropInfoPanelManager.Instance 是 null，請檢查單例初始化或物件是否存在");
+                return;
+            }
+            if (tile.plantedCrop == null)
+            {
+                Debug.LogWarning("❌ tile.plantedCrop 是 null");
+                return;
+            }
+            CropInfoPanelManager.Instance.ShowPanel(tile.plantedCrop);
+            return;
+        }
+
+
+        // 如果尚未鋤地，點一下自動鋤地，不播種
+        if (!tile.isTilled)
+        {
+            Debug.Log("🪓 尚未鋤地，自動鋤地中...");
+            tile.Till();
+            return;
+        }
+
+        // 播種流程開始
+        string seedId = DragItemData.draggingItemId;
+        if (string.IsNullOrEmpty(seedId))
+        {
+            Debug.Log("⚠️ 沒有拖曳中的種子");
+            return;
+        }
+
+        Debug.Log($"🌱 播種種子 ID：{seedId}");
+
+        // 從資料庫取得作物資訊
+        CropInfo info = CropDatabase.GetCropBySeedId(seedId);
+        if (info == null)
+        {
+            Debug.LogWarning($"❌ 無法從資料庫取得作物資訊：{seedId}");
+            return;
+        }
+
+        // 在 tile 位置生成 Seedling，並設定資料
+        GameObject seedling = Instantiate(seedlingPrefab, cellCenter, Quaternion.identity, tile.transform);
+        var seedlingScript = seedling.GetComponent<CropSeedling>();
+
+        if (seedlingScript == null)
+        {
+            Debug.LogError("❌ SeedlingPrefab 上沒有 CropSeedling 腳本！");
+        }
+        else
+        {
+            seedlingScript.SetCrop(seedId, tile);
+            Debug.Log("✅ 已設置 CropSeedling");
+        }
+
+        // 清除拖曳狀態
+        DragItemData.draggingItemId = null;
+        DragItemIcon.Instance?.Hide();
+        InventoryManager.Instance?.ClearDraggingItem();
     }
 }
-
-

@@ -268,8 +268,10 @@ public class Crop : MonoBehaviour
                 wallet.Earn(10);
         }
 
-        Destroy(gameObject);
+        // ✅ 呼叫 tile 來負責銷毀與重設
+        landTile?.Harvest();
     }
+
 
     public void WaterCrop()
     {

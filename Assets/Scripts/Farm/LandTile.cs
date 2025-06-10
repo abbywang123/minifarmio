@@ -68,18 +68,25 @@ public class LandTile : MonoBehaviour
         plantedCrop.Init(info, this);
     }
 
+    public void Harvest()
+    {
+        if (plantedCrop != null)
+        {
+            Destroy(plantedCrop.gameObject);
+            plantedCrop = null;
+        }
+
+        isTilled = false;
+        soilSr.sprite = soilNormal;
+    }
+
     void OnMouseDown()
     {
         if (plantedCrop != null)
         {
-            CropInfoPanel.Instance.Show(plantedCrop);
+        
+            CropInfoPanelManager.Instance.ShowPanel(plantedCrop);
+
         }
-    }
-    public void Harvest()
-    {
-        Destroy(plantedCrop.gameObject);
-        plantedCrop = null;
-        isTilled = false;
-        soilSr.sprite = soilNormal;
     }
 }
